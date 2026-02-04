@@ -19,7 +19,7 @@ export function Hero() {
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="text-center max-w-5xl mx-auto mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-brand text-xs font-bold uppercase tracking-widest mb-8 animate-fade-in animate-slide-up hover:bg-white/10 transition-colors cursor-default">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border text-brand text-xs font-bold uppercase tracking-widest mb-8 animate-fade-in animate-slide-up hover:bg-white/10 border-brand/40 transition-colors cursor-default">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>
@@ -49,12 +49,6 @@ export function Hero() {
               <ArrowRight size={20} className="relative group-hover:translate-x-1 transition-transform" />
             </Link>
             
-            <button className="w-full sm:w-auto px-10 py-5 bg-white/5 text-white font-bold rounded-2xl text-lg border border-white/10 hover:bg-white/10 transition-all flex items-center justify-center gap-3 backdrop-blur-md">
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                 <div className="w-0 h-0 border-t-[5px] border-t-transparent border-l-8 border-l-white border-b-[5px] border-b-transparent ml-1"></div>
-              </span>
-              Watch Demo
-            </button>
           </div>
         </div>
 
