@@ -26,6 +26,7 @@ export default function LoginPage() {
     const {name, value} = e.target;
     setLoginData({...loginData, [name]: value});
   }
+  
   return (
     <div className="min-h-screen w-full flex bg-bg-dark-0 text-white selection:bg-indigo-500/30">
       
