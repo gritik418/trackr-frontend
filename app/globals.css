@@ -8,14 +8,45 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-jakarta);
   --font-mono: var(--font-geist-mono);
+
+  /* Brand Colors */
+  --color-brand-cyan: #00f2ff;
+  --color-brand-cyan-hover: #00d8e6;
+
+  /* Background Depths */
+  --color-bg-dark-0: #050505;
+  --color-bg-dark-1: #080808;
+  --color-bg-dark-2: #0A0A0A;
+
+  /* Social Colors */
+  --color-google-blue: #4285F4;
+  --color-google-green: #34A853;
+  --color-google-yellow: #FBBC05;
+  --color-google-red: #EA4335;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+  }
+}
+
+@layer utilities {
+  @keyframes slow-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .animate-slow-spin {
+    animation: slow-spin 20s linear infinite;
   }
 }
 
