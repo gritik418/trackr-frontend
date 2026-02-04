@@ -20,7 +20,7 @@ export function Logo({ className, size = 40, showText = true, href = "/" }: Logo
           className="absolute inset-0 rounded-xl bg-brand-cyan/20 blur-md group-hover:blur-lg transition-all" 
           style={{ width: size, height: size }}
         />
-        <div className="relative rounded-xl overflow-hidden shadow-2xl shadow-brand-cyan/20 border border-white/10 group-hover:scale-105 transition-transform duration-300">
+        <div className="relative rounded-[30%] overflow-hidden shadow-2xl shadow-brand-cyan/20 border border-white/10 group-hover:scale-105 transition-transform duration-300">
           <Image 
             src="/logo.jpeg" 
             alt={APP_CONFIG.NAME} 
