@@ -1,5 +1,5 @@
-import { OrgSidebar } from "@/components/org/OrgSidebar";
 import { OrgHeader } from "@/components/org/OrgHeader";
+import { OrgSidebar } from "@/components/org/OrgSidebar";
 
 export default async function OrgAdminLayout({
   children,

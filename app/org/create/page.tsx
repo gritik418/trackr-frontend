@@ -60,7 +60,7 @@ useEffect(() => {
       {/* Left Panel: Content & Context (Hidden on mobile) */}
       <div className="hidden lg:flex w-5/12 bg-bg-dark-1 border-r border-white/5 relative flex-col p-12 justify-between overflow-hidden">
         {/* Abstract Background Elements */}
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/5 via-bg-dark-1 to-bg-dark-1 opacity-100 pointer-events-none"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-linear(circle_at_top_right,var(--tw-linear-stops))] from-white/5 via-bg-dark-1 to-bg-dark-1 opacity-100 pointer-events-none"></div>
         <div className="absolute bottom-[-20%] right-[-20%] w-[600px] h-[600px] bg-brand/5 blur-[120px] rounded-full pointer-events-none"></div>
 
         <div className="relative z-10">
@@ -73,7 +73,7 @@ useEffect(() => {
               Organization Setup
             </div>
           <h2 className="text-4xl font-bold mb-6 text-white tracking-tight leading-tight">
-            Create a home for your <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand to-brand-secondary">team's best work.</span>
+            Create a home for your <span className="text-transparent bg-clip-text bg-linear-to-r from-brand to-brand-secondary">team's best work.</span>
           </h2>
           <p className="text-lg text-neutral-400 leading-relaxed mb-10">
             Establish your organization to manage dedicated workspaces, members, and billing in one centralized hub.
@@ -115,7 +115,7 @@ useEffect(() => {
       {/* Right Panel: Form */}
       <div className="w-full lg:w-7/12 flex items-center justify-center p-6 lg:p-24 relative overflow-y-auto">
          {/* Background Decor */}
-         <div className="absolute top-0 right-0 w-full h-[500px] bg-gradient-to-b from-brand/5 to-transparent opacity-20 pointer-events-none"></div>
+         <div className="absolute top-0 right-0 w-full h-[500px] bg-linear-to-b from-brand/5 to-transparent opacity-20 pointer-events-none"></div>
 
         <div className="w-full max-w-lg space-y-10 relative z-10">
           
@@ -317,7 +317,7 @@ useEffect(() => {
               <button 
                 type="submit" 
                 disabled={isSubmitting}
-                className="flex-[2] py-4 px-6 bg-gradient-to-r from-brand to-brand-hover text-bg-dark-0 font-bold rounded-2xl shadow-lg shadow-brand/20 hover:shadow-brand/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="flex-[2] py-4 px-6 bg-linear-to-r from-brand to-brand-hover text-bg-dark-0 font-bold rounded-2xl shadow-lg shadow-brand/20 hover:shadow-brand/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {isSubmitting ? 'Configuring Organization...' : (
                   <>

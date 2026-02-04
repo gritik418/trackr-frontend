@@ -1,16 +1,15 @@
-import { 
-  Users, 
-  Building2, 
-  CreditCard, 
-  ArrowUpRight, 
-  Plus, 
-  UserPlus, 
+import {
   Activity,
+  ArrowUpRight,
+  Building2,
+  CreditCard,
+  Plus,
+  Settings,
   ShieldCheck,
-  Settings
+  UserPlus,
+  Users
 } from 'lucide-react';
 import Link from 'next/link';
-import { Logo } from '@/components/ui/Logo';
 
 export default async function OrgDashboardPage({
 params,

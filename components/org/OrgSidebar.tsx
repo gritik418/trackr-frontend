@@ -1,15 +1,18 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import {
-  Settings,
-  Users,
   Building2,
   CreditCard,
-  LogOut,
-  ShieldAlert
+  Settings,
+  ShieldAlert,
+  Users
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { BsBack } from 'react-icons/bs';
+import { CgOrganisation } from 'react-icons/cg';
+import { IoChevronBackOutline } from 'react-icons/io5';
+import { SiAwsorganizations } from 'react-icons/si';
 
 const getNavigation = (slug: string) => [
   { name: 'General Settings', href: `/org/${slug}/settings`, icon: Settings },
@@ -62,9 +65,9 @@ export function OrgSidebar({ slug }: { slug: string }) {
 
         {/* Bottom Actions */}
         <div className="p-4 mt-auto border-t border-white/5 space-y-2">
-           <Link href="/dashboard" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white hover:bg-white/5 transition-all">
-            <LogOut size={20} className="rotate-180" />
-            Return to Workspace
+           <Link href="/org" className="w-full flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white hover:bg-white/5 transition-all">
+            <IoChevronBackOutline size={18}  />
+            Return to Control Deck
           </Link>
         </div>
       </div>
