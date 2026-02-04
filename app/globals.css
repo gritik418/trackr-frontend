@@ -11,9 +11,28 @@
   --font-sans: var(--font-jakarta);
   --font-mono: var(--font-geist-mono);
 
-  /* Brand Colors */
-  --color-brand-cyan: #00f2ff;
-  --color-brand-cyan-hover: #00d8e6;
+  /* Brand Primary Colors */
+  --color-brand-primary: #00d8e6;
+  --color-brand-primary-hover: #00c4d1;
+  --color-brand-primary-glow: rgba(0, 216, 230, 0.3);
+  --color-brand-primary-muted: rgba(0, 216, 230, 0.1);
+
+  /* Brand Aliases */
+  --color-brand: var(--color-brand-primary);
+  --color-brand-hover: var(--color-brand-primary-hover);
+
+  /* Icon Colors */
+  --color-icon-default: rgb(115, 115, 115);
+  --color-icon-hover: rgb(255, 255, 255);
+  --color-icon-active: var(--color-brand);
+  --color-icon-muted: rgb(82, 82, 82);
+
+  /* Input Field Colors */
+  --color-input-border: rgba(255, 255, 255, 0.1);
+  --color-input-border-hover: rgba(255, 255, 255, 0.2);
+  --color-input-bg: #0A0A0A;
+  --color-input-text: rgb(255, 255, 255);
+  --color-input-placeholder: rgb(115, 115, 115);
 
   /* Background Depths */
   --color-bg-dark-0: #050505;
@@ -45,8 +64,70 @@
     100% { background-position: -200% 0; }
   }
 
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slide-in-bottom {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes slide-in-top {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
   .animate-slow-spin {
     animation: slow-spin 20s linear infinite;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slide-in-bottom 0.7s ease-out forwards;
+  }
+
+  .animate-slide-down {
+    animation: slide-in-top 0.7s ease-out forwards;
+  }
+
+  /* Input field wrapper styles */
+  .input-field-wrapper {
+    position: relative;
+    border-radius: 0.75rem !important;
+    padding: 1px;
+    background: var(--color-input-border);
+    transition: all 0.3s;
+  }
+
+  .input-field-wrapper:hover {
+    background: var(--color-input-border-hover);
+  }
+
+  .input-field-focused {
+    position: relative;
+    border-radius: 0.75rem !important;
+    padding: 1px;
+    background: linear-gradient(to right, var(--color-brand), rgb(99, 102, 241), var(--color-brand));
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* Icon color utilities */
+  .icon-default {
+    color: var(--color-icon-default);
+  }
+
+  .icon-active {
+    color: var(--color-icon-active);
+  }
+
+  .icon-hover:hover {
+    color: var(--color-icon-hover);
   }
 }
 
