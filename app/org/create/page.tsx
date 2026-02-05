@@ -1,23 +1,23 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import Link from 'next/link';
-import { useForm } from 'react-hook-form';
+import { Logo } from '@/components/ui/Logo';
+import createOrganizationSchema from '@/lib/validations/organization/create-organization.schema';
+import { CreateOrganizationDto } from '@/types/organization/organization.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { 
-  Building2, 
-  Globe, 
-  Link as LinkIcon, 
-  AlertCircle, 
-  CheckCircle2, 
+import clsx from 'clsx';
+import {
+  AlertCircle,
+  Building2,
+  CheckCircle2,
   ChevronRight,
+  Globe,
   Layout,
+  Link as LinkIcon,
   Type
 } from 'lucide-react';
-import clsx from 'clsx';
-import { Logo } from '@/components/ui/Logo';
-import { CreateOrganizationDto } from '@/types/organization/organization.interface';
-import createOrganizationSchema from '@/lib/validations/organization/create-organization.schema';
+import Link from 'next/link';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 
 export default function CreateOrgPage() {
   const {
@@ -317,7 +317,7 @@ useEffect(() => {
               <button 
                 type="submit" 
                 disabled={isSubmitting}
-                className="flex-[2] py-4 px-6 bg-linear-to-r from-brand to-brand-hover text-bg-dark-0 font-bold rounded-2xl shadow-lg shadow-brand/20 hover:shadow-brand/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="flex-2 py-4 px-6 bg-linear-to-r from-brand to-brand-hover text-bg-dark-0 font-bold rounded-2xl shadow-lg shadow-brand/20 hover:shadow-brand/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {isSubmitting ? 'Configuring Organization...' : (
                   <>

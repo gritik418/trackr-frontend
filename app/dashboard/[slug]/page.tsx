@@ -70,7 +70,7 @@ const WorkspaceDashboardPage=() => {
                      </div>
 
                      {/* Avatar */}
-                     <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-brand to-blue-600 p-[1px]">
+                     <div className="w-7 h-7 rounded-full bg-linear-to-tr from-brand to-blue-600 p-px">
                         <div className="w-full h-full rounded-full bg-dashboard-card-bg flex items-center justify-center">
                             <span className="text-[10px] font-bold text-white">RG</span>
                         </div>
