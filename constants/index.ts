@@ -6,3 +6,4 @@ export const APP_CONFIG = {
 };
 
 export const APP_DOMAIN = 'trackr.so';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
