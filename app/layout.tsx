@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import QueryClientProviderComponent from "@/providers/QueryClientProviderComponent";
 import { AuthProvider } from "@/providers/AuthProvider";
+import ReduxProvider from "@/providers/ReduxProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -32,9 +33,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>       
     <QueryClientProviderComponent>
+      <ReduxProvider>
+
 <AuthProvider>
         {children}
 </AuthProvider>
+      </ReduxProvider>
           <Toaster />
     </QueryClientProviderComponent>
       </body>
