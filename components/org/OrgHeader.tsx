@@ -2,12 +2,16 @@
 
 import { Bell } from 'lucide-react';
 import { ProfileMenu } from './ProfileMenu';
+import { usePathname } from 'next/navigation';
+import { FaUser } from 'react-icons/fa';
 
 export function OrgHeader() {
+  const pathname = usePathname()
+
   return (
     <header className="h-16 border-b border-white/5 bg-bg-dark-1/50 backdrop-blur-xl sticky top-0 z-40 px-6 flex items-center justify-between">
       <div className="flex items-center gap-4">
-        <h1 className="text-sm font-medium text-neutral-400">Organization Dashboard</h1>
+       { pathname.startsWith("/account") ? <FaUser/>: <h1 className="text-sm font-medium text-neutral-400">Organization Dashboard</h1>}
       </div>
 
       <div className="flex items-center gap-4">

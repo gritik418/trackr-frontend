@@ -2,10 +2,12 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { User, Settings, CreditCard, ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { usePathname, useRouter } from 'next/navigation';
+import { User, Settings, CreditCard, ChevronRight, ChevronLeft } from 'lucide-react';
+import { cn, resolveRedirectPath } from '@/lib/utils';
 import { OrgHeader } from '@/components/org/OrgHeader';
+import { FaChevronLeft } from 'react-icons/fa6';
+import { useUser } from '@/providers/AuthProvider';
 
 interface AccountLayoutProps {
   children: React.ReactNode;
@@ -13,12 +15,20 @@ interface AccountLayoutProps {
 
 export default function AccountLayout({ children }: AccountLayoutProps) {
   const pathname = usePathname();
+  const { user } = useUser();
+  const router = useRouter();
 
   const navItems = [
     { label: 'Profile', href: '/account', icon: User },
     { label: 'Settings', href: '/account/settings', icon: Settings },
     { label: 'Billing', href: '/account/billing', icon: CreditCard },
   ];
+
+  const handleBackToDashboard = () => {
+    if(user){
+      router.push(resolveRedirectPath(user))
+    }
+  }
 
   return (
     <div className="min-h-screen bg-bg-dark-0 text-white flex flex-col">
@@ -27,7 +37,7 @@ export default function AccountLayout({ children }: AccountLayoutProps) {
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar */}
         <aside className="w-64 border-r border-white/5 bg-bg-dark-1/30 hidden md:flex flex-col p-6">
-          <div className="space-y-1">
+          <div className="space-y-2 flex flex-col">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
@@ -56,7 +66,7 @@ export default function AccountLayout({ children }: AccountLayoutProps) {
             })}
           </div>
 
-          <div className="mt-auto pt-8">
+          <div className="mt-auto pt-8 flex flex-col gap-4">
             <div className="p-4 rounded-2xl bg-linear-to-br from-brand/10 to-transparent border border-white/5">
               <h4 className="text-xs font-bold text-brand uppercase tracking-widest mb-2">Pro Plan</h4>
               <p className="text-xs text-neutral-500 leading-relaxed mb-3">Upgrade for more projects and advanced features.</p>
@@ -64,6 +74,10 @@ export default function AccountLayout({ children }: AccountLayoutProps) {
                 Upgrade Now
               </button>
             </div>
+
+            <button onClick={handleBackToDashboard} className="w-full flex items-center justify-center gap-2 py-2 cursor-pointer bg-white/5 text-white text-sm font-bold rounded-lg hover:scale-105 transition-all">
+             <FaChevronLeft size={12} /> Back to Dashboard
+            </button>
           </div>
         </aside>
 

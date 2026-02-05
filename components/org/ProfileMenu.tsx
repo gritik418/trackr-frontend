@@ -57,7 +57,11 @@ export function ProfileMenu() {
       >
         <div className="w-9 h-9 rounded-full bg-linear-to-tr from-brand to-brand-secondary p-[2px] ring-2 ring-transparent group-hover:ring-brand/20 transition-all">
           <div className="w-full h-full rounded-full bg-bg-dark-1 flex items-center justify-center overflow-hidden">
-             <span className="font-bold text-xs text-white tracking-tighter">{getInitials(user?.name)}</span>
+             {user?.avatarUrl ? (
+               <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+             ) : (
+               <span className="font-bold text-xs text-white tracking-tighter">{getInitials(user?.name)}</span>
+             )}
           </div>
         </div>
         
