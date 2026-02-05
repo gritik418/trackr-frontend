@@ -44,6 +44,20 @@
   --color-google-green: #34A853;
   --color-google-yellow: #FBBC05;
   --color-google-red: #EA4335;
+
+  /* Dashboard Theme */
+  --color-dashboard-bg: #050505;
+  --color-dashboard-sidebar-bg: #09090b;
+  --color-dashboard-header-bg: rgba(5, 5, 5, 0.8);
+  --color-dashboard-border: rgba(255, 255, 255, 0.06);
+  --color-dashboard-border-hover: rgba(255, 255, 255, 0.12);
+  --color-dashboard-card-bg: #0E0E10;
+  
+  --color-dashboard-item-bg: rgba(255, 255, 255, 0.02);
+  --color-dashboard-item-bg-hover: rgba(255, 255, 255, 0.05);
+  --color-dashboard-item-text: #a1a1aa;
+  --color-dashboard-item-text-active: #ffffff;
+  --color-dashboard-item-icon-active: var(--color-brand);
 }
 
 @media (prefers-color-scheme: dark) {
