@@ -1,14 +1,24 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Menu, X, ArrowRight } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
+import { resolveRedirectPath } from '@/lib/utils';
+import { useUser } from '@/providers/AuthProvider';
+import { ArrowRight, Menu, X } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('');
+  const {isLoading, isAuthenticated,user } = useUser();
+  const router = useRouter();
+
+  const handleRedirect = () => {
+    if(user){
+      router.push(resolveRedirectPath(user));
+    }
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,24 +58,33 @@ export function Navbar() {
           ))}
         </div>
 
-        <div className="hidden md:flex items-center gap-3">
+        {(!isLoading && !isAuthenticated) ? <div className="hidden md:flex items-center gap-3">
           <Link 
             href="/login" 
-            className="relative text-sm font-semibold text-white px-5 py-2.5 rounded-xl hover:bg-white/5 transition-all overflow-hidden group"
+            className="relative cursor-pointer text-sm font-semibold text-white px-5 py-2.5 rounded-xl hover:bg-white/5 transition-all overflow-hidden group"
           >
             <span className="relative z-10">Log in</span>
             <div className="absolute inset-0 bg-white/5 scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-xl" />
           </Link>
+          
           <Link 
             href="/signup" 
-            className="relative text-sm font-bold text-bg-dark-0 bg-brand px-6 py-2.5 rounded-xl shadow-lg shadow-brand/20 hover:shadow-brand/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 overflow-hidden group"
+            className="relative cursor-pointer text-sm font-bold text-bg-dark-0 bg-brand px-6 py-2.5 rounded-xl shadow-lg shadow-brand/20 hover:shadow-brand/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 overflow-hidden group"
           >
             {/* Shimmer effect */}
             <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/20 to-transparent" />
             <span className="relative z-10">Get Started</span>
             <ArrowRight size={16} className="relative z-10 transition-transform group-hover:translate-x-0.5" />
           </Link>
-        </div>
+        </div>:
+        <button 
+            onClick={handleRedirect} 
+            className="relative cursor-pointer text-sm font-bold text-bg-dark-0 bg-brand px-6 py-2.5 rounded-xl shadow-lg shadow-brand/20 hover:shadow-brand/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 overflow-hidden group"
+          >
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/20 to-transparent" />
+            <span className="relative z-10">Dashboard</span>
+          </button> }
 
         {/* Mobile Menu Button */}
         <button 

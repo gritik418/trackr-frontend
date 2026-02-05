@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import QueryClientProviderComponent from "@/providers/QueryClientProviderComponent";
+import { AuthProvider } from "@/providers/AuthProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -31,8 +32,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>       
     <QueryClientProviderComponent>
+<AuthProvider>
 
         {children}
+</AuthProvider>
           <Toaster />
     </QueryClientProviderComponent>
       </body>
