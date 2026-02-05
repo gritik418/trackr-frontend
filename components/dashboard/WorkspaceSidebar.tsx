@@ -6,6 +6,7 @@ import {
   CheckSquare,
   ChevronDown,
   Folder,
+  FolderOpenDot,
   LayoutDashboard,
   Plus,
   Settings,
@@ -32,6 +33,7 @@ export function WorkspaceSidebar({
 
   const navItems = [
     { name: 'Overview', href: baseUrl, icon: LayoutDashboard },
+    { name: 'Projects', href: `${baseUrl}/projects`, icon: FolderOpenDot },
     { name: 'My Tasks', href: `${baseUrl}/tasks`, icon: CheckSquare },
     { name: 'Members', href: `${baseUrl}/members`, icon: Users },
     { name: 'Activity', href: `${baseUrl}/activity`, icon: Activity },
@@ -71,9 +73,9 @@ export function WorkspaceSidebar({
         </div>
 
         {/* Workspace Switcher */}
-        <div className="w-full mt-6 items-center justify-center flex shrink-0">
+        <div className={cn("w-full mt-6 items-center justify-center flex shrink-0", isExpanded ? "py-2" : "justify-self-end ml-auto w-fit rounded-tl-xl rounded-bl-xl p-2 border-white/20 bg-white/15")}>
           <button className={cn(
-             "w-fit flex items-center py-2 gap-3 rounded-xl border border-dashboard-border bg-dashboard-item-bg hover:bg-dashboard-item-bg-hover transition-colors group text-left", isExpanded ? "min-w-[90%] p-2" : "w-fit"
+             "w-fit flex items-center gap-3 rounded-xl border border-dashboard-border bg-dashboard-item-bg hover:bg-dashboard-item-bg-hover transition-colors group text-left", isExpanded ? "min-w-[90%] p-2" : "py-2 border-0 w-fit"
            )}>
             {/* Icon / Avatar */}
             <div className="w-10 h-10 rounded-2xl bg-white to-blue-500/20 border border-white/10 flex items-center justify-center shrink-0">
