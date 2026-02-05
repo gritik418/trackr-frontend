@@ -1,6 +1,7 @@
 'use client';
 
 import { Bell } from 'lucide-react';
+import { ProfileMenu } from './ProfileMenu';
 
 export function OrgHeader() {
   return (
@@ -13,7 +14,7 @@ export function OrgHeader() {
         <button className="w-8 h-8 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-white/5 transition-colors">
           <Bell size={18} />
         </button>
-        <div className="w-8 h-8 rounded-full bg-linear-to-tr from-brand to-brand-secondary border border-white/10"></div>
+        <ProfileMenu />
       </div>
     </header>
   );

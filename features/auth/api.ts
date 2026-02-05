@@ -33,6 +33,11 @@ export const forgotPassword = async (data: ForgotPasswordDto) => {
         return response.data;
 }
 
+export const logout = async () => {
+    const response = await api.post('/auth/logout');
+    return response.data;
+}
+
 export const getMe = async () => {
     const response = await api.get('/user/me');
     return response.data;

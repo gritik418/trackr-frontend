@@ -8,13 +8,35 @@ import {
   LogOut, 
   ChevronDown,
   CreditCard,
-  Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUser } from '@/providers/AuthProvider';
+import { logout } from '@/features/auth/api';
+import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 export function ProfileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { user } = useUser();
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  const getInitials = (name: string) => {
+    return name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '??';
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      toast.success('Logged out successfully');
+      router.push('/login');
+    } catch (error) {
+      toast.error('Failed to log out');
+    }
+  };
 
   // Close when clicking outside
   useEffect(() => {
@@ -33,17 +55,15 @@ export function ProfileMenu() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-3 p-1.5 pr-3 rounded-full hover:bg-white/5 transition-colors group outline-none"
       >
-        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-brand-cyan to-blue-500 p-[2px] ring-2 ring-transparent group-hover:ring-brand-cyan/20 transition-all">
+        <div className="w-9 h-9 rounded-full bg-linear-to-tr from-brand to-brand-secondary p-[2px] ring-2 ring-transparent group-hover:ring-brand/20 transition-all">
           <div className="w-full h-full rounded-full bg-bg-dark-1 flex items-center justify-center overflow-hidden">
-             {/* Placeholder Avatar */}
-             <span className="font-bold text-sm text-white">JD</span>
-             {/* <img src="..." alt="User" /> */}
+             <span className="font-bold text-xs text-white tracking-tighter">{getInitials(user?.name)}</span>
           </div>
         </div>
         
-        <div className="text-left hidden sm:block">
-            <p className="text-sm font-semibold text-white leading-none">John Doe</p>
-            <p className="text-[11px] text-neutral-400 leading-none mt-1">john@example.com</p>
+        <div className="text-left hidden lg:block">
+            <p className="text-sm font-semibold text-white leading-none">{user?.name}</p>
+            <p className="text-[11px] text-neutral-500 leading-none mt-1 truncate max-w-[120px]">{user?.email}</p>
         </div>
 
         <ChevronDown 
@@ -57,12 +77,12 @@ export function ProfileMenu() {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-64 bg-[#0A0A0B] border border-white/[0.08] rounded-2xl shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute right-0 top-full mt-2 w-64 bg-[#0A0A0B] border border-white/10 rounded-2xl shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
            
-           {/* Section 1: User Info (Mobile only typically, but good for context) */}
-           <div className="px-4 py-3 border-b border-white/5 sm:hidden">
-              <p className="text-sm font-semibold text-white">John Doe</p>
-              <p className="text-xs text-neutral-400">john@example.com</p>
+           {/* Section 1: User Info (Mobile only) */}
+           <div className="px-4 py-3 border-b border-white/5 lg:hidden">
+              <p className="text-sm font-semibold text-white">{user?.name}</p>
+              <p className="text-xs text-neutral-400">{user?.email}</p>
            </div>
 
            {/* Section 2: Account Links */}
@@ -92,16 +112,16 @@ export function ProfileMenu() {
 
            <div className="my-1 border-t border-white/5 mx-2" />
 
-           {/* Section 3: Danger/Logout */}
-           <div className="p-1.5">
-              <button 
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-colors font-medium"
-                onClick={() => console.log('Logout')}
-              >
-                  <LogOut size={16} />
-                  Log Out
-              </button>
-           </div>
+            {/* Section 3: Logout */}
+            <div className="p-1.5">
+               <button 
+                 onClick={handleLogout}
+                 className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-red-500 hover:bg-red-500/10 transition-colors font-medium group"
+               >
+                   <LogOut size={16} className="text-red-500/70 group-hover:text-red-500 transition-colors" />
+                   Log Out
+               </button>
+            </div>
         </div>
       )}
     </div>
