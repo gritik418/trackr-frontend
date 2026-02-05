@@ -78,7 +78,7 @@ export default function NoWorkspacesPage() {
                 >
                   <Plus size={20} strokeWidth={2.5} />
                   <span>Create workspace</span>
-                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
+                  <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
                 </button>
                 
                 <button 

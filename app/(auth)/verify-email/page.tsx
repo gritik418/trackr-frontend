@@ -1,26 +1,46 @@
 'use client';
 
 import { Logo } from '@/components/ui/Logo';
+import { emailVerification } from '@/features/auth/api';
+import emailVerificationSchema from '@/lib/validations/auth/email-verification.schema';
+import { EmailVerificationDto } from '@/types/auth/email-verification.interface';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, ChevronRight, Mail, RefreshCcw, ShieldCheck, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 
 export default function VerifyEmailPage() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [email, setEmail] = useState<string>('');
   const [activeInput, setActiveInput] = useState(0);
   const [timer, setTimer] = useState(30);
-  const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
+
+  const {
+    handleSubmit,
+    setError,
+  setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<EmailVerificationDto>({
+    resolver: zodResolver(emailVerificationSchema),
+    defaultValues: {
+      email,
+      otp: otp.join('')
+    }
+  });
 
   useEffect(() => {
     const pendingEmail = localStorage.getItem('pending_email');
     if (pendingEmail) {
       setEmail(pendingEmail);
+      setValue('email', pendingEmail);
+    }else{
+      router.push('/signup');
     }
   }, []);
 
@@ -40,7 +60,8 @@ export default function VerifyEmailPage() {
     const newOtp = [...otp];
     newOtp[index] = value.slice(-1);
     setOtp(newOtp);
-    setError(null);
+    setValue('otp', newOtp.join(''));
+    setError('otp', { message: '' });
 
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
@@ -65,8 +86,8 @@ export default function VerifyEmailPage() {
       newOtp[i] = char;
     });
     setOtp(newOtp);
-    setError(null);
-
+    setValue('otp', newOtp.join(''));
+  
     const nextIndex = Math.min(pastedData.length, 5);
     inputRefs.current[nextIndex]?.focus();
     setActiveInput(nextIndex);
@@ -82,30 +103,30 @@ export default function VerifyEmailPage() {
     }, 1500);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const code = otp.join('');
-    if (code.length < 6) {
-      setError('Please enter the complete 6-digit code.');
-      return;
+  const onSubmit = async (data: EmailVerificationDto) => {
+ 
+    try {
+       await emailVerification(data);
+       localStorage.removeItem('pending_email');
+        toast.success("Account verified! Please log in.");
+        router.push('/login');
+    } catch (error: any) {
+        const message = error.response?.data?.message || error.message || "Failed to verify account";
+        
+        if (error.response?.data?.errors) {
+             Object.keys(error.response.data.errors).forEach((key) => {
+                setError(key as keyof EmailVerificationDto, {
+                  type: 'server',
+                  message: error.response.data.errors[key],
+                });
+             });
+        }
+        
+        toast.error(Array.isArray(message) ? message[0] : message);
     }
 
-    setIsLoading(true);
-    setError(null);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      if (code === '123456') { // Dummy success
-        router.push('/login');
-      } else {
-        setError('The code you entered is incorrect. Please try again.');
-      }
-    }, 2000);
-  };
 
-  if(!email) {
-    router.push('/signup');
-  }
+  };
 
   return (
     <div className="min-h-screen w-full flex bg-bg-dark-0 text-white selection:bg-brand/30">
@@ -183,7 +204,7 @@ export default function VerifyEmailPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between gap-3">
               {otp.map((digit, index) => (
                 <div key={index} className={`flex-1 transition-all duration-200 ${activeInput === index ? 'scale-105' : ''}`}>
@@ -206,23 +227,23 @@ export default function VerifyEmailPage() {
               ))}
             </div>
 
-            {error && (
+            {errors.otp?.message && (
               <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-3 text-red-400 text-sm animate-shake">
                 <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-red-500" />
-                {error}
+                {errors.otp?.message}
               </div>
             )}
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isSubmitting}
               className="w-full group cursor-pointer relative overflow-hidden rounded-xl bg-brand px-4 py-4 text-sm font-semibold text-bg-dark-0 shadow-lg shadow-brand/20 transition-all hover:bg-brand-hover hover:shadow-brand/40 active:scale-[0.98] outline-none focus:ring-2 focus:ring-brand/50 focus:ring-offset-2 focus:ring-offset-bg-dark-0"
             >
               {/* Shine effect */}
               <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/20 to-transparent z-10" />
               
               <div className="relative flex items-center justify-center gap-2">
-                {isLoading ? (
+                {isSubmitting ? (
                   <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : (
                   <>
