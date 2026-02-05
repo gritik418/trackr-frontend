@@ -11,10 +11,10 @@ const signupSchema = z.object({
     .regex(/[a-z]/, 'One lowercase letter required')
     .regex(/[0-9]/, 'One number required')
     .regex(/[\W_]/, 'One special character required'),
-  confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
+  passwordConfirmation: z.string()
+}).refine((data) => data.password === data.passwordConfirmation, {
   message: "Passwords don't match",
-  path: ["confirmPassword"],
+  path: ["passwordConfirmation"],
 });
 
 export default signupSchema

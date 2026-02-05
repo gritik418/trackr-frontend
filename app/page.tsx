@@ -4,18 +4,28 @@ import { Footer } from '@/components/common/Footer';
 import { Navbar } from '@/components/common/Navbar';
 import { Features } from '@/components/marketing/Features';
 import { Hero } from '@/components/marketing/Hero';
+import { resolveRedirectPath } from '@/lib/utils';
+import { useUser } from '@/providers/AuthProvider';
 import { ArrowRight, Globe, Shield, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
+  const {isAuthenticated,isLoading,user} = useUser();
+  const router = useRouter();
+  
+    const handleRedirect = () => {
+      if(user){
+        router.push(resolveRedirectPath(user));
+      }
+    }
+
   return (
     <div className="min-h-screen bg-bg-dark-0 text-white selection:bg-brand/30 overflow-x-hidden animate-fade-in">
       <Navbar />
       
       <main>
         <Hero />
-
-
 
         {/* Bento Grid Proof Section */}
         <section className="py-32 relative">
@@ -105,13 +115,16 @@ export default function HomePage() {
             <p className="text-xl text-neutral-400 mb-12 font-medium">
               Join thousands of high-performance teams already using Trackr to manage their complex workflows.
             </p>
-            <Link 
+           {(!isAuthenticated && !isLoading) ? <Link 
               href="/signup" 
-              className="inline-flex items-center gap-3 px-12 py-6 bg-white text-bg-dark-0 font-bold rounded-3xl text-xl hover:bg-brand hover:scale-105 transition-all shadow-2xl"
+              className="inline-flex cursor-pointer items-center gap-3 px-12 py-6 bg-white text-bg-dark-0 font-bold rounded-3xl text-xl hover:bg-brand hover:scale-105 transition-all shadow-2xl"
             >
               Get Started for Free
               <ArrowRight size={24} />
-            </Link>
+            </Link>: 
+            <button onClick={handleRedirect} className="inline-flex cursor-pointer items-center gap-3 px-12 py-6 bg-white text-bg-dark-0 font-bold rounded-3xl text-xl hover:bg-brand hover:scale-105 transition-all shadow-2xl">
+              Go to Dashboard
+              </button>}
             <p className="mt-8 text-neutral-600 font-bold uppercase tracking-widest text-xs">
   Built for teams • Designed for real workflows
             </p>

@@ -3,8 +3,11 @@
 import Link from 'next/link';
 import { ArrowRight, Shield, Zap, Globe, Network } from 'lucide-react';
 import { APP_CONFIG } from '@/constants';
+import { useUser } from '@/providers/AuthProvider';
 
 export function Hero() {
+    const {isAuthenticated,isLoading,user} = useUser();
+
   return (
     <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden perspective-[2000px]">
       {/* Dynamic Background */}
@@ -39,7 +42,7 @@ export function Hero() {
             The workspace-first task engine built for teams who value speed, precision, and absolute clarity in every workflow.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 animate-fade-in animate-slide-up [animation-delay:300ms]">
+          { !isAuthenticated && !isLoading && <div className="flex flex-col sm:flex-row items-center justify-center gap-6 animate-fade-in animate-slide-up [animation-delay:300ms]">
             <Link 
               href="/signup" 
               className="group relative w-full sm:w-auto px-10 py-5 bg-brand text-bg-dark-0 font-bold rounded-2xl text-lg shadow-[0_0_40px_var(--color-brand)]/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 overflow-hidden"
@@ -49,7 +52,7 @@ export function Hero() {
               <ArrowRight size={20} className="relative group-hover:translate-x-1 transition-transform" />
             </Link>
             
-          </div>
+          </div>}
         </div>
 
         {/* 3D Dashboard Preview */}

@@ -7,12 +7,12 @@ export const login = async (data: LoginDto) => {
 }
 
 export const signup = async (data: SignupDto) => {
-        const response = await api.post('/auth/signup', data);
+        const response = await api.post('/auth/register', data);
         return response.data;
 }
 
 export const emailVerification = async (data: EmailVerificationDto) => {
-        const response = await api.post('/auth/email-verification', data);
+        const response = await api.post('/auth/verify-email', data);
         return response.data;
 }
 

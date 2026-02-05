@@ -37,5 +37,13 @@ export function resolveRedirectPath(user: UserPayload): string {
     return `/workspace/${workspace.id}`;
   }
 
+  if(user.organizations?.length === 0 && user.workspaces?.length === 0){
+    return '/org';
+  }
+
+  if(user.organizations && user.organizations?.length > 0 && user.workspaces?.length === 0){
+    return `/org/${user.organizations[0].id}/no-workspaces`;
+  }
+
   return '/';
 }

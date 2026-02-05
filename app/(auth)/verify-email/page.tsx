@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 export default function VerifyEmailPage() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [email, setEmail] = useState<string>('');
   const [activeInput, setActiveInput] = useState(0);
   const [timer, setTimer] = useState(30);
   const [isLoading, setIsLoading] = useState(false);
@@ -15,6 +16,13 @@ export default function VerifyEmailPage() {
   const [error, setError] = useState<string | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
+
+  useEffect(() => {
+    const pendingEmail = localStorage.getItem('pending_email');
+    if (pendingEmail) {
+      setEmail(pendingEmail);
+    }
+  }, []);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -67,7 +75,7 @@ export default function VerifyEmailPage() {
   const handleResend = async () => {
     if (timer > 0) return;
     setIsResending(true);
-    // Simulate API call
+
     setTimeout(() => {
       setIsResending(false);
       setTimer(30);
@@ -94,6 +102,10 @@ export default function VerifyEmailPage() {
       }
     }, 2000);
   };
+
+  if(!email) {
+    router.push('/signup');
+  }
 
   return (
     <div className="min-h-screen w-full flex bg-bg-dark-0 text-white selection:bg-brand/30">
@@ -165,7 +177,7 @@ export default function VerifyEmailPage() {
             </div>
             <h2 className="text-3xl font-bold tracking-tighter mb-2 bg-linear-to-r from-white to-white/60 bg-clip-text text-transparent">Check your email</h2>
             <p className="text-neutral-500 font-medium">
-              We've sent a 6-digit verification code to <span className="text-white/80 font-semibold">ritik@example.com</span>.
+              We've sent a 6-digit verification code to <span className="text-white/80 font-semibold">{email}</span>.
               <br />
               <span className="text-xs mt-2 block opacity-80">This code is valid for 10 minutes.</span>
             </p>

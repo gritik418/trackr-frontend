@@ -35,7 +35,7 @@ export default function SignupPage() {
         username: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        passwordConfirmation: ''
     }
   });
 
@@ -45,11 +45,19 @@ export default function SignupPage() {
     }
   }, [user, isAuthLoading, router]);
 
+  useEffect(() => {
+    const pendingEmail = localStorage.getItem('pending_email');
+    if (pendingEmail) {
+      router.push('/verify-email');
+    }
+  }, []);
+
   const onSubmit = async (data: SignupDto) => {
     try {
-        await signup(data);
+       await signup(data);
+       localStorage.setItem('pending_email', data.email);
         toast.success("Account created! Please log in.");
-        router.push('/login');
+        router.push('/verify-email');
     } catch (error: any) {
         const message = error.response?.data?.message || error.message || "Failed to create account";
         
@@ -227,21 +235,21 @@ export default function SignupPage() {
             </div>
 
             {/* Confirm Password */}
-            <div className={`transition-all duration-200 ${focusedField === 'confirmPassword' ? 'scale-[1.02]' : ''}`}>
+            <div className={`transition-all duration-200 ${focusedField === 'passwordConfirmation' ? 'scale-[1.02]' : ''}`}>
               <label className="text-xs font-semibold text-neutral-500 uppercase tracking-widest ml-1 mb-2 block">
                 Confirm Password
               </label>
-              <div className={focusedField === 'confirmPassword' ? 'input-field-focused' : 'input-field-wrapper'}>
+              <div className={focusedField === 'passwordConfirmation' ? 'input-field-focused' : 'input-field-wrapper'}>
                 <div className="bg-bg-dark-2 rounded-[11px] relative h-full">
                   <input
-                    {...register('confirmPassword')}
+                    {...register('passwordConfirmation')}
                     type={showConfirmPassword ? 'text' : 'password'}
                     placeholder="••••••••"
                     className="w-full pl-11 pr-12 py-3.5 bg-transparent border-none outline-none text-white placeholder:text-neutral-600 font-medium rounded-xl"
-                    onFocus={() => setFocusedField('confirmPassword')}
+                    onFocus={() => setFocusedField('passwordConfirmation')}
                     onBlur={() => setFocusedField(null)}
                   />
-                  <CheckCircle2 className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${focusedField === 'confirmPassword' ? 'icon-active' : 'icon-default'}`} size={18} />
+                  <CheckCircle2 className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${focusedField === 'passwordConfirmation' ? 'icon-active' : 'icon-default'}`} size={18} />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -252,7 +260,7 @@ export default function SignupPage() {
                   </button>
                 </div>
               </div>
-              {errors.confirmPassword && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.confirmPassword.message}</p>}
+              {errors.passwordConfirmation && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.passwordConfirmation.message}</p>}
             </div>
 
             <button
