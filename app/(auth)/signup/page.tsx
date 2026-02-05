@@ -1,38 +1,71 @@
 'use client';
 
-import { SignupDto } from '@/types/auth/signup.interface';
-import { BarChart3, CheckCircle2, ChevronRight, Eye, EyeOff, Lock, Mail, ShieldCheck, User, Zap } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import React, { useState } from 'react';
-import { APP_CONFIG } from '@/constants';
 import { Logo } from '@/components/ui/Logo';
-
-
-type SignupErrors = Partial<SignupDto>
+import { APP_CONFIG } from '@/constants';
+import { useAuth } from '@/features/auth/hooks';
+import { signup } from '@/features/auth/api';
+import signupSchema from '@/lib/validations/auth/signup.schema';
+import { SignupDto } from '@/types/auth/signup.interface';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { BarChart3, CheckCircle2, ChevronRight, Eye, EyeOff, Lock, Mail, ShieldCheck, User, Zap } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 
 export default function SignupPage() {
-  const [formData, setFormData] = useState<SignupDto>({
-    name: '',
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
-  
-  const [errors, setErrors] = useState<SignupErrors>({});
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect') || '/dashboard/demo-workspace';
 
-  const handleSubmit = async () => {
-    setErrors({});
-    setIsLoading(true);
-  };
+  const { data: user, isLoading: isAuthLoading } = useAuth();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<SignupDto>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+        name: '',
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+    }
+  });
+
+  useEffect(() => {
+    if (user && !isAuthLoading) {
+      router.replace('/');
+    }
+  }, [user, isAuthLoading, router]);
+
+  const onSubmit = async (data: SignupDto) => {
+    try {
+        await signup(data);
+        toast.success("Account created! Please log in.");
+        router.push('/login');
+    } catch (error: any) {
+        const message = error.response?.data?.message || error.message || "Failed to create account";
+        
+        if (error.response?.data?.errors) {
+             Object.keys(error.response.data.errors).forEach((key) => {
+                setError(key as keyof SignupDto, {
+                  type: 'server',
+                  message: error.response.data.errors[key],
+                });
+             });
+        }
+        
+        toast.error(Array.isArray(message) ? message[0] : message);
+    }
   };
 
   return (
@@ -102,7 +135,7 @@ export default function SignupPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Name */}
             <div className={`transition-all duration-200 ${focusedField === 'name' ? 'scale-[1.02]' : ''}`}>
               <label className="text-xs font-semibold text-neutral-500 uppercase tracking-widest ml-1 mb-2 block">
@@ -111,20 +144,17 @@ export default function SignupPage() {
               <div className={focusedField === 'name' ? 'input-field-focused' : 'input-field-wrapper'}>
                 <div className="bg-bg-dark-2 rounded-[11px] relative h-full">
                   <input
-                    name="name"
+                    {...register('name')}
                     type="text"
                     placeholder="John Doe"
                     className="w-full pl-11 pr-4 py-3.5 bg-transparent border-none outline-none text-white placeholder:text-neutral-600 font-medium rounded-xl"
-                    value={formData.name}
-                    onChange={handleChange}
                     onFocus={() => setFocusedField('name')}
                     onBlur={() => setFocusedField(null)}
-                    required
                   />
                   <User className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${focusedField === 'name' ? 'icon-active' : 'icon-default'}`} size={18} />
                 </div>
               </div>
-              {errors.name && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.name}</p>}
+              {errors.name && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.name.message}</p>}
             </div>
 
             {/* Username */}
@@ -135,20 +165,17 @@ export default function SignupPage() {
               <div className={focusedField === 'username' ? 'input-field-focused' : 'input-field-wrapper'}>
                 <div className="bg-bg-dark-2 rounded-[11px] relative h-full">
                   <input
-                    name="username"
+                    {...register('username')}
                     type="text"
                     placeholder="johndoe"
                     className="w-full pl-11 pr-4 py-3.5 bg-transparent border-none outline-none text-white placeholder:text-neutral-600 font-medium rounded-xl"
-                    value={formData.username}
-                    onChange={handleChange}
                     onFocus={() => setFocusedField('username')}
                     onBlur={() => setFocusedField(null)}
-                    required
                   />
                   <span className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors font-mono font-bold ${focusedField === 'username' ? 'icon-active' : 'icon-default'}`}>@</span>
                 </div>
               </div>
-              {errors.username && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.username}</p>}
+              {errors.username && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.username.message}</p>}
             </div>
 
             {/* Email */}
@@ -159,20 +186,17 @@ export default function SignupPage() {
               <div className={focusedField === 'email' ? 'input-field-focused' : 'input-field-wrapper'}>
                 <div className="bg-bg-dark-2 rounded-[11px] relative h-full">
                   <input
-                    name="email"
+                    {...register('email')}
                     type="email"
                     placeholder="name@company.com"
                     className="w-full pl-11 pr-4 py-3.5 bg-transparent border-none outline-none text-white placeholder:text-neutral-600 font-medium rounded-xl"
-                    value={formData.email}
-                    onChange={handleChange}
                     onFocus={() => setFocusedField('email')}
                     onBlur={() => setFocusedField(null)}
-                    required
                   />
                   <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${focusedField === 'email' ? 'icon-active' : 'icon-default'}`} size={18} />
                 </div>
               </div>
-              {errors.email && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.email}</p>}
+              {errors.email && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.email.message}</p>}
             </div>
 
             {/* Password */}
@@ -183,15 +207,12 @@ export default function SignupPage() {
               <div className={focusedField === 'password' ? 'input-field-focused' : 'input-field-wrapper'}>
                 <div className="bg-bg-dark-2 rounded-[11px] relative h-full">
                   <input
-                    name="password"
+                    {...register('password')}
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
                     className="w-full pl-11 pr-12 py-3.5 bg-transparent border-none outline-none text-white placeholder:text-neutral-600 font-medium rounded-xl"
-                    value={formData.password}
-                    onChange={handleChange}
                     onFocus={() => setFocusedField('password')}
                     onBlur={() => setFocusedField(null)}
-                    required
                   />
                   <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${focusedField === 'password' ? 'icon-active' : 'icon-default'}`} size={18} />
                   <button
@@ -204,7 +225,7 @@ export default function SignupPage() {
                   </button>
                 </div>
               </div>
-              {errors.password && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.password}</p>}
+              {errors.password && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.password.message}</p>}
             </div>
 
             {/* Confirm Password */}
@@ -215,15 +236,12 @@ export default function SignupPage() {
               <div className={focusedField === 'confirmPassword' ? 'input-field-focused' : 'input-field-wrapper'}>
                 <div className="bg-bg-dark-2 rounded-[11px] relative h-full">
                   <input
-                    name="confirmPassword"
+                    {...register('confirmPassword')}
                     type={showConfirmPassword ? 'text' : 'password'}
                     placeholder="••••••••"
                     className="w-full pl-11 pr-12 py-3.5 bg-transparent border-none outline-none text-white placeholder:text-neutral-600 font-medium rounded-xl"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
                     onFocus={() => setFocusedField('confirmPassword')}
                     onBlur={() => setFocusedField(null)}
-                    required
                   />
                   <CheckCircle2 className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${focusedField === 'confirmPassword' ? 'icon-active' : 'icon-default'}`} size={18} />
                   <button
@@ -236,19 +254,19 @@ export default function SignupPage() {
                   </button>
                 </div>
               </div>
-              {errors.confirmPassword && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.confirmPassword}</p>}
+              {errors.confirmPassword && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.confirmPassword.message}</p>}
             </div>
 
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full group cursor-pointer relative overflow-hidden rounded-xl bg-brand px-4 py-3.5 text-sm font-bold text-bg-dark-0 shadow-lg shadow-brand/20 transition-all hover:scale-[1.02] active:scale-[0.98] outline-none focus:ring-2 focus:ring-brand/50 focus:ring-offset-2 focus:ring-offset-bg-dark-0 mt-4"
+              disabled={isAuthLoading || isSubmitting}
+              className="w-full group cursor-pointer relative overflow-hidden rounded-xl bg-brand px-4 py-3.5 text-sm font-bold text-bg-dark-0 shadow-lg shadow-brand/20 transition-all hover:scale-[1.02] active:scale-[0.98] outline-none focus:ring-2 focus:ring-brand/50 focus:ring-offset-2 focus:ring-offset-bg-dark-0 mt-4 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {/* Shine effect */}
               <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/20 to-transparent z-10" />
               
               <div className="relative flex items-center justify-center gap-2">
-                {isLoading ? (
+                {isAuthLoading || isSubmitting ? (
                   <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : (
                   <>
