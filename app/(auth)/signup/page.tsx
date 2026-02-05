@@ -5,7 +5,7 @@ import { BarChart3, CheckCircle2, ChevronRight, Eye, EyeOff, Lock, Mail, ShieldC
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { APP_CONFIG } from '@/constants/app';
+import { APP_CONFIG } from '@/constants';
 import { Logo } from '@/components/ui/Logo';
 
 

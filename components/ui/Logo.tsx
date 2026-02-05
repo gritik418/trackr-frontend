@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils'
-import { APP_CONFIG } from '@/constants/app';
+import { APP_CONFIG } from '@/constants';
 
 interface LogoProps {
   className?: string;

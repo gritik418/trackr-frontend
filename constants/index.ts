@@ -4,3 +4,5 @@ export const APP_CONFIG = {
   COMPANY: 'Trackr Technologies Inc.',
   YEAR: 2026,
 };
+
+export const APP_DOMAIN = 'trackr.so';

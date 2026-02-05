@@ -1,7 +1,7 @@
 'use client';
 
 import { Logo } from '@/components/ui/Logo';
-import { APP_CONFIG } from '@/constants/app';
+import { APP_CONFIG } from '@/constants';
 import { LoginDto } from '@/types/auth/login.interface';
 import { ChevronRight, Command, Eye, EyeOff, Layout, Lock, Sparkles, User } from 'lucide-react';
 import Link from 'next/link';

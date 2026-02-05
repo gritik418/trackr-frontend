@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowRight, Shield, Zap, Globe, Network } from 'lucide-react';
-import { APP_CONFIG } from '@/constants/app';
+import { APP_CONFIG } from '@/constants';
 
 export function Hero() {
   return (

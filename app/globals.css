@@ -8,8 +8,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-jakarta);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
 
   /* Brand Primary Colors */
   --color-brand-primary: #00d8e6;
@@ -58,6 +58,15 @@
   --color-dashboard-item-text: #a1a1aa;
   --color-dashboard-item-text-active: #ffffff;
   --color-dashboard-item-icon-active: var(--color-brand);
+
+  /* Organization Theme - Premium Dark */
+  --color-org-bg: #030304;             /* Deeper, richer black */
+  --color-org-sidebar-bg: #060607;     /* Subtle contrast for sidebar */
+  --color-org-border: rgba(255, 255, 255, 0.03); /* Ultra subtle border */
+  --color-org-card-bg: #0a0a0b;        /* Soft card background */
+  --color-org-card-border: rgba(255, 255, 255, 0.04);
+  --color-org-item-text: #888890;      /* Muted text */
+  --color-org-item-text-active: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {

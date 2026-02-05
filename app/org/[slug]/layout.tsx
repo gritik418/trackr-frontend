@@ -11,7 +11,7 @@ export default async function OrgAdminLayout({
   const { slug } = await params;
 
   return (
-    <div className="flex min-h-screen bg-bg-dark-0">
+    <div className="flex min-h-screen bg-org-bg">
       <OrgSidebar slug={slug} />
       
       <div className="flex-1 flex flex-col lg:pl-72 transition-all duration-300">

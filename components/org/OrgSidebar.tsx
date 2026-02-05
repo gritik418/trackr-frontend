@@ -3,23 +3,20 @@
 import {
   Building2,
   CreditCard,
+  Layout,
   Settings,
-  ShieldAlert,
   Users
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BsBack } from 'react-icons/bs';
-import { CgOrganisation } from 'react-icons/cg';
 import { IoChevronBackOutline } from 'react-icons/io5';
-import { SiAwsorganizations } from 'react-icons/si';
 
 const getNavigation = (slug: string) => [
-  { name: 'General Settings', href: `/org/${slug}/settings`, icon: Settings },
-  { name: 'Members', href: `/org/${slug}/members`, icon: Users },
+  { name: 'Overview', href: `/org/${slug}`, icon: Layout },
   { name: 'Workspaces', href: `/org/${slug}/workspaces`, icon: Building2 },
+  { name: 'Members', href: `/org/${slug}/members`, icon: Users },
   { name: 'Billing', href: `/org/${slug}/billing`, icon: CreditCard },
-  { name: 'Danger Zone', href: `/org/${slug}/danger`, icon: ShieldAlert },
+  { name: 'Settings', href: `/org/${slug}/settings`, icon: Settings },
 ];
 
 export function OrgSidebar({ slug }: { slug: string }) {
@@ -27,7 +24,7 @@ export function OrgSidebar({ slug }: { slug: string }) {
   const navigation = getNavigation(slug);
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 w-72 bg-bg-dark-1 border-r border-white/5 hidden lg:block">
+    <aside className="fixed inset-y-0 left-0 z-50 w-72 bg-org-sidebar-bg border-r border-org-border hidden lg:block">
       <div className="flex flex-col h-full">
         {/* Logo & Org Name */}
         <div className="p-6">
@@ -43,7 +40,7 @@ export function OrgSidebar({ slug }: { slug: string }) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 space-y-1">
+        <nav className="flex-1 px-4 space-y-2">
           {navigation.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -53,7 +50,7 @@ export function OrgSidebar({ slug }: { slug: string }) {
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group ${
                   isActive 
                     ? 'bg-brand/10 text-brand border border-brand/20' 
-                    : 'text-neutral-500 hover:text-white hover:bg-white/5 border border-transparent'
+                    : 'text-org-item-text hover:text-white hover:bg-white/5 border border-transparent'
                 }`}
               >
                 <item.icon size={20} className={isActive ? 'text-brand' : 'group-hover:text-white transition-colors'} />
@@ -64,7 +61,7 @@ export function OrgSidebar({ slug }: { slug: string }) {
         </nav>
 
         {/* Bottom Actions */}
-        <div className="p-4 mt-auto border-t border-white/5 space-y-2">
+        <div className="p-4 mt-auto border-t border-org-border space-y-2">
            <Link href="/org" className="w-full flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white hover:bg-white/5 transition-all">
             <IoChevronBackOutline size={18}  />
             Return to Control Deck

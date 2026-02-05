@@ -1,6 +1,7 @@
 'use client';
 
 import { Logo } from '@/components/ui/Logo';
+
 import createOrganizationSchema from '@/lib/validations/organization/create-organization.schema';
 import { CreateOrganizationDto } from '@/types/organization/organization.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +17,7 @@ import {
   Type
 } from 'lucide-react';
 import Link from 'next/link';
+import { APP_DOMAIN } from '@/constants/index';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -189,7 +191,7 @@ useEffect(() => {
                     Logo URL
                   </label>
                   <Layout size={18} className="mr-3 text-neutral-500 group-focus-within:text-brand transition-colors" />
-                  <span className="mr-0.5 text-neutral-500 select-none font-mono text-sm">trackr.app/org/</span>
+                  <span className="mr-0.5 text-neutral-500 select-none font-mono text-sm">{APP_DOMAIN}/org/</span>
                   <input
                     {...register('slug')}
                     id="slug"
