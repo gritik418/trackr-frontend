@@ -14,6 +14,10 @@ export default function OrgSettingsPage() {
   return (
     <div className="space-y-10 flex flex-col flex-1 animate-in fade-in duration-700 pb-10 relative overflow-hidden">
       
+      {/* Background Ambience */}
+      <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-brand/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/5 blur-[120px] rounded-full pointer-events-none" />
+
       {/* Header */}
       <div className="relative z-10">
         <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-white to-white/60 tracking-tight">Settings</h2>
