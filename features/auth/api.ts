@@ -26,3 +26,8 @@ export const forgotPassword = async (data: ForgotPasswordDto) => {
         const response = await api.post('/auth/forgot-password', data);
         return response.data;
 }
+
+export const getMe = async () => {
+    const response = await api.get('/user/me');
+    return response.data;
+}

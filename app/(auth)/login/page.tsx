@@ -3,13 +3,14 @@
 import { Logo } from '@/components/ui/Logo';
 import { APP_CONFIG } from '@/constants';
 import { login } from '@/features/auth/api';
+import { useAuth } from '@/features/auth/hooks';
 import loginSchema from '@/lib/validations/auth/login.schema';
 import { LoginDto } from '@/types/auth/login.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, Command, Eye, EyeOff, Layout, Lock, Sparkles, User } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 
@@ -17,6 +18,8 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const router = useRouter();
+
+  const { data: user, isLoading: isAuthLoading } = useAuth();
 
   const {
     register,
@@ -30,6 +33,13 @@ export default function LoginPage() {
         password: '',
     }
   });
+
+
+    useEffect(() => {
+      if (user && !isAuthLoading) {
+        router.replace('/');
+      }
+    }, [user, isAuthLoading, router]);
 
   const onSubmit = async (data: LoginDto) => {
     try {

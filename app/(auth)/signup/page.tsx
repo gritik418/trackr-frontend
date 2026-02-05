@@ -2,14 +2,14 @@
 
 import { Logo } from '@/components/ui/Logo';
 import { APP_CONFIG } from '@/constants';
-import { useAuth } from '@/features/auth/hooks';
 import { signup } from '@/features/auth/api';
+import { useAuth } from '@/features/auth/hooks';
 import signupSchema from '@/lib/validations/auth/signup.schema';
 import { SignupDto } from '@/types/auth/signup.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { BarChart3, CheckCircle2, ChevronRight, Eye, EyeOff, Lock, Mail, ShieldCheck, User, Zap } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
@@ -18,10 +18,8 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
-  
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirect = searchParams.get('redirect') || '/dashboard/demo-workspace';
+  
 
   const { data: user, isLoading: isAuthLoading } = useAuth();
 

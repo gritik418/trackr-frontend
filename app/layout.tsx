@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import QueryClientProviderComponent from "@/providers/QueryClientProviderComponent";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,9 +30,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>       
+    <QueryClientProviderComponent>
 
         {children}
           <Toaster />
+    </QueryClientProviderComponent>
       </body>
     </html>
   );
