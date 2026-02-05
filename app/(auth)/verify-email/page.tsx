@@ -1,7 +1,7 @@
 'use client';
 
 import { Logo } from '@/components/ui/Logo';
-import { emailVerification } from '@/features/auth/api';
+import { emailVerification, resendOtp } from '@/features/auth/api';
 import emailVerificationSchema from '@/lib/validations/auth/email-verification.schema';
 import { EmailVerificationDto } from '@/types/auth/email-verification.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -97,10 +97,16 @@ export default function VerifyEmailPage() {
     if (timer > 0) return;
     setIsResending(true);
 
-    setTimeout(() => {
+    try {
+      await resendOtp({ email });
+      toast.success("OTP resent successfully!");
+    } catch (error: any) {
+      const message = error.response?.data?.message || error.message || "Failed to resend OTP";
+      toast.error(Array.isArray(message) ? message[0] : message);
+    }finally{
       setIsResending(false);
       setTimer(30);
-    }, 1500);
+    }
   };
 
   const onSubmit = async (data: EmailVerificationDto) => {
@@ -124,9 +130,12 @@ export default function VerifyEmailPage() {
         
         toast.error(Array.isArray(message) ? message[0] : message);
     }
-
-
   };
+
+  const handleBack = () => {
+    localStorage.removeItem('pending_email');
+    router.push('/signup');
+  }
 
   return (
     <div className="min-h-screen w-full flex bg-bg-dark-0 text-white selection:bg-brand/30">
@@ -186,10 +195,10 @@ export default function VerifyEmailPage() {
 
       {/* RIGHT COLUMN: VERIFICATION FORM */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 bg-bg-dark-0 relative">
-        <Link href="/signup" className="absolute top-8 left-8 flex items-center gap-2 text-sm text-neutral-500 hover:text-white transition-colors group">
+        <button onClick={handleBack} className="absolute cursor-pointer top-8 left-8 flex items-center gap-2 text-sm text-neutral-500 hover:text-white transition-colors group">
           <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
           Back to signup
-        </Link>
+        </button>
 
         <div className="w-full max-w-[440px] z-10">
           <div className="mb-10 text-center">

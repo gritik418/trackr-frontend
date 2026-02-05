@@ -33,7 +33,6 @@ export default function RootLayout({
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>       
     <QueryClientProviderComponent>
 <AuthProvider>
-
         {children}
 </AuthProvider>
           <Toaster />

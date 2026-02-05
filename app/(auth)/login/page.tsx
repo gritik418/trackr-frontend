@@ -7,6 +7,7 @@ import { useAuth } from '@/features/auth/hooks';
 import loginSchema from '@/lib/validations/auth/login.schema';
 import { LoginDto } from '@/types/auth/login.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { ChevronRight, Command, Eye, EyeOff, Layout, Lock, Sparkles, User } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -18,6 +19,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { data: user, isLoading: isAuthLoading } = useAuth();
 
@@ -44,6 +46,7 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginDto) => {
     try {
       await login(data);
+      await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
       toast.success("Welcome back!");
       router.push('/');
     } catch (error: any) {

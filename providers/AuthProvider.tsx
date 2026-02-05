@@ -1,11 +1,11 @@
 "use client"
 
-import React, { createContext, useContext, useEffect } from "react"
 import { useAuth } from "@/features/auth/hooks"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import React, { createContext, useContext, useEffect } from "react"
 
 interface AuthContextType {
-    user: any | null
+    user: any | undefined
     isLoading: boolean
     isAuthenticated: boolean
 }
@@ -17,22 +17,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const router = useRouter()
     const pathname = usePathname()
 
+    const user = data?.user
+    const isAuthenticated = !!user
+
+    const value = {
+        user,
+        isLoading,
+        isAuthenticated
+    }
+
     const isPublicPath = pathname === "/login" || pathname === "/signup" || pathname === "/verify-email" || pathname === "/forgot-password" || pathname === "/reset-password" || pathname === "/"
 
     useEffect(() => {
-        if (!isLoading && !data?.user && !isPublicPath) {
+        if (!isLoading && !user && !isPublicPath) {
             router.push("/login")
         }
-        if (!isLoading && data?.user && isPublicPath) {
+        if (!isLoading && user && isPublicPath) {
             router.push("/")
         }
-    }, [data, isLoading, isPublicPath, router])
-
-    const value = {
-        user: data?.user || null,
-        isLoading,
-        isAuthenticated: !!data?.user
-    }
+    }, [user, isLoading, isPublicPath, router])
 
     return (
         <AuthContext.Provider value={value}>
@@ -43,7 +46,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useUser = () => {
     const context = useContext(AuthContext)
-    if (context === undefined) {
+    if (context === undefined || !context) {
         throw new Error("useUser must be used within an AuthProvider")
     }
     return context
