@@ -2,31 +2,54 @@
 
 import { Logo } from '@/components/ui/Logo';
 import { APP_CONFIG } from '@/constants';
+import { login } from '@/features/auth/api';
+import loginSchema from '@/lib/validations/auth/login.schema';
 import { LoginDto } from '@/types/auth/login.interface';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, Command, Eye, EyeOff, Layout, Lock, Sparkles, User } from 'lucide-react';
 import Link from 'next/link';
-import { ChangeEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 
 export default function LoginPage() {
-  const [loginData, setLoginData] = useState<LoginDto>({
-    identifier: '',
-    password: '',
-  });
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [errors, setErrors] = useState<Partial<LoginDto>>({});
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const router = useRouter();
 
-  const handleSubmit = async () => {
-    setErrors({});
-    setIsLoading(true);
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginDto>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+        identifier: '',
+        password: '',
+    }
+  });
 
+  const onSubmit = async (data: LoginDto) => {
+    try {
+      await login(data);
+      toast.success("Welcome back!");
+      router.push('/');
+    } catch (error: any) {
+        const message = error.response?.data?.message || error.message || "Failed to login";
+        
+        if (error.response?.data?.errors) {
+             Object.keys(error.response.data.errors).forEach((key) => {
+                setError(key as keyof LoginDto, {
+                  type: 'server',
+                  message: error.response.data.errors[key],
+                });
+             });
+        }
+        toast.error(Array.isArray(message) ? message[0] : message);
+    }
   };
-
-  const handleChange  =(e:ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target;
-    setLoginData({...loginData, [name]: value});
-  }
   
   return (
     <div className="min-h-screen w-full flex bg-bg-dark-0 text-white selection:bg-brand/30">
@@ -95,7 +118,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className={`transition-all duration-200 ${focusedField === 'identifier' ? 'scale-[1.02]' : ''}`}>
               <label className="text-xs font-semibold text-neutral-500 uppercase tracking-widest ml-1 mb-2 block">
                 Email or Username
@@ -103,20 +126,17 @@ export default function LoginPage() {
               <div className={focusedField === 'identifier' ? 'input-field-focused' : 'input-field-wrapper'}>
                 <div className="bg-bg-dark-2 rounded-[11px] relative h-full">
                   <input
-                    name="identifier"
+                    {...register('identifier')}
                     type="text"
                     placeholder="Email or username"
                     className="w-full pl-11 pr-4 py-3.5 bg-transparent border-none outline-none text-white placeholder:text-neutral-600 font-medium rounded-xl"
-                    value={loginData.identifier}
-                    onChange={handleChange}
                     onFocus={() => setFocusedField('identifier')}
                     onBlur={() => setFocusedField(null)}
-                    required
                   />
                   <User className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${focusedField === 'identifier' ? 'icon-active' : 'icon-default'}`} size={18} />
                 </div>
               </div>
-              {errors.identifier && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.identifier}</p>}
+              {errors.identifier && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.identifier.message}</p>}
             </div>
 
             <div className={`transition-all duration-200 ${focusedField === 'password' ? 'scale-[1.02]' : ''}`}>
@@ -131,15 +151,12 @@ export default function LoginPage() {
               <div className={focusedField === 'password' ? 'input-field-focused' : 'input-field-wrapper'}>
                 <div className="bg-bg-dark-2 rounded-[11px] relative h-full">
                   <input
-                      name="password"
+                    {...register('password')}
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
                     className="w-full pl-11 pr-12 py-3.5 bg-transparent border-none outline-none text-white placeholder:text-neutral-600 font-medium rounded-xl"
-                    value={loginData.password}
-                    onChange={handleChange}
                     onFocus={() => setFocusedField('password')}
                     onBlur={() => setFocusedField(null)}
-                    required
                   />
                   <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${focusedField === 'password' ? 'icon-active' : 'icon-default'}`} size={18} />
                   <button
@@ -152,19 +169,19 @@ export default function LoginPage() {
                   </button>
                 </div>
               </div>
-              {errors.password && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.password}</p>}
+              {errors.password && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.password.message}</p>}
             </div>
 
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full group cursor-pointer relative overflow-hidden rounded-xl bg-brand px-4 py-3.5 text-sm font-bold text-bg-dark-0 shadow-lg shadow-brand/20 transition-all hover:scale-[1.02] active:scale-[0.98] outline-none focus:ring-2 focus:ring-brand/50 focus:ring-offset-2 focus:ring-offset-bg-dark-0"
+              disabled={isSubmitting}
+              className="w-full group cursor-pointer relative overflow-hidden rounded-xl bg-brand px-4 py-3.5 text-sm font-bold text-bg-dark-0 shadow-lg shadow-brand/20 transition-all hover:scale-[1.02] active:scale-[0.98] outline-none focus:ring-2 focus:ring-brand/50 focus:ring-offset-2 focus:ring-offset-bg-dark-0 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {/* Shine effect */}
               <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/20 to-transparent z-10" />
               
               <div className="relative flex items-center justify-center gap-2">
-                {isLoading ? (
+                {isSubmitting ? (
                   <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : (
                   <>
@@ -199,7 +216,7 @@ export default function LoginPage() {
           </div>
           
           <p className="text-center font-semibold text-sm text-neutral-500 mt-10">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="signup" className="font-semibold text-brand hover:text-brand/80 transition-colors">
               Sign up for free
             </Link>
