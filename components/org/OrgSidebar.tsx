@@ -4,6 +4,7 @@ import {
   Building2,
   CreditCard,
   Layout,
+  ScrollText,
   Settings,
   Users
 } from 'lucide-react';
@@ -16,6 +17,7 @@ const getNavigation = (slug: string) => [
   { name: 'Workspaces', href: `/org/${slug}/workspaces`, icon: Building2 },
   { name: 'Members', href: `/org/${slug}/members`, icon: Users },
   { name: 'Billing', href: `/org/${slug}/billing`, icon: CreditCard },
+  { name: 'Audit Logs', href: `/org/${slug}/logs`, icon: ScrollText },
   { name: 'Settings', href: `/org/${slug}/settings`, icon: Settings },
 ];
 

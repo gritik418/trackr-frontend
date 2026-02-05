@@ -4,7 +4,6 @@ import {
   Building2,
   CreditCard,
   Plus,
-  Settings,
   ShieldCheck,
   UserPlus,
   Users
@@ -72,10 +71,7 @@ params: Promise<{ slug: string }>;
           <p className="text-neutral-400">Manage your organization's global configuration and state.</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-medium hover:bg-white/10 transition-colors flex items-center gap-2">
-            <Settings size={16} />
-            Settings
-          </button>
+        
           <button className="px-4 py-2 bg-brand text-bg-dark-0 rounded-xl text-sm font-bold hover:bg-brand-hover transition-colors flex items-center gap-2">
             <Plus size={16} />
             New Workspace
