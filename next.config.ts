@@ -32,6 +32,11 @@ const nextConfig: NextConfig = {
         hostname: "ui-avatars.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "plus.unsplash.com",
+        pathname: "/**",
+      },
     ],
   },
 };

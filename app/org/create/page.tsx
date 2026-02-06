@@ -2,6 +2,8 @@
 
 import { Logo } from "@/components/ui/Logo";
 
+import { APP_DOMAIN } from "@/constants/index";
+import { createOrganization } from "@/features/organization/organization.service";
 import createOrganizationSchema from "@/lib/schemas/organization/create-organization.schema";
 import { CreateOrganizationDto } from "@/types/organization/create-organization.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,16 +19,20 @@ import {
   Type,
 } from "lucide-react";
 import Link from "next/link";
-import { APP_DOMAIN } from "@/constants/index";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 
 export default function CreateOrgPage() {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<CreateOrganizationDto>({
     resolver: zodResolver(createOrganizationSchema),
@@ -52,7 +58,27 @@ export default function CreateOrgPage() {
   }, [name, setValue]);
 
   const onSubmit = async (data: CreateOrganizationDto) => {
-    console.log(data);
+    try {
+      await createOrganization(data);
+      toast.success("Organization created!");
+      router.push("/org");
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to create organization";
+
+      if (error.response?.data?.errors) {
+        Object.keys(error.response.data.errors).forEach((key) => {
+          setError(key as keyof CreateOrganizationDto, {
+            type: "server",
+            message: error.response.data.errors[key],
+          });
+        });
+      }
+
+      toast.error(Array.isArray(message) ? message[0] : message);
+    }
   };
 
   return (
@@ -270,7 +296,7 @@ export default function CreateOrgPage() {
                     {...register("websiteUrl")}
                     id="websiteUrl"
                     type="url"
-                    placeholder="acme.com"
+                    placeholder="https://acme.com"
                     className={clsx(
                       "w-full pl-12 pr-4 py-3.5 bg-white/5 border rounded-2xl text-white placeholder:text-neutral-600 focus:outline-none focus:ring-1 transition-all duration-300",
                       errors.websiteUrl
@@ -361,7 +387,7 @@ export default function CreateOrgPage() {
 
             <div className="pt-6 flex flex-col-reverse md:flex-row gap-4">
               <Link
-                href="/dashboard"
+                href="/org"
                 className="flex-1 py-4 px-6 bg-white/5 border border-white/5 text-neutral-400 font-bold rounded-2xl hover:bg-white/10 hover:text-white transition-all text-center text-sm"
               >
                 Cancel
@@ -369,7 +395,7 @@ export default function CreateOrgPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-2 py-4 px-6 bg-linear-to-r from-brand to-brand-hover text-bg-dark-0 font-bold rounded-2xl shadow-lg shadow-brand/20 hover:shadow-brand/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="flex-2 cursor-pointer py-4 px-6 bg-linear-to-r from-brand to-brand-hover text-bg-dark-0 font-bold rounded-2xl shadow-lg shadow-brand/20 hover:shadow-brand/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {isSubmitting ? (
                   "Configuring Organization..."
