@@ -1,4 +1,24 @@
-import createOrganizationSchema from "@/lib/validations/organization/create-organization.schema";
-import z from "zod";
+import { User } from "../user/user.interface";
 
-export type CreateOrganizationDto = z.infer<typeof createOrganizationSchema>
+export interface Organization {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl: string;
+  websiteUrl: string;
+  description: string;
+  ownerId: string;
+  createdAt: string;
+  updatedAt: string;
+  members: OrganizationMember[];
+  owner: User;
+}
+
+export interface OrganizationMember {
+  id: string;
+  userId: string;
+  organizationId: string;
+  role: "OWNER" | "ADMIN" | "MEMBER";
+  joinedAt: string;
+  user: User;
+}

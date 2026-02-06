@@ -1,4 +1,4 @@
 import z from "zod";
-import updateUserSchema from "@/lib/validations/user/update-user.schema";
+import updateUserSchema from "@/lib/schemas/user/update-user.schema";
 
-export type UpdateUserDto = z.infer<typeof updateUserSchema>
+export type UpdateUserDto = z.infer<typeof updateUserSchema>;

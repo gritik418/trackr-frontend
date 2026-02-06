@@ -1,8 +1,8 @@
 "use client";
 
 import { Logo } from "@/components/ui/Logo";
-import { forgotPassword } from "@/features/auth/api";
-import forgotPasswordSchema from "@/lib/validations/auth/forgot-password.schema";
+import { forgotPassword } from "@/features/auth/auth.service";
+import forgotPasswordSchema from "@/lib/schemas/auth/forgot-password.schema";
 import { ForgotPasswordDto } from "@/types/auth/password-recovery.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, ChevronRight, Mail, Sparkles } from "lucide-react";

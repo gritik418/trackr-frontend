@@ -1,8 +1,8 @@
 "use client";
 
 import { Logo } from "@/components/ui/Logo";
-import { resetPassword } from "@/features/auth/api";
-import resetPasswordSchema from "@/lib/validations/auth/reset-password.schema";
+import { resetPassword } from "@/features/auth/auth.service";
+import resetPasswordSchema from "@/lib/schemas/auth/reset-password.schema";
 import { ResetPasswordDto } from "@/types/auth/password-recovery.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronRight, Eye, EyeOff, Lock, ShieldCheck } from "lucide-react";
