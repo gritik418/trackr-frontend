@@ -1,7 +1,7 @@
 import { Organization } from "@/types/organization/organization.interface";
 
 export interface OrganizationState {
-  organizations: any[];
+  organization: Organization | null;
 }
 
 export interface OrgWithRole extends Organization {
@@ -12,4 +12,10 @@ export interface GetOrganizationsResponse {
   success: boolean;
   message: string;
   organizations: OrgWithRole[];
+}
+
+export interface GetOrganizationDetailsResponse {
+  success: boolean;
+  message: string;
+  organization: Organization;
 }

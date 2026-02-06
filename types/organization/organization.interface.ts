@@ -1,4 +1,5 @@
 import { User } from "../user/user.interface";
+import { Workspace } from "../workspace/workspace.interface";
 
 export interface Organization {
   id: string;
@@ -12,6 +13,7 @@ export interface Organization {
   updatedAt: string;
   members: OrganizationMember[];
   owner: User;
+  workspaces: Workspace[];
 }
 
 export interface OrganizationMember {
