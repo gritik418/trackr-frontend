@@ -1,20 +1,10 @@
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-type Role = 'OWNER' | 'ADMIN' | 'MEMBER' | 'USER';
-
-interface Org {
-  id: string;
-  role: Role;
-}
-
-interface Workspace {
-  id: string;
-  role: Role;
-}
+import { OrgWithRole } from "@/features/organization/organization.interface";
+import { Workspace } from "@/types/workspace/workspace.interface";
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 interface UserPayload {
-  organizations?: Org[];
+  organizations?: OrgWithRole[];
   workspaces?: Workspace[];
 }
 
@@ -24,11 +14,11 @@ export function cn(...inputs: ClassValue[]) {
 
 export function resolveRedirectPath(user: UserPayload): string {
   const org = user.organizations?.find(
-    (org) => org.role === 'OWNER' || org.role === 'ADMIN'
+    (org) => org.role === "OWNER" || org.role === "ADMIN",
   );
 
   if (org) {
-    return `/org/${org.id}`;
+    return `/org/${org.slug}`;
   }
 
   const workspace = user.workspaces?.[0];
@@ -37,13 +27,17 @@ export function resolveRedirectPath(user: UserPayload): string {
     return `/workspace/${workspace.id}`;
   }
 
-  if(user.organizations?.length === 0 && user.workspaces?.length === 0){
-    return '/org';
+  if (user.organizations?.length === 0 && user.workspaces?.length === 0) {
+    return "/org";
   }
 
-  if(user.organizations && user.organizations?.length > 0 && user.workspaces?.length === 0){
+  if (
+    user.organizations &&
+    user.organizations?.length > 0 &&
+    user.workspaces?.length === 0
+  ) {
     return `/org`;
   }
 
-  return '/';
+  return "/";
 }

@@ -3,7 +3,7 @@
 import { Logo } from "@/components/ui/Logo";
 
 import { APP_DOMAIN } from "@/constants/index";
-import { createOrganization } from "@/features/organization/organization.service";
+import { useCreateOrganizationMutation } from "@/features/organization/organization.api";
 import createOrganizationSchema from "@/lib/schemas/organization/create-organization.schema";
 import { CreateOrganizationDto } from "@/types/organization/create-organization.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +16,7 @@ import {
   Globe,
   Layout,
   Link as LinkIcon,
+  Mail,
   Type,
 } from "lucide-react";
 import Link from "next/link";
@@ -26,6 +27,7 @@ import toast from "react-hot-toast";
 
 export default function CreateOrgPage() {
   const router = useRouter();
+  const [createOrganization] = useCreateOrganizationMutation();
 
   const {
     register,
@@ -42,6 +44,7 @@ export default function CreateOrgPage() {
       websiteUrl: "",
       logoUrl: "",
       description: "",
+      contactEmail: "",
     },
   });
 
@@ -253,7 +256,7 @@ export default function CreateOrgPage() {
                     Logo URL
                   </label>
                   <Layout
-                    size={18}
+                    size={22}
                     className="mr-3 text-neutral-500 group-focus-within:text-brand transition-colors"
                   />
                   <span className="mr-0.5 text-neutral-500 select-none font-mono text-sm">
@@ -270,6 +273,55 @@ export default function CreateOrgPage() {
                 {errors.slug && (
                   <p className="text-xs text-red-400 flex items-center gap-1.5 ml-1 animate-slide-up">
                     <AlertCircle size={12} /> {errors.slug.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Contact Email */}
+              <div className="group space-y-2">
+                <div className="flex items-end justify-between">
+                  <label
+                    htmlFor="contactEmail"
+                    className="text-xs font-bold text-neutral-400 uppercase tracking-wider ml-1 group-focus-within:text-brand transition-colors"
+                  >
+                    Contact Email
+                  </label>
+                </div>
+
+                <div
+                  className={clsx(
+                    "flex items-center relative px-4 py-4 bg-white/5 border rounded-2xl text-neutral-500 transition-all duration-300",
+                    errors.contactEmail
+                      ? "border-red-500/50 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500/20 bg-red-500/5"
+                      : "border-white/5 hover:border-white/10 focus-within:border-brand/50 focus-within:ring-1 focus-within:ring-brand/50 focus-within:bg-brand/5",
+                  )}
+                >
+                  <label
+                    htmlFor="contactEmail"
+                    className="absolute border border-red-400 w-full top-0 left-0 opacity-0 cursor-text h-full"
+                  >
+                    Contact Email
+                  </label>
+                  <Mail
+                    size={18}
+                    className="mr-3 text-neutral-500 group-focus-within:text-brand transition-colors"
+                  />
+                  <input
+                    {...register("contactEmail")}
+                    id="contactEmail"
+                    type="email"
+                    placeholder="contact@example.com"
+                    className="bg-transparent text-white placeholder:text-neutral-600 focus:outline-none w-full border-none p-0 focus:ring-0 font-mono text-sm"
+                  />
+                </div>
+
+                <p className="text-xs text-neutral-500">
+                  We'll use this email to send you billing and other important
+                  alerts.
+                </p>
+                {errors.contactEmail && (
+                  <p className="text-xs text-red-400 flex items-center gap-1.5 ml-1 animate-slide-up">
+                    <AlertCircle size={12} /> {errors.contactEmail.message}
                   </p>
                 )}
               </div>

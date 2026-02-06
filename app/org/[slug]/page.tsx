@@ -11,14 +11,11 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { useSelector } from "react-redux";
 
 export default function OrgDashboardPage() {
   const organization = useSelector(selectOrganization);
-  const router = useRouter();
-  // Mock data - would normally come from API/DB
-  // Mock data - would normally come from API/DB
   const stats = [
     {
       label: "Total Members",
@@ -83,8 +80,7 @@ export default function OrgDashboardPage() {
   ];
 
   if (!organization) {
-    router.push("/org");
-    return null;
+    return redirect("/org");
   }
 
   return (

@@ -14,6 +14,7 @@ export interface Organization {
   members: OrganizationMember[];
   owner: User;
   workspaces: Workspace[];
+  contactEmail?: string;
 }
 
 export interface OrganizationMember {

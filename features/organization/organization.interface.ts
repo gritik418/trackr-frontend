@@ -1,4 +1,5 @@
 import { Organization } from "@/types/organization/organization.interface";
+import { UpdateOrganizationDto } from "@/types/organization/update-organization.interface";
 
 export interface OrganizationState {
   organization: Organization | null;
@@ -18,4 +19,8 @@ export interface GetOrganizationDetailsResponse {
   success: boolean;
   message: string;
   organization: Organization;
+}
+
+export interface UpdateOrgDto extends UpdateOrganizationDto {
+  id: string;
 }
