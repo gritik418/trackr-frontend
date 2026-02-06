@@ -85,9 +85,9 @@ export default function CreateOrgPage() {
   };
 
   return (
-    <div className="min-h-screen flex text-white relative overflow-hidden bg-bg-dark-0 font-sans selection:bg-brand/30">
+    <div className="h-screen flex text-white relative overflow-hidden bg-bg-dark-0 font-sans selection:bg-brand/30">
       {/* Left Panel: Content & Context (Hidden on mobile) */}
-      <div className="hidden lg:flex w-5/12 bg-bg-dark-1 border-r border-white/5 relative flex-col p-12 justify-between overflow-hidden">
+      <div className="hidden lg:flex w-5/12 bg-bg-dark-1 border-r border-white/5 relative flex-col p-12 justify-between overflow-hidden h-full">
         {/* Abstract Background Elements */}
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-linear(circle_at_top_right,var(--tw-linear-stops))] from-white/5 via-bg-dark-1 to-bg-dark-1 opacity-100 pointer-events-none"></div>
         <div className="absolute bottom-[-20%] right-[-20%] w-[600px] h-[600px] bg-brand/5 blur-[120px] rounded-full pointer-events-none"></div>
@@ -165,13 +165,14 @@ export default function CreateOrgPage() {
       </div>
 
       {/* Right Panel: Form */}
-      <div className="w-full lg:w-7/12 flex items-center justify-center p-6 lg:p-24 relative overflow-y-auto">
+      <div className="w-full lg:w-7/12 flex flex-col items-center p-6 lg:p-24 relative overflow-y-auto h-full scrollbar-thin scrollbar-track-white/5 scrollbar-thumb-white/10">
         {/* Background Decor */}
         <div className="absolute top-0 right-0 w-full h-[500px] bg-linear-to-b from-brand/5 to-transparent opacity-20 pointer-events-none"></div>
 
         <div className="w-full max-w-lg space-y-10 relative z-10">
           <div className="lg:hidden text-center mb-10">
             <Logo size={40} className="mx-auto mb-6" />
+            <div className="h-10"></div>
             <h1 className="text-3xl font-bold text-white tracking-tight">
               Create Organization
             </h1>
@@ -182,7 +183,7 @@ export default function CreateOrgPage() {
 
           <div className="hidden lg:block mb-8">
             <h1 className="text-2xl font-bold text-white mb-2">
-              Configure Profile
+              Create Organization
             </h1>
             <p className="text-neutral-500">
               Enter your organization details below.

@@ -46,6 +46,13 @@ const organizationApi = createApi({
       }),
       invalidatesTags: ["organizations"],
     }),
+    deleteOrganization: build.mutation<void, string>({
+      query: (id) => ({
+        url: `/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["organizations"],
+    }),
   }),
 });
 
@@ -54,5 +61,6 @@ export const {
   useGetOrganizationDetailsQuery,
   useCreateOrganizationMutation,
   useUpdateOrganizationMutation,
+  useDeleteOrganizationMutation,
 } = organizationApi;
 export default organizationApi;
