@@ -1,29 +1,33 @@
 "use client";
 import { useGetOrganizationDetailsQuery } from "@/features/organization/organization.api";
-import { useParams } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import React from "react";
+import OrgContextLoading from "./OrgContextLoading";
 
-const OrgProvider = ({ children }: { children: React.ReactNode }) => {
-  const params = useParams();
-  const { isLoading, error } = useGetOrganizationDetailsQuery(
-    params.slug as string,
-    {
-      skip: !params.slug,
-    },
-  );
+const OrgProvider = ({
+  children,
+  slug,
+}: {
+  children: React.ReactNode;
+  slug: string;
+}) => {
+  const pathname = usePathname();
+  const { data, isLoading, error } = useGetOrganizationDetailsQuery(slug, {
+    skip: !slug,
+  });
+
+  const publicOrgRoutes = ["/org", "/org/create"];
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        Loading...
-      </div>
-    );
+    return <OrgContextLoading />;
   }
 
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-screen">Error</div>
-    );
+  if (error && !publicOrgRoutes.includes(pathname)) {
+    return redirect("/org");
+  }
+
+  if (!data?.organization && !publicOrgRoutes.includes(pathname)) {
+    return redirect("/org");
   }
   return <div>{children}</div>;
 };
