@@ -1,22 +1,53 @@
 'use client';
 
 import { Logo } from '@/components/ui/Logo';
+import { forgotPassword } from '@/features/auth/api';
+import forgotPasswordSchema from '@/lib/validations/auth/forgot-password.schema';
 import { ForgotPasswordDto } from '@/types/auth/password-recovery.interface';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, ChevronRight, Mail, Sparkles } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState<ForgotPasswordDto['email']>('');
-  const [errors, setErrors] = useState<Partial<ForgotPasswordDto>>({});
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSent, setIsSent] = useState<boolean>(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  const handleSubmit = async () => {
+    const {
+    register,
+    handleSubmit,
+    setError,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<ForgotPasswordDto>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: ''
+    }
+  });
 
-    setErrors({});
+    const onSubmit = async (data: ForgotPasswordDto) => {
+    try {
+       await forgotPassword(data);
+       setIsSent(true);
+        toast.success("Password reset link sent to your email.");
+    } catch (error: any) {
+        const message = error.response?.data?.message || error.message || "Failed to create account";
+        
+        if (error.response?.data?.errors) {
+             Object.keys(error.response.data.errors).forEach((key) => {
+                setError(key as keyof ForgotPasswordDto, {
+                  type: 'server',
+                  message: error.response.data.errors[key],
+                });
+             });
+        }
+        
+        toast.error(Array.isArray(message) ? message[0] : message);
+    }
   };
 
   return (
@@ -91,7 +122,7 @@ export default function ForgotPasswordPage() {
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className={`transition-all duration-200 ${focusedField === 'email' ? 'scale-[1.02]' : ''}`}>
                   <label className="text-xs font-semibold text-neutral-500 uppercase tracking-widest ml-1 mb-2 block">
                     Email Address
@@ -99,12 +130,10 @@ export default function ForgotPasswordPage() {
                   <div className={focusedField === 'email' ? 'input-field-focused' : 'input-field-wrapper'}>
                     <div className="bg-bg-dark-2 rounded-[11px] relative h-full">
                       <input
-                        name="email"
                         type="email"
                         placeholder="name@company.com"
                         className="w-full pl-11 pr-4 py-3.5 bg-transparent border-none outline-none text-white placeholder:text-neutral-600 font-medium rounded-xl"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                          {...register('email')}
                         onFocus={() => setFocusedField('email')}
                         onBlur={() => setFocusedField(null)}
                         required
@@ -112,18 +141,18 @@ export default function ForgotPasswordPage() {
                       <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${focusedField === 'email' ? 'icon-active' : 'icon-default'}`} size={18} />
                     </div>
                   </div>
-                  {errors.email && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.email}</p>}
+                  {errors.email?.message && <p className="text-red-400 text-xs mt-1 ml-1 font-medium">{errors.email.message}</p>}
                 </div>
 
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                   className="w-full group cursor-pointer relative overflow-hidden rounded-xl bg-brand px-4 py-3.5 text-sm font-semibold text-bg-dark-0 shadow-lg shadow-brand/20 transition-all hover:bg-brand-hover hover:shadow-brand/40 active:scale-[0.98] outline-none focus:ring-2 focus:ring-brand/50 focus:ring-offset-2 focus:ring-offset-bg-dark-0 mt-4"
                 >
                   <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/20 to-transparent z-10" />
                   
                   <div className="relative flex items-center justify-center gap-2">
-                    {isLoading ? (
+                    {isSubmitting ? (
                       <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                     ) : (
                       <>
@@ -143,7 +172,7 @@ export default function ForgotPasswordPage() {
               <h2 className="text-3xl font-bold tracking-tighter mb-2 text-white">Check your mail</h2>
               <p className="text-neutral-500 font-medium mb-8 leading-relaxed">
                 We've sent a password reset link to <br/>
-                <span className="text-white font-semibold">{email}</span>
+                <span className="text-white font-semibold">{watch('email')}</span>
               </p>
               <button 
                 onClick={() => setIsSent(false)}

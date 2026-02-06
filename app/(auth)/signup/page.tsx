@@ -56,7 +56,7 @@ export default function SignupPage() {
     try {
        await signup(data);
        localStorage.setItem('pending_email', data.email);
-        toast.success("Account created! Please log in.");
+        toast.success("Account created! Please check your email to verify your account.");
         router.push('/verify-email');
     } catch (error: any) {
         const message = error.response?.data?.message || error.message || "Failed to create account";
