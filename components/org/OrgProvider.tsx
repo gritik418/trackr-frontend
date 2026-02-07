@@ -1,7 +1,7 @@
 "use client";
 import { useGetOrganizationDetailsQuery } from "@/features/organization/organization.api";
-import { redirect, usePathname } from "next/navigation";
-import React from "react";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 import OrgContextLoading from "./OrgContextLoading";
 
 const OrgProvider = ({
@@ -12,6 +12,7 @@ const OrgProvider = ({
   slug: string;
 }) => {
   const pathname = usePathname();
+  const router = useRouter();
   const { data, isLoading, error } = useGetOrganizationDetailsQuery(slug, {
     skip: !slug,
     refetchOnMountOrArgChange: true,
@@ -19,17 +20,24 @@ const OrgProvider = ({
 
   const publicOrgRoutes = ["/org", "/org/create"];
 
+  useEffect(() => {
+    if (
+      !isLoading &&
+      (error || !data?.organization) &&
+      !publicOrgRoutes.includes(pathname)
+    ) {
+      router.replace("/org");
+    }
+  }, [isLoading, error, data, pathname, router]);
+
   if (isLoading) {
     return <OrgContextLoading />;
   }
 
-  if (error && !publicOrgRoutes.includes(pathname)) {
-    return redirect("/org");
+  if ((error || !data?.organization) && !publicOrgRoutes.includes(pathname)) {
+    return null;
   }
 
-  if (!data?.organization && !publicOrgRoutes.includes(pathname)) {
-    return redirect("/org");
-  }
   return <div>{children}</div>;
 };
 

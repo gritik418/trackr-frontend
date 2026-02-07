@@ -152,13 +152,13 @@ export default function OrgMembersPage() {
           <div className="flex p-1 bg-white/5 rounded-xl self-start">
             <button
               onClick={() => setActiveTab("active")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "active" ? "bg-white/10 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-300"}`}
+              className={`px-4 py-2 cursor-pointer rounded-lg text-sm font-medium transition-all ${activeTab === "active" ? "bg-white/10 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-300"}`}
             >
               Active Members
             </button>
             <button
               onClick={() => setActiveTab("invitations")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "invitations" ? "bg-white/10 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-300"}`}
+              className={`px-4 py-2 cursor-pointer rounded-lg text-sm font-medium transition-all ${activeTab === "invitations" ? "bg-white/10 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-300"}`}
             >
               Invitations
             </button>
@@ -271,7 +271,11 @@ export default function OrgMembersPage() {
                         <OrgMemberItem key={member.id} member={member} />
                       ))
                     : filteredInvites?.map((invite) => (
-                        <OrgInviteItem key={invite.id} invite={invite} />
+                        <OrgInviteItem
+                          key={invite.id}
+                          invite={invite}
+                          orgId={organization.id}
+                        />
                       ))}
                 </tbody>
               </table>

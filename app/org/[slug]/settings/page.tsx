@@ -349,7 +349,7 @@ export default function OrgSettingsPage() {
         <ConfirmOrganizationDeletionModal
           open={showDeleteModal}
           onClose={() => setShowDeleteModal(false)}
-          orgName={organization.name}
+          orgName={organization?.name || ""}
           onConfirm={handleDelete}
         />
       )}

@@ -78,6 +78,13 @@ const organizationApi = createApi({
       }),
       providesTags: ["invites"],
     }),
+    revokeInvite: build.mutation<void, { orgId: string; inviteId: string }>({
+      query: ({ orgId, inviteId }) => ({
+        url: `/${orgId}/invites/${inviteId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["invites"],
+    }),
   }),
 });
 
@@ -90,5 +97,6 @@ export const {
   useInviteMemberMutation,
   useGetOrganizationMembersQuery,
   useGetOrganizationInvitesQuery,
+  useRevokeInviteMutation,
 } = organizationApi;
 export default organizationApi;

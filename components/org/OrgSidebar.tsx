@@ -51,13 +51,13 @@ export function OrgSidebar({ slug }: { slug: string }) {
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-bold tracking-tight text-white">
-                {organization?.name}
+                {organization?.name || "Loading..."}
               </span>
               <div className="flex items-center gap-1">
                 <RoleBadgeIcon size={12} role={organization?.role || ""} />
 
                 <span className="text-xs font-semibold capitalize text-neutral-500">
-                  Organization {organization?.role.toLowerCase()}
+                  Organization {organization?.role?.toLowerCase() || ""}
                 </span>
               </div>
             </div>
