@@ -43,12 +43,18 @@ export interface GetMembersResponse {
   message: string;
   members: OrganizationMember[];
 }
+export enum OrgInviteStatus {
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
+  EXPIRED = "EXPIRED",
+  REVOKED = "REVOKED",
+}
 
 export interface OrganizationInvitation {
   id: string;
   email: string;
   role: "ADMIN" | "MEMBER";
-  status: "PENDING" | "ACCEPTED" | "DECLINED";
+  status: OrgInviteStatus;
   createdAt: string;
   expiresAt: string;
 }

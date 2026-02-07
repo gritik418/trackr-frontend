@@ -1,33 +1,44 @@
 "use client";
 
 import { InviteMemberModal } from "@/components/org/InviteMemberModal";
+import OrgInviteItem from "@/components/org/invites/OrgInviteItem";
+import { MembersSkeleton } from "@/components/org/members/MembersSkeleton";
+import OrgMemberItem from "@/components/org/members/OrgMemberItem";
 import {
   useGetOrganizationInvitesQuery,
   useGetOrganizationMembersQuery,
 } from "@/features/organization/organization.api";
 import {
+  OrganizationInvitation,
+  OrgInviteStatus,
+} from "@/features/organization/organization.interface";
+import {
   selectInvites,
   selectMembers,
   selectOrganization,
 } from "@/features/organization/organization.slice";
-import { formatRelativeTime } from "@/lib/utils";
 import {
   CheckCircle2,
   Clock,
   Mail,
-  MoreVertical,
   Search,
-  Shield,
-  Trash2,
   UserPlus,
   Users,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 
 export default function OrgMembersPage() {
-  const [activeTab, setActiveTab] = useState<"active" | "pending">("active");
+  const [activeTab, setActiveTab] = useState<"active" | "invitations">(
+    "active",
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | OrgInviteStatus>(
+    "ALL",
+  );
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+
   const organization = useSelector(selectOrganization);
 
   const { isLoading: isLoadingMembers } = useGetOrganizationMembersQuery(
@@ -36,23 +47,28 @@ export default function OrgMembersPage() {
   );
 
   const { isLoading: isLoadingInvites } = useGetOrganizationInvitesQuery(
-    organization?.id || "",
-    { skip: !organization?.id },
+    {
+      orgId: organization?.id || "",
+      status: statusFilter === "ALL" ? undefined : statusFilter,
+    },
+    { skip: !organization?.id, refetchOnMountOrArgChange: true },
   );
 
   const members = useSelector(selectMembers);
   const invites = useSelector(selectInvites);
 
-  console.log(invites);
+  const filteredMembers = members?.filter(
+    (member) =>
+      member.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.role.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
+  const filteredInvites = invites?.filter(
+    (invite) =>
+      invite.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      invite.role.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   if (!organization) return null;
 
@@ -119,7 +135,7 @@ export default function OrgMembersPage() {
           </div>
           <div>
             <p className="text-sm text-neutral-500 font-medium">
-              Pending Invites
+              Total Invitations
             </p>
             <p className="text-2xl font-bold text-white">
               {invites?.length || 0}
@@ -141,33 +157,94 @@ export default function OrgMembersPage() {
               Active Members
             </button>
             <button
-              onClick={() => setActiveTab("pending")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "pending" ? "bg-white/10 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-300"}`}
+              onClick={() => setActiveTab("invitations")}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "invitations" ? "bg-white/10 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-300"}`}
             >
-              Pending Invites
+              Invitations
             </button>
           </div>
 
-          {/* Search */}
-          <div className="relative w-full md:w-64">
-            <Search
-              className="absolute left-3 top-2.5 text-neutral-500"
-              size={16}
-            />
-            <input
-              type="text"
-              placeholder="Search members..."
-              className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/5 rounded-xl text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand/30 focus:bg-white/10 transition-all"
-            />
+          <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+            {/* Status Filter (Only for Invitations tab) */}
+            {activeTab === "invitations" && (
+              <div className="relative">
+                <select
+                  value={statusFilter}
+                  onChange={(e) =>
+                    setStatusFilter(
+                      e.target.value as
+                        | "ALL"
+                        | OrganizationInvitation["status"],
+                    )
+                  }
+                  className="w-full md:w-40 px-4 py-2 bg-white/5 border border-white/5 rounded-xl text-sm text-white focus:outline-none focus:border-brand/30 focus:bg-white/10 transition-all appearance-none cursor-pointer"
+                >
+                  <option value="ALL" className="bg-neutral-900">
+                    All Status
+                  </option>
+                  <option value="PENDING" className="bg-neutral-900">
+                    Pending
+                  </option>
+                  <option value="ACCEPTED" className="bg-neutral-900">
+                    Accepted
+                  </option>
+                  <option value="REVOKED" className="bg-neutral-900">
+                    Revoked
+                  </option>
+                  <option value="EXPIRED" className="bg-neutral-900">
+                    Expired
+                  </option>
+                </select>
+                <div className="absolute right-3 top-3.5 pointer-events-none text-neutral-500">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M2.5 4.5L6 8L9.5 4.5"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+              </div>
+            )}
+
+            {/* Search */}
+            <div className="relative w-full md:w-64">
+              <Search
+                className="absolute left-3 top-2.5 text-neutral-500"
+                size={16}
+              />
+              <input
+                type="text"
+                placeholder="Search members..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-8 py-2 bg-white/5 border border-white/5 rounded-xl text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand/30 focus:bg-white/10 transition-all"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-3 text-neutral-500 hover:text-white transition-colors"
+                  aria-label="Clear search"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
         {/* List */}
         <div className="flex-1 overflow-x-auto">
           {isLoadingMembers || isLoadingInvites ? (
-            <div className="flex items-center justify-center h-full min-h-[200px]">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"></div>
-            </div>
+            <MembersSkeleton />
           ) : (
             <>
               <table className="w-full text-left border-collapse">
@@ -183,159 +260,100 @@ export default function OrgMembersPage() {
                       Status
                     </th>
                     <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-right">
-                      {activeTab === "active" ? "Joined" : "Sent"}
+                      {activeTab === "active" ? "Joined" : "Created"}
                     </th>
                     <th className="px-6 py-4 w-10"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {activeTab === "active"
-                    ? members?.map((member) => (
-                        <tr
-                          key={member.id}
-                          className="group hover:bg-white/2 transition-colors"
-                        >
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center text-brand font-bold text-sm overflow-hidden shrink-0">
-                                {member.user.avatarUrl ? (
-                                  // eslint-disable-next-line @next/next/no-img-element
-                                  <img
-                                    src={member.user.avatarUrl}
-                                    alt={member.user.name}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  getInitials(member.user.name)
-                                )}
-                              </div>
-                              <div>
-                                <div className="text-sm font-medium text-white group-hover:text-brand transition-colors">
-                                  {member.user.name}
-                                </div>
-                                <div className="text-xs text-neutral-500">
-                                  {member.user.email}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span
-                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
-                                member.role === "OWNER"
-                                  ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
-                                  : member.role === "ADMIN"
-                                    ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
-                                    : "bg-white/5 text-neutral-400 border-white/10"
-                              }`}
-                            >
-                              {(member.role === "OWNER" ||
-                                member.role === "ADMIN") && (
-                                <Shield size={10} />
-                              )}
-                              {member.role.charAt(0) +
-                                member.role.slice(1).toLowerCase()}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
-                              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                              Active
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-neutral-500 text-right font-mono">
-                            {formatRelativeTime(member.joinedAt)}
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <button className="p-2 text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all opacity-0 group-hover:opacity-100">
-                              <MoreVertical size={16} />
-                            </button>
-                          </td>
-                        </tr>
+                    ? filteredMembers?.map((member) => (
+                        <OrgMemberItem key={member.id} member={member} />
                       ))
-                    : invites?.map((invite) => (
-                        <tr
-                          key={invite.id}
-                          className="group hover:bg-white/2 transition-colors"
-                        >
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-neutral-500 shrink-0">
-                                <Mail size={16} />
-                              </div>
-                              <div>
-                                <div className="text-sm font-medium text-white">
-                                  {invite.email}
-                                </div>
-                                <div className="text-xs text-neutral-500">
-                                  Invitation sent
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/5 text-neutral-400 border border-white/10">
-                              {invite.role.charAt(0) +
-                                invite.role.slice(1).toLowerCase()}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                              Pending
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-neutral-500 text-right font-mono">
-                            {formatRelativeTime(invite.createdAt)}
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100">
-                              <button
-                                className="p-2 text-neutral-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
-                                title="Revoke Invite"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                              <button
-                                className="p-2 text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                                title="Resend"
-                              >
-                                <Clock size={16} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
+                    : filteredInvites?.map((invite) => (
+                        <OrgInviteItem key={invite.id} invite={invite} />
                       ))}
                 </tbody>
               </table>
 
               {/* Empty State Helper (Hidden if data exists) */}
-              {activeTab === "pending" && invites?.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                    <Mail size={24} className="text-neutral-500" />
+              {activeTab === "invitations" &&
+                invites?.length === 0 &&
+                !searchQuery && (
+                  <div className="flex flex-col items-center justify-center py-20 text-center">
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                      <Mail size={24} className="text-neutral-500" />
+                    </div>
+                    <h3 className="text-white font-bold mb-1">
+                      No invitations
+                    </h3>
+                    <p className="text-neutral-500 text-sm">
+                      {statusFilter === "ALL"
+                        ? "Invite members to collaborate with your team."
+                        : `No ${statusFilter.toLowerCase()} invitations found.`}
+                    </p>
                   </div>
-                  <h3 className="text-white font-bold mb-1">
-                    No pending invites
-                  </h3>
-                  <p className="text-neutral-500 text-sm">
-                    Invite members to collaborate with your team.
-                  </p>
-                </div>
-              )}
+                )}
 
-              {activeTab === "active" && members?.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                    <Users size={24} className="text-neutral-500" />
+              {activeTab === "invitations" &&
+                filteredInvites?.length === 0 &&
+                searchQuery && (
+                  <div className="flex flex-col items-center justify-center py-20 text-center">
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                      <Search size={24} className="text-neutral-500" />
+                    </div>
+                    <h3 className="text-white font-bold mb-1">
+                      No invites found
+                    </h3>
+                    <p className="text-neutral-500 text-sm">
+                      Try adjusting your search query.
+                    </p>
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="mt-4 text-sm text-brand hover:text-brand-hover font-medium cursor-pointer"
+                    >
+                      Clear search
+                    </button>
                   </div>
-                  <h3 className="text-white font-bold mb-1">
-                    No active members
-                  </h3>
-                  <p className="text-neutral-500 text-sm">
-                    Invite people to get started.
-                  </p>
-                </div>
-              )}
+                )}
+
+              {activeTab === "active" &&
+                members?.length === 0 &&
+                !searchQuery && (
+                  <div className="flex flex-col items-center justify-center py-20 text-center">
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                      <Users size={24} className="text-neutral-500" />
+                    </div>
+                    <h3 className="text-white font-bold mb-1">
+                      No active members
+                    </h3>
+                    <p className="text-neutral-500 text-sm">
+                      Invite people to get started.
+                    </p>
+                  </div>
+                )}
+
+              {activeTab === "active" &&
+                filteredMembers?.length === 0 &&
+                searchQuery && (
+                  <div className="flex flex-col items-center justify-center py-20 text-center">
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                      <Search size={24} className="text-neutral-500" />
+                    </div>
+                    <h3 className="text-white font-bold mb-1">
+                      No members found
+                    </h3>
+                    <p className="text-neutral-500 text-sm">
+                      Try adjusting your search query.
+                    </p>
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="mt-4 text-sm text-brand hover:text-brand-hover font-medium cursor-pointer"
+                    >
+                      Clear search
+                    </button>
+                  </div>
+                )}
             </>
           )}
         </div>
@@ -344,8 +362,8 @@ export default function OrgMembersPage() {
           <span>
             Showing{" "}
             {activeTab === "active"
-              ? members?.length || 0
-              : invites?.length || 0}{" "}
+              ? filteredMembers?.length || 0
+              : filteredInvites?.length || 0}{" "}
             results
           </span>
           <div className="flex gap-2">

@@ -68,8 +68,14 @@ const organizationApi = createApi({
       query: (orgId) => `/${orgId}/members`,
       providesTags: ["organizations"],
     }),
-    getOrganizationInvites: build.query<GetInvitationsResponse, string>({
-      query: (orgId) => `/${orgId}/invites`,
+    getOrganizationInvites: build.query<
+      GetInvitationsResponse,
+      { orgId: string; status?: string }
+    >({
+      query: ({ orgId, status }) => ({
+        url: `/${orgId}/invites`,
+        params: status && status !== "ALL" ? { status } : undefined,
+      }),
       providesTags: ["invites"],
     }),
   }),

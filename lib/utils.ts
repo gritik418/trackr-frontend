@@ -59,3 +59,12 @@ export function formatRelativeTime(dateString: string) {
     return `${Math.floor(diffInSeconds / 2592000)}mo ago`;
   return `${Math.floor(diffInSeconds / 31536000)}y ago`;
 }
+
+export const getInitials = (name: string) => {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+};
