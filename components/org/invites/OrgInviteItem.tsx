@@ -1,7 +1,11 @@
+"use client";
 import { OrganizationInvitation } from "@/features/organization/organization.interface";
 import { formatRelativeTime } from "@/lib/utils";
 import { Clock, Loader2, Mail, Trash2 } from "lucide-react";
-import { useRevokeInviteMutation } from "@/features/organization/organization.api";
+import {
+  useResendInviteMutation,
+  useRevokeInviteMutation,
+} from "@/features/organization/organization.api";
 import { toast } from "react-hot-toast";
 import { useState } from "react";
 import ConfirmRevokeInviteModal from "./ConfirmRevokeInviteModal";
@@ -13,15 +17,25 @@ type Props = {
 
 const OrgInviteItem = ({ invite, orgId }: Props) => {
   const [revokeInvite, { isLoading: isRevoking }] = useRevokeInviteMutation();
+  const [resendInvite, { isLoading: isResending }] = useResendInviteMutation();
   const [showRevokeModal, setShowRevokeModal] = useState(false);
+
+  const handleResend = async () => {
+    try {
+      await resendInvite({ orgId, inviteId: invite.id }).unwrap();
+      toast.success("Invitation resent successfully");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to resend invitation");
+    }
+  };
 
   const handleRevoke = async () => {
     try {
       await revokeInvite({ orgId, inviteId: invite.id }).unwrap();
       toast.success("Invitation revoked successfully");
       setShowRevokeModal(false);
-    } catch (error) {
-      toast.error("Failed to revoke invitation");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to revoke invitation");
     }
   };
   const getStatusStyles = (status: string) => {
@@ -38,15 +52,6 @@ const OrgInviteItem = ({ invite, orgId }: Props) => {
         return "bg-white/5 text-neutral-400 border-white/10";
     }
   };
-
-  const statusLabel =
-    invite.status === "PENDING"
-      ? "Pending"
-      : invite.status === "ACCEPTED"
-        ? "Accepted"
-        : invite.status === "REVOKED"
-          ? "Revoked"
-          : "Expired";
 
   return (
     <>
@@ -71,11 +76,11 @@ const OrgInviteItem = ({ invite, orgId }: Props) => {
         </td>
         <td className="px-6 py-4">
           <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusStyles(
+            className={`inline-flex capitalize items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusStyles(
               invite.status,
             )}`}
           >
-            {statusLabel}
+            {invite.status.toLowerCase()}
           </span>
         </td>
         <td className="px-6 py-4 text-sm text-neutral-500 text-right font-mono">
@@ -96,10 +101,16 @@ const OrgInviteItem = ({ invite, orgId }: Props) => {
               )}
             </button>
             <button
-              className="p-2 cursor-pointer text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+              onClick={handleResend}
+              disabled={isResending || invite.status === "REVOKED"}
+              className="p-2 cursor-pointer text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               title="Resend"
             >
-              <Clock size={16} />
+              {isResending ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Clock size={16} />
+              )}
             </button>
           </div>
         </td>
