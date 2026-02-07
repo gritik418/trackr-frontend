@@ -11,7 +11,6 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { useSelector } from "react-redux";
 
 export default function OrgDashboardPage() {
@@ -79,9 +78,7 @@ export default function OrgDashboardPage() {
     },
   ];
 
-  if (!organization) {
-    return redirect("/org");
-  }
+  if (!organization) return null;
 
   return (
     <div className="space-y-8 animate-fade-in">

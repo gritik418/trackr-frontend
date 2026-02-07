@@ -6,7 +6,6 @@ import { selectOrganization } from "@/features/organization/organization.slice";
 import { useGetWorkspacesQuery } from "@/features/workspace/workspace.api";
 import { Workspace } from "@/types/workspace/workspace.interface";
 import { Boxes, Plus, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -16,7 +15,6 @@ export default function OrgWorkspacesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   const filteredWorkspaces = useMemo(() => {
     if (!workspaces) return [];
@@ -47,10 +45,6 @@ export default function OrgWorkspacesPage() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  if (!organization) {
-    router.push("/dashboard");
-  }
 
   const toggleMenu = (e: React.MouseEvent, id: string) => {
     e.preventDefault();

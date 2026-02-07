@@ -12,7 +12,7 @@ import { UpdateOrganizationDto } from "@/types/organization/update-organization.
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Building2, Globe, Mail, ShieldAlert } from "lucide-react";
 import Image from "next/image";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -42,11 +42,10 @@ export default function OrgSettingsPage() {
     },
   });
 
-  if (!organization) {
-    return redirect("/org");
-  }
-
   const onSubmit = async (data: UpdateOrganizationDto) => {
+    if (!organization) {
+      return;
+    }
     try {
       await updateOrganization({ id: organization.id, ...data });
       toast.success("Organization updated successfully!");
@@ -95,6 +94,8 @@ export default function OrgSettingsPage() {
 
     return initials;
   };
+
+  if (!organization) return null;
 
   return (
     <>
