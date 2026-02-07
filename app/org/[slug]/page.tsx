@@ -93,10 +93,13 @@ export default function OrgDashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2 bg-brand text-bg-dark-0 rounded-xl text-sm font-bold hover:bg-brand-hover transition-colors flex items-center gap-2">
+          <Link
+            href={`/org/${organization.slug}/workspaces/new`}
+            className="px-4 py-2 bg-brand text-bg-dark-0 rounded-xl text-sm font-bold hover:bg-brand-hover transition-colors flex items-center gap-2"
+          >
             <Plus size={16} />
             New Workspace
-          </button>
+          </Link>
         </div>
       </div>
 

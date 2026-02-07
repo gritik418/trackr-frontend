@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
         pathname: "/**",
         port: "3001",
       },
+      {
+        protocol: "https",
+        hostname: "ws.com",
+        pathname: "/**",
+      },
     ],
   },
 };

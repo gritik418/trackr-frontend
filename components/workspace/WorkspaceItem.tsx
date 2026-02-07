@@ -1,32 +1,15 @@
 import { Workspace } from "@/types/workspace/workspace.interface";
-import {
-  Boxes,
-  Briefcase,
-  Clock,
-  Edit,
-  MoreVertical,
-  Trash2,
-  Users,
-} from "lucide-react";
+import { Boxes, Briefcase, Clock, Users } from "lucide-react";
 import Link from "next/link";
-import React from "react";
 import RoleBadgeIcon from "../ui/RoleBadgeIcon";
+import Image from "next/image";
 
 type Props = {
   ws: Workspace;
-  openMenuId: string | null;
-  menuRef: React.RefObject<HTMLDivElement | null>;
-  toggleMenu: (e: React.MouseEvent, id: string) => void;
   formatDate: (dateString: string) => string;
 };
 
-const WorkspaceItem = ({
-  ws,
-  formatDate,
-  menuRef,
-  openMenuId,
-  toggleMenu,
-}: Props) => {
+const WorkspaceItem = ({ ws, formatDate }: Props) => {
   return (
     <div
       key={ws.id}
@@ -36,50 +19,34 @@ const WorkspaceItem = ({
       <div className="absolute inset-0 bg-linear-to-br from-brand/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
       <div className="absolute -inset-px bg-linear-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-700" />
 
-      <div className="relative z-10 flex items-start justify-between mb-6">
-        <div className="flex items-center gap-4">
+      <div className="relative z-10 flex flex-col items-start w-full justify-between mb-6">
+        <div className="flex items-center justify-between gap-4">
           <div className="relative">
             <div className="absolute -inset-2 bg-brand/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 relative z-10 group-hover:scale-110 group-hover:border-brand/30 transition-all duration-500 shadow-2xl">
-              <Briefcase
-                size={22}
-                className="text-white/70 group-hover:text-brand transition-colors duration-300"
+            {ws.iconUrl ? (
+              <Image
+                src={ws.iconUrl}
+                alt={ws.name}
+                width={48}
+                height={48}
+                className="rounded-2xl w-12 h-12 object-cover bg-white/5 flex items-center justify-center border border-white/10 relative z-10 group-hover:scale-110 group-hover:border-brand/30 transition-all duration-500 shadow-2xl"
               />
-            </div>
+            ) : (
+              <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 relative z-10 group-hover:scale-110 group-hover:border-brand/30 transition-all duration-500 shadow-2xl">
+                <Briefcase
+                  size={22}
+                  className="text-white/70 group-hover:text-brand transition-colors duration-300"
+                />
+              </div>
+            )}
           </div>
+
           {ws.role && (
             <div
-              className={`px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-[0.15em] flex items-center gap-1.5 transition-all duration-500 ${ws.role === "OWNER" ? "border-amber-500/30 bg-amber-500/10 text-amber-500 group-hover:bg-amber-500/20" : ws.role === "ADMIN" ? "border-blue-500/30 bg-blue-500/10 text-blue-500 group-hover:bg-blue-500/20" : "border-white/10 bg-white/5 text-neutral-400 group-hover:bg-white/10"}`}
+              className={`px-3 absolute right-0 top-0 py-1 rounded-full border text-[10px] font-black uppercase tracking-[0.15em] flex items-center gap-1.5 transition-all duration-500 ${ws.role === "OWNER" ? "border-amber-500/30 bg-amber-500/10 text-amber-500 group-hover:bg-amber-500/20" : ws.role === "ADMIN" ? "border-blue-500/30 bg-blue-500/10 text-blue-500 group-hover:bg-blue-500/20" : "border-white/10 bg-white/5 text-neutral-400 group-hover:bg-white/10"}`}
             >
               <RoleBadgeIcon size={12} role={ws.role} />
               <span>{ws.role}</span>
-            </div>
-          )}
-        </div>
-        <div
-          className="relative z-30"
-          ref={openMenuId === ws.id ? menuRef : null}
-        >
-          <button
-            onClick={(e) => toggleMenu(e, ws.id)}
-            className={`p-2 cursor-pointer rounded-lg transition-all duration-300 ${openMenuId === ws.id ? "bg-white/10 text-white scale-110" : "text-neutral-500 hover:bg-white/10 hover:text-white"}`}
-          >
-            <MoreVertical size={18} />
-          </button>
-
-          {/* Dropdown Menu */}
-          {openMenuId === ws.id && (
-            <div className="absolute right-0 top-full mt-2 w-48 bg-bg-dark-1/90 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-black/80 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right z-50 ring-1 ring-white/10">
-              <div className="p-1.5">
-                <button className="w-full cursor-pointer flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/10 rounded-xl transition-all text-left">
-                  <Edit size={14} className="text-brand/80" />
-                  Edit Workspace
-                </button>
-                <button className="w-full cursor-pointer flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all text-left">
-                  <Trash2 size={14} />
-                  Delete
-                </button>
-              </div>
             </div>
           )}
         </div>

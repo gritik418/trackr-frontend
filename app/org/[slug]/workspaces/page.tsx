@@ -6,15 +6,14 @@ import { selectOrganization } from "@/features/organization/organization.slice";
 import { useGetWorkspacesQuery } from "@/features/workspace/workspace.api";
 import { Workspace } from "@/types/workspace/workspace.interface";
 import { Boxes, Plus, Search } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 
 export default function OrgWorkspacesPage() {
   const organization = useSelector(selectOrganization);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const filteredWorkspaces = useMemo(() => {
     if (!workspaces) return [];
@@ -33,24 +32,6 @@ export default function OrgWorkspacesPage() {
       setWorkspaces(data.workspaces);
     }
   }, [data]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setOpenMenuId(null);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const toggleMenu = (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setOpenMenuId(openMenuId === id ? null : id);
-  };
 
   const formatDate = (dateString: string) => {
     return new Intl.DateTimeFormat("en-US", {
@@ -92,13 +73,16 @@ export default function OrgWorkspacesPage() {
               className="w-full pl-11 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand/50 transition-all duration-300 group-hover:bg-white/10"
             />
           </div>
-          <button className="flex items-center justify-center gap-2 px-6 py-2.5 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand/90 hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95 group">
+          <Link
+            href={`/org/${organization?.slug}/workspaces/new`}
+            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand/90 hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95 group"
+          >
             <Plus
               size={20}
               className="group-hover:rotate-90 transition-transform duration-300"
             />
             New Workspace
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -118,13 +102,7 @@ export default function OrgWorkspacesPage() {
                 className="animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <WorkspaceItem
-                  ws={ws}
-                  formatDate={formatDate}
-                  menuRef={menuRef}
-                  openMenuId={openMenuId}
-                  toggleMenu={toggleMenu}
-                />
+                <WorkspaceItem ws={ws} formatDate={formatDate} />
               </div>
             ))}
 
@@ -133,7 +111,10 @@ export default function OrgWorkspacesPage() {
               className="animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
               style={{ animationDelay: `${filteredWorkspaces.length * 100}ms` }}
             >
-              <button className="group h-full relative cursor-pointer p-6 rounded-3xl border border-dashed border-white/10 hover:border-brand/40 hover:bg-brand/5 transition-all duration-300 flex flex-col items-center justify-center text-center gap-4 min-h-[240px]">
+              <Link
+                href={`/org/${organization?.slug}/workspaces/new`}
+                className="group h-full relative cursor-pointer p-6 rounded-3xl border border-dashed border-white/10 hover:border-brand/40 hover:bg-brand/5 transition-all duration-300 flex flex-col items-center justify-center text-center gap-4 min-h-[240px]"
+              >
                 <div className="w-16 h-16 rounded-full bg-white/5 group-hover:bg-brand/10 flex items-center justify-center transition-colors duration-300">
                   <Plus
                     size={32}
@@ -148,7 +129,7 @@ export default function OrgWorkspacesPage() {
                     Add a new workspace to organize your next big project.
                   </p>
                 </div>
-              </button>
+              </Link>
             </div>
           </div>
         ) : (
@@ -163,13 +144,16 @@ export default function OrgWorkspacesPage() {
               It looks like you haven't created any workspaces in this
               organization yet. Get started by creating your first workspace.
             </p>
-            <button className="flex cursor-pointer items-center gap-2 px-6 py-3 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95 group">
+            <Link
+              href={"workspaces/new"}
+              className="flex cursor-pointer items-center gap-2 px-6 py-3 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95 group"
+            >
               <Plus
                 size={20}
                 className="group-hover:rotate-90 transition-transform duration-300"
               />
               Create Your First Workspace
-            </button>
+            </Link>
           </div>
         )}
       </div>
