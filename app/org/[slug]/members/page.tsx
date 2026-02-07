@@ -11,68 +11,31 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { InviteMemberModal } from "@/components/org/InviteMemberModal";
 import { useSelector } from "react-redux";
 import { selectOrganization } from "@/features/organization/organization.slice";
+import { useGetOrganizationMembersQuery } from "@/features/organization/organization.api";
+import { OrganizationMember } from "@/types/organization/organization.interface";
 
 export default function OrgMembersPage() {
   const [activeTab, setActiveTab] = useState<"active" | "pending">("active");
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const organization = useSelector(selectOrganization);
-  const members = [
-    {
-      id: "1",
-      name: "Ritik Gupta",
-      email: "ritik@trackr.so",
-      role: "Owner",
-      status: "active",
-      avatar: "https://github.com/ritikgupta.png",
-      joinedAt: "Jan 2024",
-    },
-    {
-      id: "2",
-      name: "Sarah Chen",
-      email: "sarah@trackr.so",
-      role: "Admin",
-      status: "active",
-      avatar: null,
-      joinedAt: "Feb 2024",
-    },
-    {
-      id: "3",
-      name: "Mike Ross",
-      email: "mike@trackr.so",
-      role: "Member",
-      status: "active",
-      avatar: null,
-      joinedAt: "Feb 2024",
-    },
-    {
-      id: "4",
-      name: "Alex Johnson",
-      email: "alex@trackr.so",
-      role: "Member",
-      status: "active",
-      avatar: null,
-      joinedAt: "Mar 2024",
-    },
-  ];
+  const [members, setMembers] = useState<OrganizationMember[]>([]);
+  const { data: membersData, isLoading: isLoadingMembers } =
+    useGetOrganizationMembersQuery(organization?.id || "", {
+      skip: !organization?.id,
+    });
 
   const invites = [
     {
-      id: "inv_1",
-      email: "david@design.co",
-      role: "Member",
-      sentAt: "2 days ago",
-      status: "pending",
-    },
-    {
-      id: "inv_2",
-      email: "emily@marketing.com",
-      role: "Admin",
-      sentAt: "5 hours ago",
-      status: "pending",
+      id: "1",
+      email: "ritik@trackr.ai",
+      role: "MEMBER",
+      status: "PENDING",
+      createdAt: new Date().toISOString(),
+      invitedAt: new Date().toISOString(),
     },
   ];
 
@@ -85,9 +48,13 @@ export default function OrgMembersPage() {
       .slice(0, 2);
   };
 
-  if (!organization) return null;
+  useEffect(() => {
+    if (membersData?.members) {
+      setMembers(membersData.members);
+    }
+  }, [membersData]);
 
-  console.log(organization);
+  if (!organization) return null;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700 pb-10 relative overflow-hidden">
@@ -131,7 +98,7 @@ export default function OrgMembersPage() {
               Total Members
             </p>
             <p className="text-2xl font-bold text-white">
-              {organization.members.length}
+              {members?.length || 0}
             </p>
           </div>
         </div>
@@ -141,7 +108,9 @@ export default function OrgMembersPage() {
           </div>
           <div>
             <p className="text-sm text-neutral-500 font-medium">Active Seats</p>
-            <p className="text-2xl font-bold text-white">118</p>
+            <p className="text-2xl font-bold text-white">
+              {members?.length || 0}
+            </p>
           </div>
         </div>
         <div className="p-5 rounded-2xl bg-org-card-bg/40 border border-white/5 flex items-center gap-4">
@@ -152,7 +121,9 @@ export default function OrgMembersPage() {
             <p className="text-sm text-neutral-500 font-medium">
               Pending Invites
             </p>
-            <p className="text-2xl font-bold text-white">6</p>
+            <p className="text-2xl font-bold text-white">
+              {/* {invites?.length || 0} */} 0
+            </p>
           </div>
         </div>
       </div>
@@ -193,157 +164,188 @@ export default function OrgMembersPage() {
 
         {/* List */}
         <div className="flex-1 overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-white/5 bg-white/2">
-                <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-                  User
-                </th>
-                <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-right">
-                  Added
-                </th>
-                <th className="px-6 py-4 w-10"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {activeTab === "active"
-                ? members.map((member) => (
-                    <tr
-                      key={member.id}
-                      className="group hover:bg-white/2 transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center text-brand font-bold text-sm overflow-hidden shrink-0">
-                            {member.avatar ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={member.avatar}
-                                alt={member.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              getInitials(member.name)
-                            )}
-                          </div>
-                          <div>
-                            <div className="text-sm font-medium text-white group-hover:text-brand transition-colors">
-                              {member.name}
-                            </div>
-                            <div className="text-xs text-neutral-500">
-                              {member.email}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
-                            member.role === "Owner"
-                              ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
-                              : member.role === "Admin"
-                                ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
-                                : "bg-white/5 text-neutral-400 border-white/10"
-                          }`}
-                        >
-                          {member.role === "Owner" && <Shield size={10} />}
-                          {member.role === "Admin" && <Shield size={10} />}
-                          {member.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                          Active
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-neutral-500 text-right font-mono">
-                        {member.joinedAt}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button className="p-2 text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all opacity-0 group-hover:opacity-100">
-                          <MoreVertical size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                : invites.map((invite) => (
-                    <tr
-                      key={invite.id}
-                      className="group hover:bg-white/2 transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-neutral-500 shrink-0">
-                            <Mail size={16} />
-                          </div>
-                          <div>
-                            <div className="text-sm font-medium text-white">
-                              {invite.email}
-                            </div>
-                            <div className="text-xs text-neutral-500">
-                              Invitation sent
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/5 text-neutral-400 border border-white/10">
-                          {invite.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                          Pending
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-neutral-500 text-right font-mono">
-                        {invite.sentAt}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100">
-                          <button
-                            className="p-2 text-neutral-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
-                            title="Revoke Invite"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                          <button
-                            className="p-2 text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                            title="Resend"
-                          >
-                            <Clock size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-            </tbody>
-          </table>
-
-          {/* Empty State Helper (Hidden if data exists) */}
-          {activeTab === "pending" && invites.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                <Mail size={24} className="text-neutral-500" />
-              </div>
-              <h3 className="text-white font-bold mb-1">No pending invites</h3>
-              <p className="text-neutral-500 text-sm">
-                Invite members to collaborate with your team.
-              </p>
+          {isLoadingMembers ? (
+            <div className="flex items-center justify-center h-full min-h-[200px]">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"></div>
             </div>
+          ) : (
+            <>
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-white/5 bg-white/2">
+                    <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                      User
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                      Role
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-right">
+                      {activeTab === "active" ? "Joined" : "Sent"}
+                    </th>
+                    <th className="px-6 py-4 w-10"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {activeTab === "active"
+                    ? members?.map((member) => (
+                        <tr
+                          key={member.id}
+                          className="group hover:bg-white/2 transition-colors"
+                        >
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center text-brand font-bold text-sm overflow-hidden shrink-0">
+                                {member.user.avatarUrl ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={member.user.avatarUrl}
+                                    alt={member.user.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  getInitials(member.user.name)
+                                )}
+                              </div>
+                              <div>
+                                <div className="text-sm font-medium text-white group-hover:text-brand transition-colors">
+                                  {member.user.name}
+                                </div>
+                                <div className="text-xs text-neutral-500">
+                                  {member.user.email}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
+                                member.role === "OWNER"
+                                  ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                                  : member.role === "ADMIN"
+                                    ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                                    : "bg-white/5 text-neutral-400 border-white/10"
+                              }`}
+                            >
+                              {(member.role === "OWNER" ||
+                                member.role === "ADMIN") && (
+                                <Shield size={10} />
+                              )}
+                              {member.role.charAt(0) +
+                                member.role.slice(1).toLowerCase()}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                              Active
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-neutral-500 text-right font-mono">
+                            {new Date(member.joinedAt).toLocaleString()}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button className="p-2 text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all opacity-0 group-hover:opacity-100">
+                              <MoreVertical size={16} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    : invites?.map((invite) => (
+                        <tr
+                          key={invite.id}
+                          className="group hover:bg-white/2 transition-colors"
+                        >
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-neutral-500 shrink-0">
+                                <Mail size={16} />
+                              </div>
+                              <div>
+                                <div className="text-sm font-medium text-white">
+                                  {invite.email}
+                                </div>
+                                <div className="text-xs text-neutral-500">
+                                  Invitation sent
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/5 text-neutral-400 border border-white/10">
+                              {invite.role.charAt(0) +
+                                invite.role.slice(1).toLowerCase()}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                              Pending
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-neutral-500 text-right font-mono">
+                            {new Date(invite.invitedAt).toLocaleString()}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100">
+                              <button
+                                className="p-2 text-neutral-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+                                title="Revoke Invite"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                              <button
+                                className="p-2 text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+                                title="Resend"
+                              >
+                                <Clock size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                </tbody>
+              </table>
+
+              {/* Empty State Helper (Hidden if data exists) */}
+              {activeTab === "pending" && invites?.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                    <Mail size={24} className="text-neutral-500" />
+                  </div>
+                  <h3 className="text-white font-bold mb-1">
+                    No pending invites
+                  </h3>
+                  <p className="text-neutral-500 text-sm">
+                    Invite members to collaborate with your team.
+                  </p>
+                </div>
+              )}
+
+              {activeTab === "active" && members?.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                    <Users size={24} className="text-neutral-500" />
+                  </div>
+                  <h3 className="text-white font-bold mb-1">
+                    No active members
+                  </h3>
+                  <p className="text-neutral-500 text-sm">
+                    Invite people to get started.
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
 
         <div className="p-4 border-t border-white/5 bg-white/2 flex justify-between items-center text-xs text-neutral-500">
           <span>
-            Showing {activeTab === "active" ? members.length : invites.length}{" "}
+            Showing{" "}
+            {activeTab === "active"
+              ? members?.length || 0
+              : invites?.length || 0}{" "}
             results
           </span>
           <div className="flex gap-2">

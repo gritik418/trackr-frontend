@@ -1,4 +1,7 @@
-import { Organization } from "@/types/organization/organization.interface";
+import {
+  Organization,
+  OrganizationMember,
+} from "@/types/organization/organization.interface";
 import { UpdateOrganizationDto } from "@/types/organization/update-organization.interface";
 
 export interface OrganizationState {
@@ -29,4 +32,10 @@ export interface InviteMemberDto {
   orgId: string;
   email: string;
   role: "ADMIN" | "MEMBER";
+}
+
+export interface GetMembersResponse {
+  success: boolean;
+  message: string;
+  members: OrganizationMember[];
 }

@@ -2,6 +2,7 @@ import { API_BASE_URL } from "@/constants";
 import { CreateOrganizationDto } from "@/types/organization/create-organization.interface";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
+  GetMembersResponse,
   GetOrganizationDetailsResponse,
   GetOrganizationsResponse,
   InviteMemberDto,
@@ -62,6 +63,10 @@ const organizationApi = createApi({
       }),
       invalidatesTags: ["invites"],
     }),
+    getOrganizationMembers: build.query<GetMembersResponse, string>({
+      query: (orgId) => `/${orgId}/members`,
+      providesTags: ["organizations"],
+    }),
   }),
 });
 
@@ -72,5 +77,6 @@ export const {
   useUpdateOrganizationMutation,
   useDeleteOrganizationMutation,
   useInviteMemberMutation,
+  useGetOrganizationMembersQuery,
 } = organizationApi;
 export default organizationApi;
