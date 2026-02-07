@@ -57,8 +57,6 @@ export default function OrgSelectionPage() {
     window.location.reload();
   };
 
-  console.log(organizations);
-
   return (
     <div className="min-h-screen w-full bg-[#020202] text-white flex flex-col font-sans selection:bg-brand/30 overflow-x-hidden">
       {/* Navbar */}

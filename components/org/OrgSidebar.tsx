@@ -4,9 +4,12 @@ import { selectOrganization } from "@/features/organization/organization.slice";
 import {
   Building2,
   CreditCard,
+  Crown,
   Layout,
   ScrollText,
   Settings,
+  Shield,
+  User,
   Users,
 } from "lucide-react";
 import Image from "next/image";
@@ -29,6 +32,27 @@ export function OrgSidebar({ slug }: { slug: string }) {
   const pathname = usePathname();
   const navigation = getNavigation(slug);
   const organization = useSelector(selectOrganization);
+
+  const getRoleConfig = (role: string) => {
+    const roleLower = role.toLowerCase();
+    switch (roleLower) {
+      case "owner":
+        return {
+          icon: <Crown size={12} className="text-amber-500" />,
+          styles: "bg-amber-500/10 border-amber-500/20 text-amber-500",
+        };
+      case "admin":
+        return {
+          icon: <Shield size={12} className="text-blue-500" />,
+          styles: "bg-blue-500/10 border-blue-500/20 text-blue-500",
+        };
+      default:
+        return {
+          icon: <User size={12} className="text-neutral-500" />,
+          styles: "bg-white/5 border-white/10 text-neutral-500",
+        };
+    }
+  };
 
   return (
     <aside className="fixed inset-y-0 left-0 z-50 w-72 bg-org-sidebar-bg border-r border-org-border hidden lg:block">
@@ -54,13 +78,7 @@ export function OrgSidebar({ slug }: { slug: string }) {
                 {organization?.name}
               </span>
               <div className="flex items-center gap-1">
-                {organization?.role === "OWNER" ||
-                organization?.role === "ADMIN" ? (
-                  <FaShieldAlt
-                    size={12}
-                    className={`${organization.role === "OWNER" ? "text-purple-500" : "text-blue-500"}`}
-                  />
-                ) : null}{" "}
+                {getRoleConfig(organization?.role || "").icon}
                 <span className="text-xs font-semibold capitalize text-neutral-500">
                   Organization {organization?.role.toLowerCase()}
                 </span>
