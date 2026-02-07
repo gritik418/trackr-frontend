@@ -1,12 +1,12 @@
 "use client";
 
+import { useInviteMemberMutation } from "@/features/organization/organization.api";
+import { InviteMemberDataDto } from "@/features/organization/organization.interface";
+import inviteMemberSchema from "@/lib/schemas/organization/invite-member.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, ChevronDown, Mail, Shield, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useInviteMemberMutation } from "@/features/organization/organization.api";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import inviteMemberSchema from "@/lib/schemas/organization/invite-member.schema";
-import { InviteMemberDto } from "@/features/organization/organization.interface";
+import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
 interface InviteMemberModalProps {
@@ -14,8 +14,6 @@ interface InviteMemberModalProps {
   onClose: () => void;
   orgId: string;
 }
-
-type InviteMemberFormData = Omit<InviteMemberDto, "orgId">;
 
 export function InviteMemberModal({
   isOpen,
@@ -31,7 +29,7 @@ export function InviteMemberModal({
     control,
     reset,
     formState: { errors },
-  } = useForm<InviteMemberFormData>({
+  } = useForm<InviteMemberDataDto>({
     resolver: zodResolver(inviteMemberSchema),
     defaultValues: {
       email: "",
@@ -76,7 +74,7 @@ export function InviteMemberModal({
 
   if (!isOpen) return null;
 
-  const onSubmit = async (data: InviteMemberFormData) => {
+  const onSubmit = async (data: InviteMemberDataDto) => {
     try {
       await inviteMember({
         orgId,

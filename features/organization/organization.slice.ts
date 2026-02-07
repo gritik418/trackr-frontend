@@ -5,6 +5,8 @@ import { RootState } from "@/store";
 
 const initialState: OrganizationState = {
   organization: null,
+  members: [],
+  invites: [],
 };
 
 const organizationSlice = createSlice({
@@ -26,11 +28,29 @@ const organizationSlice = createSlice({
         (state, action) => {
           state.organization = null;
         },
+      )
+      .addMatcher(
+        organizationApi.endpoints.getOrganizationMembers.matchFulfilled,
+        (state, action) => {
+          if (action.payload.members) {
+            state.members = action.payload.members;
+          }
+        },
+      )
+      .addMatcher(
+        organizationApi.endpoints.getOrganizationInvites.matchFulfilled,
+        (state, action) => {
+          if (action.payload.invitations) {
+            state.invites = action.payload.invitations;
+          }
+        },
       );
   },
 });
 
 export const selectOrganization = (state: RootState) =>
   state.organizations.organization;
+export const selectMembers = (state: RootState) => state.organizations.members;
+export const selectInvites = (state: RootState) => state.organizations.invites;
 
 export default organizationSlice;

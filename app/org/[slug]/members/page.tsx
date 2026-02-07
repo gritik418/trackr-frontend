@@ -1,5 +1,16 @@
 "use client";
 
+import { InviteMemberModal } from "@/components/org/InviteMemberModal";
+import {
+  useGetOrganizationInvitesQuery,
+  useGetOrganizationMembersQuery,
+} from "@/features/organization/organization.api";
+import {
+  selectInvites,
+  selectMembers,
+  selectOrganization,
+} from "@/features/organization/organization.slice";
+import { formatRelativeTime } from "@/lib/utils";
 import {
   CheckCircle2,
   Clock,
@@ -11,33 +22,28 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { InviteMemberModal } from "@/components/org/InviteMemberModal";
+import { useState } from "react";
 import { useSelector } from "react-redux";
-import { selectOrganization } from "@/features/organization/organization.slice";
-import { useGetOrganizationMembersQuery } from "@/features/organization/organization.api";
-import { OrganizationMember } from "@/types/organization/organization.interface";
 
 export default function OrgMembersPage() {
   const [activeTab, setActiveTab] = useState<"active" | "pending">("active");
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const organization = useSelector(selectOrganization);
-  const [members, setMembers] = useState<OrganizationMember[]>([]);
-  const { data: membersData, isLoading: isLoadingMembers } =
-    useGetOrganizationMembersQuery(organization?.id || "", {
-      skip: !organization?.id,
-    });
 
-  const invites = [
-    {
-      id: "1",
-      email: "ritik@trackr.ai",
-      role: "MEMBER",
-      status: "PENDING",
-      createdAt: new Date().toISOString(),
-      invitedAt: new Date().toISOString(),
-    },
-  ];
+  const { isLoading: isLoadingMembers } = useGetOrganizationMembersQuery(
+    organization?.id || "",
+    { skip: !organization?.id },
+  );
+
+  const { isLoading: isLoadingInvites } = useGetOrganizationInvitesQuery(
+    organization?.id || "",
+    { skip: !organization?.id },
+  );
+
+  const members = useSelector(selectMembers);
+  const invites = useSelector(selectInvites);
+
+  console.log(invites);
 
   const getInitials = (name: string) => {
     return name
@@ -47,12 +53,6 @@ export default function OrgMembersPage() {
       .toUpperCase()
       .slice(0, 2);
   };
-
-  useEffect(() => {
-    if (membersData?.members) {
-      setMembers(membersData.members);
-    }
-  }, [membersData]);
 
   if (!organization) return null;
 
@@ -122,7 +122,7 @@ export default function OrgMembersPage() {
               Pending Invites
             </p>
             <p className="text-2xl font-bold text-white">
-              {/* {invites?.length || 0} */} 0
+              {invites?.length || 0}
             </p>
           </div>
         </div>
@@ -164,7 +164,7 @@ export default function OrgMembersPage() {
 
         {/* List */}
         <div className="flex-1 overflow-x-auto">
-          {isLoadingMembers ? (
+          {isLoadingMembers || isLoadingInvites ? (
             <div className="flex items-center justify-center h-full min-h-[200px]">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"></div>
             </div>
@@ -244,7 +244,7 @@ export default function OrgMembersPage() {
                             </span>
                           </td>
                           <td className="px-6 py-4 text-sm text-neutral-500 text-right font-mono">
-                            {new Date(member.joinedAt).toLocaleString()}
+                            {formatRelativeTime(member.joinedAt)}
                           </td>
                           <td className="px-6 py-4 text-right">
                             <button className="p-2 text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all opacity-0 group-hover:opacity-100">
@@ -285,7 +285,7 @@ export default function OrgMembersPage() {
                             </span>
                           </td>
                           <td className="px-6 py-4 text-sm text-neutral-500 text-right font-mono">
-                            {new Date(invite.invitedAt).toLocaleString()}
+                            {formatRelativeTime(invite.createdAt)}
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100">
