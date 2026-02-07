@@ -4,6 +4,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
   GetOrganizationDetailsResponse,
   GetOrganizationsResponse,
+  InviteMemberDto,
   UpdateOrgDto,
 } from "./organization.interface";
 
@@ -13,7 +14,7 @@ const organizationApi = createApi({
     baseUrl: `${API_BASE_URL}/organizations`,
     credentials: "include",
   }),
-  tagTypes: ["organizations"],
+  tagTypes: ["organizations", "invites"],
   endpoints: (build) => ({
     getOrganizations: build.query<GetOrganizationsResponse, void>({
       query: () => "/",
@@ -53,6 +54,14 @@ const organizationApi = createApi({
       }),
       invalidatesTags: ["organizations"],
     }),
+    inviteMember: build.mutation<void, InviteMemberDto>({
+      query: ({ orgId, ...data }) => ({
+        url: `/${orgId}/invites`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["invites"],
+    }),
   }),
 });
 
@@ -62,5 +71,6 @@ export const {
   useCreateOrganizationMutation,
   useUpdateOrganizationMutation,
   useDeleteOrganizationMutation,
+  useInviteMemberMutation,
 } = organizationApi;
 export default organizationApi;

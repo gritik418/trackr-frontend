@@ -24,3 +24,9 @@ export interface GetOrganizationDetailsResponse {
 export interface UpdateOrgDto extends UpdateOrganizationDto {
   id: string;
 }
+
+export interface InviteMemberDto {
+  orgId: string;
+  email: string;
+  role: "ADMIN" | "MEMBER";
+}

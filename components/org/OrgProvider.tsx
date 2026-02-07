@@ -14,6 +14,7 @@ const OrgProvider = ({
   const pathname = usePathname();
   const { data, isLoading, error } = useGetOrganizationDetailsQuery(slug, {
     skip: !slug,
+    refetchOnMountOrArgChange: true,
   });
 
   const publicOrgRoutes = ["/org", "/org/create"];

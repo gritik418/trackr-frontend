@@ -19,6 +19,11 @@ const nextConfig: NextConfig = {
         hostname: "ws.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "plus.unsplash.com",
+        pathname: "/**",
+      },
     ],
   },
 };

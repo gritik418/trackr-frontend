@@ -14,6 +14,9 @@ export default function OrgWorkspacesPage() {
   const organization = useSelector(selectOrganization);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const { data, isLoading } = useGetWorkspacesQuery(organization?.id || "", {
+    skip: !organization?.id,
+  });
 
   const filteredWorkspaces = useMemo(() => {
     if (!workspaces) return [];
@@ -22,10 +25,6 @@ export default function OrgWorkspacesPage() {
       ws.name.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [workspaces, searchQuery]);
-
-  const { data, isLoading } = useGetWorkspacesQuery(organization?.id || "", {
-    skip: !organization?.id,
-  });
 
   useEffect(() => {
     if (data?.workspaces) {
@@ -40,6 +39,10 @@ export default function OrgWorkspacesPage() {
       year: "numeric",
     }).format(new Date(dateString));
   };
+
+  if (!organization) {
+    return null;
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700 pb-10 relative overflow-hidden h-full">
@@ -132,8 +135,27 @@ export default function OrgWorkspacesPage() {
               </Link>
             </div>
           </div>
+        ) : workspaces.length > 0 && filteredWorkspaces.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 px-6 rounded-3xl border border-dashed border-white/10 bg-white/2 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-500">
+            <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
+              <Search size={40} className="text-neutral-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-2">
+              No results for "{searchQuery}"
+            </h3>
+            <p className="text-neutral-500 text-center max-w-md mb-8">
+              We couldn't find any workspaces matching your search. Try
+              adjusting your keywords or clear the search to see all workspaces.
+            </p>
+            <button
+              onClick={() => setSearchQuery("")}
+              className="flex cursor-pointer items-center gap-2 px-6 py-3 bg-white/5 text-white font-bold rounded-xl hover:bg-white/10 transition-all active:scale-95 group border border-white/10"
+            >
+              Clear Search
+            </button>
+          </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 px-6 rounded-3xl border border-dashed border-white/10 bg-white/2 backdrop-blur-sm">
+          <div className="flex flex-col items-center justify-center py-20 px-6 rounded-3xl border border-dashed border-white/10 bg-white/2 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-500">
             <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
               <Boxes size={40} className="text-neutral-500" />
             </div>
@@ -145,8 +167,8 @@ export default function OrgWorkspacesPage() {
               organization yet. Get started by creating your first workspace.
             </p>
             <Link
-              href={"workspaces/new"}
-              className="flex cursor-pointer items-center gap-2 px-6 py-3 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95 group"
+              href={`/org/${organization?.slug}/workspaces/new`}
+              className="flex cursor-pointer items-center gap-2 px-6 py-3 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand/90 hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95 group"
             >
               <Plus
                 size={20}

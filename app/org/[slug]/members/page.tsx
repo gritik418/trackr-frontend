@@ -117,6 +117,7 @@ export default function OrgMembersPage() {
       <InviteMemberModal
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
+        orgId={organization.id}
       />
 
       {/* Stats Grid */}
