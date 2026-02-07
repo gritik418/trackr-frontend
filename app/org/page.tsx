@@ -10,18 +10,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-const normalizeImageUrl = (url: string | null | undefined) => {
-  if (!url) return "";
-  // If the URL is absolute and points to the same origin (localhost:3001), make it relative
-  if (
-    url.startsWith("http://localhost:3001") ||
-    url.startsWith("http://127.0.0.1:3001")
-  ) {
-    return url.replace(/^http:\/\/(localhost|127\.0\.0\.1):3001/, "");
-  }
-  return url;
-};
-
 const ErrorState = ({ onRetry }: { onRetry: () => void }) => (
   <div className="text-center space-y-6 py-12 px-6 bg-[#0A0A0B] border border-white/8 rounded-3xl max-w-lg mx-auto">
     <div className="w-20 h-20 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -140,7 +128,7 @@ export default function OrgSelectionPage() {
                   <div className="relative z-10 flex justify-between items-start mb-6">
                     {org.logoUrl ? (
                       <Image
-                        src={normalizeImageUrl(org.logoUrl)}
+                        src={org.logoUrl}
                         alt={org.name}
                         width={56}
                         height={56}

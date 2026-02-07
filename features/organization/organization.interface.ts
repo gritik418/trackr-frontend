@@ -2,7 +2,7 @@ import { Organization } from "@/types/organization/organization.interface";
 import { UpdateOrganizationDto } from "@/types/organization/update-organization.interface";
 
 export interface OrganizationState {
-  organization: Organization | null;
+  organization: OrgWithRole | null;
 }
 
 export interface OrgWithRole extends Organization {
@@ -18,7 +18,7 @@ export interface GetOrganizationsResponse {
 export interface GetOrganizationDetailsResponse {
   success: boolean;
   message: string;
-  organization: Organization;
+  organization: OrgWithRole;
 }
 
 export interface UpdateOrgDto extends UpdateOrganizationDto {
