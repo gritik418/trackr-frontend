@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --brand-rgb: 0, 216, 230;
+  --brand-cyan-rgb: 34, 211, 238;
 }
 
 @theme inline {
@@ -30,20 +32,20 @@
   /* Input Field Colors */
   --color-input-border: rgba(255, 255, 255, 0.1);
   --color-input-border-hover: rgba(255, 255, 255, 0.2);
-  --color-input-bg: #0A0A0A;
+  --color-input-bg: #0a0a0a;
   --color-input-text: rgb(255, 255, 255);
   --color-input-placeholder: rgb(115, 115, 115);
 
   /* Background Depths */
   --color-bg-dark-0: #050505;
   --color-bg-dark-1: #080808;
-  --color-bg-dark-2: #0A0A0A;
+  --color-bg-dark-2: #0a0a0a;
 
   /* Social Colors */
-  --color-google-blue: #4285F4;
-  --color-google-green: #34A853;
-  --color-google-yellow: #FBBC05;
-  --color-google-red: #EA4335;
+  --color-google-blue: #4285f4;
+  --color-google-green: #34a853;
+  --color-google-yellow: #fbbc05;
+  --color-google-red: #ea4335;
 
   /* Dashboard Theme */
   --color-dashboard-bg: #050505;
@@ -51,8 +53,8 @@
   --color-dashboard-header-bg: rgba(5, 5, 5, 0.8);
   --color-dashboard-border: rgba(255, 255, 255, 0.06);
   --color-dashboard-border-hover: rgba(255, 255, 255, 0.12);
-  --color-dashboard-card-bg: #0E0E10;
-  
+  --color-dashboard-card-bg: #0e0e10;
+
   --color-dashboard-item-bg: rgba(255, 255, 255, 0.02);
   --color-dashboard-item-bg-hover: rgba(255, 255, 255, 0.05);
   --color-dashboard-item-text: #a1a1aa;
@@ -60,12 +62,12 @@
   --color-dashboard-item-icon-active: var(--color-brand);
 
   /* Organization Theme - Premium Dark */
-  --color-org-bg: #030304;             /* Deeper, richer black */
-  --color-org-sidebar-bg: #060607;     /* Subtle contrast for sidebar */
+  --color-org-bg: #030304; /* Deeper, richer black */
+  --color-org-sidebar-bg: #060607; /* Subtle contrast for sidebar */
   --color-org-border: rgba(255, 255, 255, 0.03); /* Ultra subtle border */
-  --color-org-card-bg: #0a0a0b;        /* Soft card background */
+  --color-org-card-bg: #0a0a0b; /* Soft card background */
   --color-org-card-border: rgba(255, 255, 255, 0.04);
-  --color-org-item-text: #888890;      /* Muted text */
+  --color-org-item-text: #888890; /* Muted text */
   --color-org-item-text-active: #ffffff;
 }
 
@@ -78,23 +80,41 @@
 
 @layer utilities {
   @keyframes slow-spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
-  
+
   @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
   }
 
   @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   @keyframes slide-in-bottom {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 
   @keyframes slide-in-top {
@@ -150,7 +170,12 @@
     position: relative;
     border-radius: 0.75rem !important;
     padding: 1px;
-    background: linear-gradient(to right, var(--color-brand), rgb(99, 102, 241), var(--color-brand));
+    background: linear-gradient(
+      to right,
+      var(--color-brand),
+      rgb(99, 102, 241),
+      var(--color-brand)
+    );
     background-size: 200% 100%;
     animation: shimmer 2s linear infinite;
   }
