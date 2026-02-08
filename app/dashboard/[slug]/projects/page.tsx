@@ -1,18 +1,19 @@
 "use client";
 
-import { Clock, MoreVertical, Plus, Search, Loader2 } from "lucide-react";
+import CreateProjectModal from "@/components/project/CreateProjectModal";
+import {
+  useCreateProjectMutation,
+  useGetProjectsQuery,
+} from "@/features/project/project.api";
+import { selectWorkspace } from "@/features/workspace/workspace.slice";
+import { CreateProjectFormData } from "@/lib/schemas/project/create-project.schema";
+import { Clock, Loader2, Lock, MoreVertical, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { useSelector } from "react-redux";
-import { selectWorkspace } from "@/features/workspace/workspace.slice";
-import {
-  useGetProjectsQuery,
-  useCreateProjectMutation,
-} from "@/features/project/project.api";
-import CreateProjectModal from "@/components/project/CreateProjectModal";
-import { CreateProjectFormData } from "@/lib/schemas/project/create-project.schema";
 import toast from "react-hot-toast";
+import { MdPublic } from "react-icons/md";
+import { useSelector } from "react-redux";
 
 export default function ProjectsListPage() {
   const params = useParams();
@@ -111,9 +112,18 @@ export default function ProjectsListPage() {
             >
               <div className="flex justify-between items-start mb-4">
                 <span
-                  className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${"text-emerald-400 bg-emerald-400/10 border-emerald-400/20"}`}
+                  className={`px-2.5 py-1 flex items-center gap-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                    project.nature === "PRIVATE"
+                      ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/20"
+                      : "text-blue-400 bg-blue-400/10 border-blue-400/20"
+                  }`}
                 >
-                  On Track
+                  {project.nature === "PRIVATE" ? (
+                    <Lock size={10} />
+                  ) : (
+                    <MdPublic size={12} />
+                  )}
+                  {project.nature}
                 </span>
                 <button className="text-neutral-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100">
                   <MoreVertical size={16} />
