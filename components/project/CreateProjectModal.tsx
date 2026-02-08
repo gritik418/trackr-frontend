@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FolderPlus, X } from "lucide-react";
+import { FolderPlus, Globe, Lock, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import {
   createProjectSchema,
@@ -23,14 +23,19 @@ const CreateProjectModal = ({
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<CreateProjectFormData>({
     resolver: zodResolver(createProjectSchema),
     defaultValues: {
       name: "",
       description: "",
+      nature: "PRIVATE",
     },
   });
+
+  const nature = watch("nature");
 
   const handleClose = () => {
     reset();
@@ -40,7 +45,7 @@ const CreateProjectModal = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-in fade-in duration-300"
@@ -116,6 +121,44 @@ const CreateProjectModal = ({
                   {String(errors.description.message)}
                 </p>
               )}
+            </div>
+
+            {/* Project Nature */}
+            <div className="space-y-3">
+              <label className="text-sm font-semibold text-neutral-400">
+                Project Nature
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setValue("nature", "PRIVATE")}
+                  className={`flex items-center justify-center gap-2 p-4 rounded-2xl border transition-all ${
+                    nature === "PRIVATE"
+                      ? "bg-brand/10 border-brand/50 text-white"
+                      : "bg-white/5 border-white/5 text-neutral-500 hover:bg-white/10"
+                  }`}
+                >
+                  <Lock size={16} />
+                  <span className="text-sm font-bold">Private</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setValue("nature", "PUBLIC")}
+                  className={`flex items-center justify-center gap-2 p-4 rounded-2xl border transition-all ${
+                    nature === "PUBLIC"
+                      ? "bg-brand/10 border-brand/50 text-white"
+                      : "bg-white/5 border-white/5 text-neutral-500 hover:bg-white/10"
+                  }`}
+                >
+                  <Globe size={16} />
+                  <span className="text-sm font-bold">Public</span>
+                </button>
+              </div>
+              <p className="text-[10px] text-neutral-500 font-medium flex items-center gap-1.5 ml-1">
+                {nature === "PRIVATE"
+                  ? "Only workspace members can access this project."
+                  : "Anyone in the organization can view this project."}
+              </p>
             </div>
           </div>
 
