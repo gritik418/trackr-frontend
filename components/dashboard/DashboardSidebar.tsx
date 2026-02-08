@@ -2,19 +2,20 @@
 
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import { cn, getInitials } from "@/lib/utils";
+import { Project } from "@/types/project/project.interface";
 import {
   Activity,
   CheckSquare,
   Folder,
   FolderOpenDot,
   LayoutDashboard,
-  Plus,
   Settings,
   Users,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import WorkspaceSwitcher from "../workspace/WorkspaceSwitcher";
 
@@ -31,6 +32,7 @@ export default function DashboardSidebar({
   onMouseEnter,
   onMouseLeave,
 }: DashboardSidebarProps) {
+  const [projects, setProjects] = useState<Project[]>([]);
   const pathname = usePathname();
   const workspace = useSelector(selectWorkspace);
   const baseUrl = `/dashboard/${slug}`;
@@ -45,11 +47,17 @@ export default function DashboardSidebar({
     { name: "Activity", href: `${baseUrl}/activity`, icon: Activity },
   ];
 
-  const projects = [
-    { name: "Website Redesign", href: `${baseUrl}/projects/website-redesign` },
-    { name: "Mobile App Launch", href: `${baseUrl}/projects/mobile-app` },
-    { name: "Q1 Marketing", href: `${baseUrl}/projects/q1-marketing` },
-  ];
+  // const projects = [
+  //   { name: "Website Redesign", href: `${baseUrl}/projects/website-redesign` },
+  //   { name: "Mobile App Launch", href: `${baseUrl}/projects/mobile-app` },
+  //   { name: "Q1 Marketing", href: `${baseUrl}/projects/q1-marketing` },
+  // ];
+
+  useEffect(() => {
+    if (workspace?.projects) {
+      setProjects(workspace.projects);
+    }
+  }, [workspace?.projects]);
 
   return (
     <aside
@@ -154,7 +162,7 @@ export default function DashboardSidebar({
 
         {/* Projects Section */}
         <div className="flex-1 px-3 py-2 overflow-y-auto scrollbar-none border-t border-dashboard-border mt-2">
-          <div className="flex items-center justify-between px-3 mb-2 transition-opacity duration-300 overflow-hidden">
+          <div className="flex inset-0 top-0 items-center justify-between px-3 mb-2 transition-opacity duration-300 overflow-hidden">
             <span
               className={cn(
                 "text-[10px] font-bold text-neutral-500 uppercase tracking-widest whitespace-nowrap",
@@ -163,23 +171,15 @@ export default function DashboardSidebar({
             >
               Projects
             </span>
-            <button
-              className={cn(
-                "text-neutral-500 hover:text-white transition-colors",
-                isExpanded ? "opacity-100" : "opacity-0 pointer-events-none",
-              )}
-            >
-              <Plus size={14} />
-            </button>
           </div>
 
           <div className="space-y-0.5">
             {projects.map((project) => {
-              const isProjectActive = pathname.startsWith(project.href);
+              const isProjectActive = pathname.includes(project.id);
               return (
                 <Link
                   key={project.name}
-                  href={project.href}
+                  href={`${baseUrl}/projects/${project.id}`}
                   className={cn(
                     "relative h-9 flex items-center px-2.5 rounded-lg transition-all duration-200 group/project overflow-hidden",
                     isProjectActive

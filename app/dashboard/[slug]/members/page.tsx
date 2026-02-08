@@ -12,51 +12,104 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
+import {
+  useGetWorkspaceMembersQuery,
+  useRemoveWorkspaceMemberMutation,
+  useUpdateWorkspaceMemberRoleMutation,
+  useGetWorkspaceInvitesQuery,
+  useRevokeWorkspaceInviteMutation,
+  useResendWorkspaceInviteMutation,
+} from "@/features/workspace/workspace.api";
+import { selectWorkspace } from "@/features/workspace/workspace.slice";
+import { selectOrganization } from "@/features/organization/organization.slice";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 
 export default function WorkspaceMembersPage() {
   const [activeTab, setActiveTab] = useState<"active" | "pending">("active");
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const members = [
-    {
-      id: "1",
-      name: "Ritik Gupta",
-      email: "ritik@trackr.so",
-      role: "Workspace Admin",
-      status: "active",
-      avatar: "https://github.com/ritikgupta.png",
-      joinedAt: "Jan 2024",
-    },
-    {
-      id: "2",
-      name: "Sarah Chen",
-      email: "sarah@trackr.so",
-      role: "Editor",
-      status: "active",
-      avatar: null,
-      joinedAt: "Feb 2024",
-    },
-    {
-      id: "3",
-      name: "Mike Ross",
-      email: "mike@trackr.so",
-      role: "Viewer",
-      status: "active",
-      avatar: null,
-      joinedAt: "Feb 2024",
-    },
-  ];
+  const workspace = useSelector(selectWorkspace);
+  const organization = useSelector(selectOrganization);
 
-  const invites = [
-    {
-      id: "inv_1",
-      email: "david@design.co",
-      role: "Editor",
-      sentAt: "2 days ago",
-      status: "pending",
-    },
-  ];
+  const { data: membersData, isLoading: isLoadingMembers } =
+    useGetWorkspaceMembersQuery(workspace?.id || "", { skip: !workspace?.id });
+
+  const { data: invitesData, isLoading: isLoadingInvites } =
+    useGetWorkspaceInvitesQuery(
+      { workspaceId: workspace?.id || "" },
+      { skip: !workspace?.id },
+    );
+
+  const [removeMember] = useRemoveWorkspaceMemberMutation();
+  const [updateRole] = useUpdateWorkspaceMemberRoleMutation();
+  const [revokeInvite] = useRevokeWorkspaceInviteMutation();
+  const [resendInvite] = useResendWorkspaceInviteMutation();
+
+  const handleRevokeInvite = async (inviteId: string) => {
+    if (!workspace?.id) return;
+    if (!confirm("Are you sure you want to revoke this invitation?")) return;
+
+    try {
+      await revokeInvite({ workspaceId: workspace.id, inviteId }).unwrap();
+      toast.success("Invitation revoked successfully");
+    } catch (error: any) {
+      toast.error(error.data?.message || "Failed to revoke invitation");
+    }
+  };
+
+  const handleResendInvite = async (inviteId: string) => {
+    if (!workspace?.id) return;
+    try {
+      await resendInvite({ workspaceId: workspace.id, inviteId }).unwrap();
+      toast.success("Invitation resent successfully");
+    } catch (error: any) {
+      toast.error(error.data?.message || "Failed to resend invitation");
+    }
+  };
+
+  const handleRemoveMember = async (memberId: string) => {
+    if (!workspace?.id) return;
+    if (
+      !confirm(
+        "Are you sure you want to remove this member from the workspace?",
+      )
+    )
+      return;
+
+    try {
+      await removeMember({ workspaceId: workspace.id, memberId }).unwrap();
+      toast.success("Member removed successfully");
+    } catch (error: any) {
+      toast.error(error.data?.message || "Failed to remove member");
+    }
+  };
+
+  const handleUpdateRole = async (memberId: string, newRole: string) => {
+    if (!workspace?.id) return;
+    try {
+      await updateRole({
+        workspaceId: workspace.id,
+        memberId,
+        body: { role: newRole },
+      }).unwrap();
+      toast.success("Role updated successfully");
+    } catch (error: any) {
+      toast.error(error.data?.message || "Failed to update role");
+    }
+  };
+
+  const members = (membersData?.members || []).filter(
+    (member) =>
+      member.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.user.email.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
+  const invites = (invitesData?.invitations || []).filter((invite) =>
+    invite.email.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   const getInitials = (name: string) => {
     return name
@@ -161,6 +214,8 @@ export default function WorkspaceMembersPage() {
             <input
               type="text"
               placeholder="Search members..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/5 rounded-xl text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand/30 focus:bg-white/10 transition-all"
             />
           </div>
@@ -196,40 +251,60 @@ export default function WorkspaceMembersPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center text-brand font-bold text-sm overflow-hidden shrink-0">
-                            {member.avatar ? (
+                            {member.user.avatarUrl ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
-                                src={member.avatar}
-                                alt={member.name}
+                                src={member.user.avatarUrl}
+                                alt={member.user.name}
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              getInitials(member.name)
+                              getInitials(member.user.name)
                             )}
                           </div>
                           <div>
                             <div className="text-sm font-medium text-white group-hover:text-brand transition-colors">
-                              {member.name}
+                              {member.user.name}
                             </div>
                             <div className="text-xs text-neutral-500">
-                              {member.email}
+                              {member.user.email}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
-                            member.role === "Workspace Admin"
+                        <select
+                          value={member.role}
+                          onChange={(e) =>
+                            handleUpdateRole(member.id, e.target.value)
+                          }
+                          disabled={member.role === "OWNER"} // Ownership handled separately or restricted
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-transparent focus:outline-none transition-all cursor-pointer ${
+                            member.role === "OWNER" || member.role === "ADMIN"
                               ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
                               : "bg-white/5 text-neutral-400 border-white/10"
                           }`}
                         >
-                          {member.role === "Workspace Admin" && (
-                            <Shield size={10} />
-                          )}
-                          {member.role}
-                        </span>
+                          <option
+                            value="MEMBER"
+                            className="bg-dashboard-card-bg"
+                          >
+                            MEMBER
+                          </option>
+                          <option
+                            value="ADMIN"
+                            className="bg-dashboard-card-bg"
+                          >
+                            ADMIN
+                          </option>
+                          <option
+                            value="OWNER"
+                            className="bg-dashboard-card-bg"
+                            disabled
+                          >
+                            OWNER
+                          </option>
+                        </select>
                       </td>
                       <td className="px-6 py-4">
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
@@ -238,12 +313,21 @@ export default function WorkspaceMembersPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-neutral-500 text-right font-mono">
-                        {member.joinedAt}
+                        {new Date(member.joinedAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button className="p-2 text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all opacity-0 group-hover:opacity-100">
-                          <MoreVertical size={16} />
-                        </button>
+                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100">
+                          <button
+                            onClick={() => handleRemoveMember(member.id)}
+                            className="p-2 text-neutral-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+                            title="Remove Member"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                          <button className="p-2 text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all">
+                            <MoreVertical size={16} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -278,18 +362,20 @@ export default function WorkspaceMembersPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-neutral-500 text-right font-mono">
-                        {invite.sentAt}
+                        {new Date(invite.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100">
                           <button
-                            className="p-2 text-neutral-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+                            onClick={() => handleRevokeInvite(invite.id)}
+                            className="p-2 text-neutral-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all cursor-pointer"
                             title="Revoke Invite"
                           >
                             <Trash2 size={16} />
                           </button>
                           <button
-                            className="p-2 text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+                            onClick={() => handleResendInvite(invite.id)}
+                            className="p-2 text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all cursor-pointer"
                             title="Resend"
                           >
                             <Clock size={16} />
