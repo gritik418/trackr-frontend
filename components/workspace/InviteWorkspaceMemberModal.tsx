@@ -7,6 +7,7 @@ import { OrganizationMember } from "@/types/organization/organization.interface"
 import { WorkspaceRole } from "@/types/workspace/workspace.interface";
 import { Check, ChevronDown, Edit3, Eye, Mail, Shield, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import OrgMemberTile from "./OrgMemberTile";
@@ -20,6 +21,7 @@ export function InviteWorkspaceMemberModal({
   isOpen,
   onClose,
 }: InviteWorkspaceMemberModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<WorkspaceRole>(WorkspaceRole.MEMBER);
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
@@ -44,6 +46,10 @@ export function InviteWorkspaceMemberModal({
       setOrgMembers(data.members);
     }
   }, [data]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   console.log(orgMembers);
 
@@ -99,7 +105,7 @@ export function InviteWorkspaceMemberModal({
       .slice(0, 2);
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,8 +126,8 @@ export function InviteWorkspaceMemberModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6">
+  return createPortal(
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
@@ -188,6 +194,7 @@ export function InviteWorkspaceMemberModal({
                   </div>
                   {filteredMembers.map((member) => (
                     <OrgMemberTile
+                      key={member.id}
                       member={member}
                       setEmail={setEmail}
                       setIsMemberDropdownOpen={setIsMemberDropdownOpen}
@@ -308,6 +315,7 @@ export function InviteWorkspaceMemberModal({
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

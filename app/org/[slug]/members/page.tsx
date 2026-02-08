@@ -260,7 +260,7 @@ export default function OrgMembersPage() {
                       Status
                     </th>
                     <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-right">
-                      {activeTab === "active" ? "Joined" : "Created"}
+                      {activeTab === "active" ? "Joined" : "Invited on"}
                     </th>
                     <th className="px-6 py-4 w-10"></th>
                   </tr>

@@ -1,30 +1,28 @@
 "use client";
 
 import { InviteWorkspaceMemberModal } from "@/components/workspace/InviteWorkspaceMemberModal";
+import WorkspaceInviteItem from "@/components/workspace/WorkspaceInviteItem";
+import { selectOrganization } from "@/features/organization/organization.slice";
+import {
+  useGetWorkspaceInvitesQuery,
+  useGetWorkspaceMembersQuery,
+  useRemoveWorkspaceMemberMutation,
+  useUpdateWorkspaceMemberRoleMutation,
+} from "@/features/workspace/workspace.api";
+import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import {
   CheckCircle2,
   Clock,
   Mail,
   MoreVertical,
   Search,
-  Shield,
   Trash2,
   UserPlus,
   Users,
 } from "lucide-react";
-import {
-  useGetWorkspaceMembersQuery,
-  useRemoveWorkspaceMemberMutation,
-  useUpdateWorkspaceMemberRoleMutation,
-  useGetWorkspaceInvitesQuery,
-  useRevokeWorkspaceInviteMutation,
-  useResendWorkspaceInviteMutation,
-} from "@/features/workspace/workspace.api";
-import { selectWorkspace } from "@/features/workspace/workspace.slice";
-import { selectOrganization } from "@/features/organization/organization.slice";
 import { useState } from "react";
-import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 
 export default function WorkspaceMembersPage() {
   const [activeTab, setActiveTab] = useState<"active" | "pending">("active");
@@ -45,30 +43,6 @@ export default function WorkspaceMembersPage() {
 
   const [removeMember] = useRemoveWorkspaceMemberMutation();
   const [updateRole] = useUpdateWorkspaceMemberRoleMutation();
-  const [revokeInvite] = useRevokeWorkspaceInviteMutation();
-  const [resendInvite] = useResendWorkspaceInviteMutation();
-
-  const handleRevokeInvite = async (inviteId: string) => {
-    if (!workspace?.id) return;
-    if (!confirm("Are you sure you want to revoke this invitation?")) return;
-
-    try {
-      await revokeInvite({ workspaceId: workspace.id, inviteId }).unwrap();
-      toast.success("Invitation revoked successfully");
-    } catch (error: any) {
-      toast.error(error.data?.message || "Failed to revoke invitation");
-    }
-  };
-
-  const handleResendInvite = async (inviteId: string) => {
-    if (!workspace?.id) return;
-    try {
-      await resendInvite({ workspaceId: workspace.id, inviteId }).unwrap();
-      toast.success("Invitation resent successfully");
-    } catch (error: any) {
-      toast.error(error.data?.message || "Failed to resend invitation");
-    }
-  };
 
   const handleRemoveMember = async (memberId: string) => {
     if (!workspace?.id) return;
@@ -193,15 +167,15 @@ export default function WorkspaceMembersPage() {
           <div className="flex p-1 bg-white/5 rounded-xl self-start">
             <button
               onClick={() => setActiveTab("active")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "active" ? "bg-white/10 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-300"}`}
+              className={`px-4 cursor-pointer py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "active" ? "bg-white/10 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-300"}`}
             >
-              Active Members
+              Members
             </button>
             <button
               onClick={() => setActiveTab("pending")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "pending" ? "bg-white/10 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-300"}`}
+              className={`px-4 cursor-pointer py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "pending" ? "bg-white/10 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-300"}`}
             >
-              Pending Invites
+              Invites
             </button>
           </div>
 
@@ -236,7 +210,7 @@ export default function WorkspaceMembersPage() {
                   Status
                 </th>
                 <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-right">
-                  Joined
+                  {activeTab === "active" ? "Joined" : "Invited on"}
                 </th>
                 <th className="px-6 py-4 w-10"></th>
               </tr>
@@ -332,62 +306,15 @@ export default function WorkspaceMembersPage() {
                     </tr>
                   ))
                 : invites.map((invite) => (
-                    <tr
+                    <WorkspaceInviteItem
                       key={invite.id}
-                      className="group hover:bg-white/2 transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-neutral-500 shrink-0">
-                            <Mail size={16} />
-                          </div>
-                          <div>
-                            <div className="text-sm font-medium text-white">
-                              {invite.email}
-                            </div>
-                            <div className="text-xs text-neutral-500">
-                              Invitation sent
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/5 text-neutral-400 border border-white/10">
-                          {invite.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                          Pending
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-neutral-500 text-right font-mono">
-                        {new Date(invite.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100">
-                          <button
-                            onClick={() => handleRevokeInvite(invite.id)}
-                            className="p-2 text-neutral-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all cursor-pointer"
-                            title="Revoke Invite"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleResendInvite(invite.id)}
-                            className="p-2 text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all cursor-pointer"
-                            title="Resend"
-                          >
-                            <Clock size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                      invite={invite}
+                      workspaceId={workspace?.id || ""}
+                    />
                   ))}
             </tbody>
           </table>
 
-          {/* Empty State Helper (Hidden if data exists) */}
           {activeTab === "pending" && invites.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
