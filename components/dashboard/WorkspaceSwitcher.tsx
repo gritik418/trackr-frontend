@@ -1,33 +1,39 @@
+import { useGetWorkspacesQuery } from "@/features/workspace/workspace.api";
 import { cn, getInitials } from "@/lib/utils";
 import { Workspace } from "@/types/workspace/workspace.interface";
-import { Check, ChevronDown, Plus } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Check, ChevronDown } from "lucide-react";
 import Image from "next/image";
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
   isExpanded: boolean;
   workspace: Workspace | null;
 };
 
-const MOCK_WORKSPACES = [
-  {
-    id: "1",
-    name: "Engineering Team",
-    slug: "eng-team",
-    iconUrl: "",
-  },
-  {
-    id: "2",
-    name: "Marketing Ops",
-    slug: "marketing-ops",
-    iconUrl: "",
-  },
-];
-
 const WorkspaceSwitcher = ({ isExpanded, workspace }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const { data } = useGetWorkspacesQuery(workspace?.organizationId || "", {
+    skip: !workspace?.organizationId,
+  });
+
+  const router = useRouter();
+
+  const handleSwitchWorkspace = (workspace: Workspace) => {
+    if (!workspace || !workspace.slug) return;
+
+    router.push(`/dashboard/${workspace.slug}`);
+    setIsOpen(false);
+  };
+
+  useEffect(() => {
+    if (data?.workspaces) {
+      setWorkspaces(data.workspaces);
+    }
+  }, [data]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -153,34 +159,25 @@ const WorkspaceSwitcher = ({ isExpanded, workspace }: Props) => {
               </button>
 
               {/* Other Workspaces (Mock) */}
-              {MOCK_WORKSPACES.map((ws) => (
-                <button
-                  key={ws.id}
-                  className="w-full cursor-pointer flex items-center gap-2.5 p-2 rounded-lg text-dashboard-item-text hover:text-white hover:bg-white/5 transition-all text-left group"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-white/5 flex items-center justify-center shrink-0 group-hover:bg-indigo-500/30 transition-colors">
-                    <span className="text-[10px] font-bold text-indigo-300">
-                      {getInitials(ws.name)}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate">{ws.name}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-1.5 pt-1.5 border-t border-white/5">
-              <button
-                className="w-full cursor-pointer flex items-center gap-2.5 p-2 rounded-lg text-neutral-400 hover:text-white hover:bg-white/5 transition-all text-left"
-                onClick={() => setIsOpen(false)}
-              >
-                <div className="w-8 h-8 rounded-lg border border-dashed border-white/20 flex items-center justify-center shrink-0">
-                  <Plus size={14} />
-                </div>
-                <span className="text-xs font-medium">Create Workspace</span>
-              </button>
+              {workspaces?.map((ws) => {
+                if (ws.id === workspace?.id) return null;
+                return (
+                  <button
+                    key={ws.id}
+                    className="w-full cursor-pointer flex items-center gap-2.5 p-2 rounded-lg text-dashboard-item-text hover:text-white hover:bg-white/5 transition-all text-left group"
+                    onClick={() => handleSwitchWorkspace(ws)}
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-white/5 flex items-center justify-center shrink-0 group-hover:bg-indigo-500/30 transition-colors">
+                      <span className="text-[10px] font-bold text-indigo-300">
+                        {getInitials(ws.name)}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium truncate">{ws.name}</p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </motion.div>
         )}
