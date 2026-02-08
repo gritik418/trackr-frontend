@@ -5,6 +5,7 @@ import ProjectOverview from "@/components/project/ProjectOverview";
 import TaskBoard from "@/components/project/TaskBoard";
 import TaskDetailModal from "@/components/project/TaskDetailModal";
 import TaskListView from "@/components/project/TaskListView";
+import ProjectSettings from "@/components/project/ProjectSettings";
 import { Task } from "@/features/project/project.interface";
 import { selectProject } from "@/features/project/project.slice";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
@@ -262,17 +263,7 @@ export default function ProjectDetailsPage() {
           <TaskListView tasks={MOCK_TASKS} onTaskClick={handleTaskClick} />
         )}
 
-        {activeTab === "settings" && (
-          <div className="flex flex-col items-center justify-center h-64 text-neutral-500 bg-white/2 rounded-[40px] border border-white/5 border-dashed">
-            <Settings size={48} className="mb-4 opacity-10" />
-            <p className="font-bold uppercase tracking-widest text-[10px]">
-              Project Settings
-            </p>
-            <p className="text-xs">
-              Configure your workspace and team preferences here.
-            </p>
-          </div>
-        )}
+        {activeTab === "settings" && <ProjectSettings project={project} />}
       </div>
 
       {/* Modals */}
