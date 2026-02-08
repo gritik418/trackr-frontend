@@ -7,6 +7,7 @@ import {
   GetWorkspaceDetailsResponse,
   UpdateWorkspaceRequest,
   UpdateWorkspaceResponse,
+  DeleteWorkspaceResponse,
 } from "./workspace.interface";
 
 const workspaceApi = createApi({
@@ -54,6 +55,13 @@ const workspaceApi = createApi({
         { type: "workspaces", id: result?.workspace?.id },
       ],
     }),
+    deleteWorkspace: build.mutation<DeleteWorkspaceResponse, string>({
+      query: (id) => ({
+        url: `/workspaces/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["workspaces"],
+    }),
   }),
 });
 
@@ -62,6 +70,7 @@ export const {
   useGetWorkspaceDetailsQuery,
   useCreateWorkspaceMutation,
   useUpdateWorkspaceMutation,
+  useDeleteWorkspaceMutation,
 } = workspaceApi;
 
 export default workspaceApi;

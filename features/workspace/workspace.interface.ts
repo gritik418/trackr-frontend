@@ -33,3 +33,8 @@ export interface UpdateWorkspaceResponse {
   message: string;
   workspace: Workspace;
 }
+
+export interface DeleteWorkspaceResponse {
+  success: boolean;
+  message: string;
+}

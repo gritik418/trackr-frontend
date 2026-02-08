@@ -1,14 +1,19 @@
 "use client";
 
+import ConfirmWorkspaceDeletionModal from "@/components/workspace/ConfirmWorkspaceDeletionModal";
 import { APP_DOMAIN } from "@/constants/index";
-import { useUpdateWorkspaceMutation } from "@/features/workspace/workspace.api";
+import {
+  useDeleteWorkspaceMutation,
+  useUpdateWorkspaceMutation,
+} from "@/features/workspace/workspace.api";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import updateWorkspaceSchema from "@/lib/schemas/workspace/update-workspace.schema";
 import { getInitials } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Layout, ShieldAlert } from "lucide-react";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { BiDetail } from "react-icons/bi";
@@ -16,9 +21,13 @@ import { IoImage } from "react-icons/io5";
 import { useSelector } from "react-redux";
 
 export default function WorkspaceSettingsPage() {
+  const router = useRouter();
   const workspace = useSelector(selectWorkspace);
   const [updateWorkspace] = useUpdateWorkspaceMutation();
-
+  const [deleteWorkspace, { isLoading: isDeleting }] =
+    useDeleteWorkspaceMutation();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  console.log(workspace);
   const {
     register,
     handleSubmit,
@@ -34,7 +43,6 @@ export default function WorkspaceSettingsPage() {
     },
   });
 
-  // Keep form in sync when workspace data loads/updates
   useEffect(() => {
     if (workspace) {
       setValue("name", workspace.name);
@@ -63,6 +71,24 @@ export default function WorkspaceSettingsPage() {
       }
 
       toast.error(Array.isArray(message) ? message[0] : message);
+    }
+  };
+
+  const onDeleteConfirm = async () => {
+    if (!workspace) return;
+
+    try {
+      await deleteWorkspace(workspace.id).unwrap();
+      toast.success("Workspace deleted successfully");
+      setIsDeleteModalOpen(false);
+
+      if (workspace?.organization?.slug) {
+        router.push(`/org/${workspace.organization.slug}`);
+      } else {
+        router.push("/org");
+      }
+    } catch (error: any) {
+      toast.error(error.data?.message || "Failed to delete workspace");
     }
   };
 
@@ -245,9 +271,7 @@ export default function WorkspaceSettingsPage() {
                 </p>
               </div>
               <button
-                onClick={() =>
-                  alert("In-progress: Workspace deletion functionality.")
-                }
+                onClick={() => setIsDeleteModalOpen(true)}
                 className="px-6 py-2.5 cursor-pointer bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 rounded-xl text-sm font-bold transition-all active:scale-95 shadow-lg shadow-black/20"
               >
                 Delete Workspace
@@ -256,6 +280,14 @@ export default function WorkspaceSettingsPage() {
           </div>
         </section>
       </div>
+
+      <ConfirmWorkspaceDeletionModal
+        open={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        workspaceName={workspace.name}
+        onConfirm={onDeleteConfirm}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }
