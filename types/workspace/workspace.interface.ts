@@ -1,3 +1,5 @@
+import { Organization } from "../organization/organization.interface";
+
 export interface Workspace {
   id: string;
   name: string;
@@ -5,6 +7,7 @@ export interface Workspace {
   slug: string;
   role?: string;
   iconUrl: string;
+  organization: Organization;
   description: string | null;
   ownerId: string;
   members: any[];
