@@ -1,37 +1,45 @@
 "use client";
 
-import { Task } from "@/features/project/project.interface";
+import { useCreateTaskMutation } from "@/features/task/task.api";
+import { TaskPriority, TaskStatus } from "@/features/task/task.interface";
 import {
+  AlignLeft,
   Calendar,
   ChevronDown,
   Flag,
+  Info,
   Plus,
   Tag,
   Type,
   UserPlus,
   X,
-  AlignLeft,
-  Info,
 } from "lucide-react";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import toast from "react-hot-toast";
 
 interface CreateTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialStatus?: Task["status"];
+  initialStatus?: TaskStatus;
 }
 
 export default function CreateTaskModal({
   isOpen,
   onClose,
-  initialStatus = "TODO",
+  initialStatus = TaskStatus.TODO,
 }: CreateTaskModalProps) {
+  const params = useParams();
+  const projectId = params.projectId as string;
+
+  const [createTask, { isLoading }] = useCreateTaskMutation();
+
   const [mounted, setMounted] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<Task["priority"]>("MEDIUM");
-  const [status, setStatus] = useState<Task["status"]>(initialStatus);
+  const [priority, setPriority] = useState<TaskPriority>(TaskPriority.MEDIUM);
+  const [status, setStatus] = useState<TaskStatus>(initialStatus);
   const [tag, setTag] = useState("Feature");
   const [deadline, setDeadline] = useState("");
 
@@ -51,31 +59,52 @@ export default function CreateTaskModal({
   if (!isOpen || !mounted) return null;
 
   const priorityOptions: {
-    value: Task["priority"];
+    value: TaskPriority;
     label: string;
     color: string;
   }[] = [
-    { value: "LOW", label: "Low", color: "text-blue-400" },
-    { value: "MEDIUM", label: "Medium", color: "text-amber-400" },
-    { value: "HIGH", label: "High", color: "text-orange-400" },
-    { value: "URGENT", label: "Urgent", color: "text-red-500" },
+    { value: TaskPriority.LOW, label: "Low", color: "text-blue-400" },
+    { value: TaskPriority.MEDIUM, label: "Medium", color: "text-amber-400" },
+    { value: TaskPriority.HIGH, label: "High", color: "text-orange-400" },
+    { value: TaskPriority.URGENT, label: "Urgent", color: "text-red-500" },
   ];
 
-  const statusOptions: { value: Task["status"]; label: string }[] = [
-    { value: "TODO", label: "To Do" },
-    { value: "IN_PROGRESS", label: "In Progress" },
-    { value: "IN_REVIEW", label: "In Review" },
-    { value: "DONE", label: "Done" },
-    { value: "BLOCKED", label: "Blocked" },
+  const statusOptions: { value: TaskStatus; label: string }[] = [
+    { value: TaskStatus.TODO, label: "To Do" },
+    { value: TaskStatus.IN_PROGRESS, label: "In Progress" },
+    { value: TaskStatus.IN_REVIEW, label: "In Review" },
+    { value: TaskStatus.DONE, label: "Done" },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, we'd call an API here
-    console.log({ title, description, priority, status, tag, deadline });
-    onClose();
-    setTitle("");
-    setDescription("");
+    if (!title.trim()) {
+      toast.error("Task title is required");
+      return;
+    }
+
+    try {
+      await createTask({
+        projectId,
+        body: {
+          title,
+          description: description || null,
+          priority,
+          status,
+          deadline: deadline ? new Date(deadline).toISOString() : null,
+        },
+      }).unwrap();
+      toast.success("Task created successfully");
+      onClose();
+      setTitle("");
+      setDescription("");
+      setPriority(TaskPriority.MEDIUM);
+      setStatus(initialStatus);
+      setTag("Feature");
+      setDeadline("");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to create task");
+    }
   };
 
   return createPortal(
@@ -155,16 +184,17 @@ export default function CreateTaskModal({
               <div className="relative group">
                 <select
                   value={priority}
-                  onChange={(e) =>
-                    setPriority(e.target.value as Task["priority"])
-                  }
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand/30 cursor-pointer"
+                  onChange={(e) => setPriority(e.target.value as TaskPriority)}
+                  className={`w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm appearance-none focus:outline-none focus:border-brand/30 cursor-pointer ${
+                    priorityOptions.find((opt) => opt.value === priority)
+                      ?.color || "text-white"
+                  }`}
                 >
                   {priorityOptions.map((opt) => (
                     <option
                       key={opt.value}
                       value={opt.value}
-                      className="bg-neutral-900"
+                      className={`bg-neutral-900 ${opt.color}`}
                     >
                       {opt.label}
                     </option>
@@ -184,7 +214,7 @@ export default function CreateTaskModal({
               <div className="relative group">
                 <select
                   value={status}
-                  onChange={(e) => setStatus(e.target.value as Task["status"])}
+                  onChange={(e) => setStatus(e.target.value as TaskStatus)}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand/30 cursor-pointer"
                 >
                   {statusOptions.map((opt) => (
@@ -253,9 +283,10 @@ export default function CreateTaskModal({
               </button>
               <button
                 type="submit"
-                className="px-8 py-3 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95"
+                disabled={isLoading}
+                className="px-8 py-3 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create Task
+                {isLoading ? "Creating..." : "Create Task"}
               </button>
             </div>
           </div>
