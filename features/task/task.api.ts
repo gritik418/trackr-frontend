@@ -1,6 +1,11 @@
 import { API_BASE_URL } from "@/constants";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { CreateTaskRequest, CreateTaskResponse } from "./task.interface";
+import {
+  CreateTaskRequest,
+  CreateTaskResponse,
+  GetTasksQuery,
+  GetTasksResponse,
+} from "./task.interface";
 
 const taskApi = createApi({
   reducerPath: "taskApi",
@@ -10,6 +15,16 @@ const taskApi = createApi({
   }),
   tagTypes: ["Tasks", "ProjectTasks"],
   endpoints: (build) => ({
+    getTasks: build.query<
+      GetTasksResponse,
+      { projectId: string; query?: GetTasksQuery }
+    >({
+      query: ({ projectId, query }) => ({
+        url: `/projects/${projectId}/tasks`,
+        params: query,
+      }),
+      providesTags: ["ProjectTasks"],
+    }),
     createTask: build.mutation<
       CreateTaskResponse,
       { projectId: string; body: CreateTaskRequest }
@@ -19,11 +34,11 @@ const taskApi = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Tasks", "ProjectTasks"],
+      invalidatesTags: ["ProjectTasks"],
     }),
   }),
 });
 
-export const { useCreateTaskMutation } = taskApi;
+export const { useCreateTaskMutation, useGetTasksQuery } = taskApi;
 
 export default taskApi;

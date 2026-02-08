@@ -1,11 +1,9 @@
-"use client";
-
-import { Task } from "@/features/project/project.interface";
+import { Task, TaskStatus } from "@/features/task/task.interface";
 import { Plus } from "lucide-react";
 import TaskCard from "./TaskCard";
 
 interface Column {
-  id: Task["status"];
+  id: TaskStatus;
   title: string;
   color: string;
 }
@@ -13,14 +11,14 @@ interface Column {
 interface TaskBoardProps {
   tasks: Task[];
   onTaskClick?: (task: Task) => void;
-  onAddTask?: (status: Task["status"]) => void;
+  onAddTask?: (status: TaskStatus) => void;
 }
 
 const COLUMNS: Column[] = [
-  { id: "TODO", title: "To Do", color: "bg-neutral-500" },
-  { id: "IN_PROGRESS", title: "In Progress", color: "bg-blue-500" },
-  { id: "IN_REVIEW", title: "In Review", color: "bg-amber-500" },
-  { id: "DONE", title: "Done", color: "bg-emerald-500" },
+  { id: TaskStatus.TODO, title: "To Do", color: "bg-neutral-500" },
+  { id: TaskStatus.IN_PROGRESS, title: "In Progress", color: "bg-blue-500" },
+  { id: TaskStatus.IN_REVIEW, title: "In Review", color: "bg-amber-500" },
+  { id: TaskStatus.DONE, title: "Done", color: "bg-emerald-500" },
 ];
 
 export default function TaskBoard({

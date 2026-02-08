@@ -60,3 +60,15 @@ export interface CreateTaskResponse {
   message: string;
   task: Task;
 }
+
+export interface GetTasksQuery {
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  assignedToId?: string;
+}
+
+export interface GetTasksResponse {
+  success: boolean;
+  message: string;
+  tasks: Task[];
+}

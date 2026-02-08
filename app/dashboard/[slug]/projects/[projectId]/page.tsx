@@ -5,9 +5,10 @@ import ProjectOverview from "@/components/project/ProjectOverview";
 import TaskBoard from "@/components/project/TaskBoard";
 import TaskDetailModal from "@/components/project/TaskDetailModal";
 import TaskListView from "@/components/project/TaskListView";
-import ProjectSettings from "@/components/project/ProjectSettings";
-import { Task } from "@/features/project/project.interface";
+import { ProjectSettings } from "@/components/project/ProjectSettings";
+import { Task } from "@/features/task/task.interface";
 import { TaskStatus } from "@/features/task/task.interface";
+import { useGetTasksQuery } from "@/features/task/task.api";
 import { selectProject } from "@/features/project/project.slice";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import {
@@ -24,99 +25,6 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-
-const MOCK_TASKS: Task[] = [
-  {
-    id: "task-1",
-    title: "Research competitors and market trends",
-    description:
-      "Analyze the top 5 competitors in the market and identify their strengths and weaknesses. Look for gaps in their offerings that we can exploit.",
-    tag: "Strategy",
-    status: "TODO",
-    priority: "MEDIUM",
-    members: [{ id: "u1", name: "Ritik Gupta" }],
-    subtasks: [
-      { id: "s1", title: "Compile list of competitors", completed: true },
-      { id: "s2", title: "SWOT analysis for each", completed: false },
-    ],
-    createdAt: new Date().toISOString(),
-    deadline: new Date(Date.now() + 86400000 * 5).toISOString(),
-  },
-  {
-    id: "task-2",
-    title: "Design homepage hero section with animations",
-    description:
-      "Create a high-fidelity prototype of the hero section. Include smooth scroll animations and a clear CTA. The design should follow the new brand guidelines.",
-    tag: "Design",
-    status: "IN_PROGRESS",
-    priority: "HIGH",
-    image:
-      "https://images.unsplash.com/photo-1626785774573-4b799314346d?w=800&auto=format&fit=crop&q=60",
-    members: [
-      { id: "u1", name: "Ritik Gupta" },
-      { id: "u3", name: "Mike Johnson" },
-    ],
-    subtasks: [
-      { id: "s3", title: "Sketches and wireframes", completed: true },
-      { id: "s4", title: "High-fidelity mockups", completed: true },
-      { id: "s5", title: "Prototypes for animations", completed: false },
-    ],
-    createdAt: new Date().toISOString(),
-    deadline: new Date(Date.now() + 86400000 * 2).toISOString(),
-  },
-  {
-    id: "task-3",
-    title: "Setup project repository and CI/CD pipeline",
-    description:
-      "Initialize the repository with the necessary boilerplate. Setup GitHub Actions for automated testing and deployment to staging.",
-    tag: "Dev",
-    status: "IN_PROGRESS",
-    priority: "URGENT",
-    members: [{ id: "u2", name: "Sarah Connor" }],
-    subtasks: [
-      { id: "s6", title: "Initialize Repo", completed: true },
-      { id: "s7", title: "Configure Actions", completed: false },
-    ],
-    createdAt: new Date().toISOString(),
-    deadline: new Date(Date.now() + 86400000).toISOString(),
-  },
-  {
-    id: "task-4",
-    title: "Define component library structure",
-    description:
-      "Outline the core components required for the design system. Categorize them into atoms, molecules, and organisms.",
-    tag: "Dev",
-    status: "IN_REVIEW",
-    priority: "MEDIUM",
-    members: [
-      { id: "u1", name: "Ritik Gupta" },
-      { id: "u2", name: "Sarah Connor" },
-      { id: "u3", name: "Mike Johnson" },
-    ],
-    subtasks: [],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "task-5",
-    title: "Project Kickoff Meeting",
-    description:
-      "Initial meeting with all stakeholders to define goals, timelines, and responsibilities.",
-    tag: "Meeting",
-    status: "DONE",
-    priority: "HIGH",
-    members: [
-      { id: "u1", name: "Ritik Gupta" },
-      { id: "u2", name: "Sarah Connor" },
-      { id: "u3", name: "Mike Johnson" },
-    ],
-    subtasks: [
-      { id: "s8", title: "Prepare Agenda", completed: true },
-      { id: "s9", title: "Invite participants", completed: true },
-    ],
-    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-    deadline: new Date(Date.now() - 86400000 * 3).toISOString(),
-  },
-];
 
 export default function ProjectDetailsPage() {
   const workspace = useSelector(selectWorkspace);
@@ -135,6 +43,12 @@ export default function ProjectDetailsPage() {
     { id: "list", label: "List", icon: List },
     { id: "settings", label: "Settings", icon: Settings },
   ];
+
+  const { data: tasksData, isLoading } = useGetTasksQuery(
+    { projectId: project?.id! },
+    { skip: !project?.id },
+  );
+  const tasks = tasksData?.tasks || [];
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
@@ -250,18 +164,26 @@ export default function ProjectDetailsPage() {
 
       {/* Main Content Area */}
       <div className="-mx-4 sm:mx-0 flex-1 overflow-x-auto">
-        {activeTab === "overview" && <ProjectOverview tasks={MOCK_TASKS} />}
+        {isLoading ? (
+          <div className="flex h-full items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand border-t-transparent" />
+          </div>
+        ) : (
+          <>
+            {activeTab === "overview" && <ProjectOverview tasks={tasks} />}
 
-        {activeTab === "board" && (
-          <TaskBoard
-            tasks={MOCK_TASKS}
-            onTaskClick={handleTaskClick}
-            onAddTask={handleAddTask}
-          />
-        )}
+            {activeTab === "board" && (
+              <TaskBoard
+                tasks={tasks}
+                onTaskClick={handleTaskClick}
+                onAddTask={handleAddTask}
+              />
+            )}
 
-        {activeTab === "list" && (
-          <TaskListView tasks={MOCK_TASKS} onTaskClick={handleTaskClick} />
+            {activeTab === "list" && (
+              <TaskListView tasks={tasks} onTaskClick={handleTaskClick} />
+            )}
+          </>
         )}
 
         {activeTab === "settings" && project && (

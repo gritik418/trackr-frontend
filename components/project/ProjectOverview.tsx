@@ -1,6 +1,6 @@
 "use client";
 
-import { Task } from "@/features/project/project.interface";
+import { Task, TaskStatus } from "@/features/task/task.interface";
 import {
   BarChart3,
   CheckCircle2,
@@ -17,13 +17,17 @@ interface ProjectOverviewProps {
 
 export default function ProjectOverview({ tasks }: ProjectOverviewProps) {
   const totalTasks = tasks.length;
-  const completedTasks = tasks.filter((t) => t.status === "DONE").length;
+  const completedTasks = tasks.filter(
+    (t) => t.status === TaskStatus.DONE,
+  ).length;
   const inProgressTasks = tasks.filter(
-    (t) => t.status === "IN_PROGRESS",
+    (t) => t.status === TaskStatus.IN_PROGRESS,
   ).length;
   const overdueTasks = tasks.filter(
     (t) =>
-      t.deadline && new Date(t.deadline) < new Date() && t.status !== "DONE",
+      t.deadline &&
+      new Date(t.deadline) < new Date() &&
+      t.status !== TaskStatus.DONE,
   ).length;
 
   const completionRate =

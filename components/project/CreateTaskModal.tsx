@@ -136,7 +136,7 @@ export default function CreateTaskModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-neutral-500 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+            className="p-2 cursor-pointer text-neutral-500 hover:text-white hover:bg-white/5 rounded-xl transition-all"
           >
             <X size={20} />
           </button>
@@ -266,25 +266,18 @@ export default function CreateTaskModal({
 
           {/* Footer Actions */}
           <div className="pt-6 border-t border-white/5 flex items-center justify-between">
-            <button
-              type="button"
-              className="flex items-center gap-2 text-neutral-500 hover:text-white text-sm font-medium transition-colors"
-            >
-              <UserPlus size={18} />
-              Add Assignees
-            </button>
-            <div className="flex items-center gap-3">
+            <div className="flex ml-auto items-center gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3 text-neutral-400 hover:text-white text-sm font-bold transition-all"
+                className="px-6 cursor-pointer py-3 text-neutral-400 hover:text-white text-sm font-bold transition-all"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="px-8 py-3 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-8 py-3 cursor-pointer bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? "Creating..." : "Create Task"}
               </button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Task } from "@/features/project/project.interface";
+import { Task } from "@/features/task/task.interface";
 import {
   AlertCircle,
   CheckCircle2,
@@ -68,9 +68,10 @@ export default function TaskListView({
           </thead>
           <tbody className="divide-y divide-white/5">
             {tasks.map((task) => {
-              const completedSubtasks = task.subtasks.filter(
-                (s) => s.completed,
-              ).length;
+              // Mock subtasks
+              const subtasks = [];
+              const completedSubtasks = 0;
+
               return (
                 <tr
                   key={task.id}
@@ -94,7 +95,8 @@ export default function TaskListView({
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-300">
-                      {statusIcons[task.status]}
+                      {/* Cast because API status might have values not in map yet, or verify map covers all */}
+                      {statusIcons[task.status] || <AlertCircle size={14} />}
                       <span className="opacity-80 font-mono text-[10px]">
                         {task.status.replace("_", " ")}
                       </span>
@@ -109,42 +111,40 @@ export default function TaskListView({
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex -space-x-1.5 overflow-hidden">
-                      {task.members.map((member) => (
+                      {task.assignedTo ? (
                         <div
-                          key={member.id}
                           className="w-6 h-6 rounded-full border-2 border-bg-dark-0 bg-neutral-800 flex items-center justify-center text-[8px] text-white relative z-0 hover:z-10 transition-transform hover:scale-110"
-                          title={member.name}
+                          title={task.assignedTo.name}
                         >
-                          {member.avatarUrl ? (
+                          {task.assignedTo.avatarUrl ? (
                             <Image
-                              src={member.avatarUrl}
-                              alt={member.name}
+                              src={task.assignedTo.avatarUrl}
+                              alt={task.assignedTo.name}
                               width={24}
                               height={24}
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            member.name
+                            task.assignedTo.name
                               .split(" ")
                               .map((n) => n[0])
                               .join("")
+                              .toUpperCase()
+                              .slice(0, 2)
                           )}
                         </div>
-                      ))}
+                      ) : (
+                        <span className="text-neutral-600 text-[10px] italic">
+                          Unassigned
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-24 h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full transition-all duration-700 ${completedSubtasks === task.subtasks.length ? "bg-emerald-500" : "bg-brand"}`}
-                          style={{
-                            width: `${(completedSubtasks / (task.subtasks.length || 1)) * 100}%`,
-                          }}
-                        />
-                      </div>
-                      <span className="text-[10px] font-mono text-neutral-500">
-                        {completedSubtasks}/{task.subtasks.length}
+                      {/* Mock subtasks UI or hide */}
+                      <span className="text-[10px] text-neutral-600 italic">
+                        --
                       </span>
                     </div>
                   </td>

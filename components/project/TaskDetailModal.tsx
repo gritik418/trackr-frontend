@@ -1,6 +1,6 @@
 "use client";
 
-import { Task } from "@/features/project/project.interface";
+import { Task } from "@/features/task/task.interface";
 import {
   AlertCircle,
   Calendar,
@@ -30,6 +30,9 @@ export default function TaskDetailModal({
   task,
 }: TaskDetailModalProps) {
   const [mounted, setMounted] = useState(false);
+
+  // Mock subtasks
+  const subtasks = [];
 
   useEffect(() => {
     setMounted(true);
@@ -88,7 +91,7 @@ export default function TaskDetailModal({
             </div>
             <div className="w-px h-4 bg-white/10" />
             <div className="flex items-center gap-1.5 text-neutral-400 text-xs font-medium uppercase tracking-wider">
-              {statusIcons[task.status]}
+              {statusIcons[task.status] || <AlertCircle size={14} />}
               {task.status.replace("_", " ")}
             </div>
           </div>
@@ -172,80 +175,41 @@ export default function TaskDetailModal({
               </span>
             </div>
             <div className="flex flex-wrap gap-3">
-              {task.members.map((member) => (
-                <div
-                  key={member.id}
-                  className="flex items-center gap-3 p-2 pr-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-colors cursor-pointer group"
-                >
+              {task.assignedTo && (
+                <div className="flex items-center gap-3 p-2 pr-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-colors cursor-pointer group">
                   <div className="w-8 h-8 rounded-xl bg-neutral-800 border border-white/5 flex items-center justify-center text-xs text-white overflow-hidden group-hover:border-brand/50 transition-colors">
-                    {member.avatarUrl ? (
+                    {task.assignedTo.avatarUrl ? (
                       <Image
-                        src={member.avatarUrl}
-                        alt={member.name}
+                        src={task.assignedTo.avatarUrl}
+                        alt={task.assignedTo.name}
                         width={32}
                         height={32}
                       />
                     ) : (
-                      member.name
+                      task.assignedTo.name
                         .split(" ")
                         .map((n) => n[0])
                         .join("")
+                        .toUpperCase()
+                        .slice(0, 2)
                     )}
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-white group-hover:text-brand transition-colors">
-                      {member.name}
+                      {task.assignedTo.name}
                     </p>
                     <p className="text-[10px] text-neutral-500">Assignee</p>
                   </div>
                 </div>
-              ))}
+              )}
               <button className="w-10 h-10 rounded-2xl border border-dashed border-white/20 flex items-center justify-center text-neutral-500 hover:text-white hover:border-white/40 hover:bg-white/5 transition-all">
                 <User size={18} />
               </button>
             </div>
           </div>
 
-          {/* Subtasks */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-neutral-400">
-              <div className="w-8 h-px bg-white/10" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
-                Subtasks
-              </span>
-            </div>
-            <div className="space-y-2.5">
-              {task.subtasks.map((subtask) => (
-                <div
-                  key={subtask.id}
-                  className="flex items-center gap-3 p-4 bg-white/2 border border-white/5 rounded-2xl group hover:bg-white/5 transition-all"
-                >
-                  <button
-                    className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${subtask.completed ? "bg-brand border-brand text-bg-dark-0 shadow-lg shadow-brand/20" : "border-white/20 hover:border-brand"}`}
-                  >
-                    {subtask.completed && (
-                      <CheckCircle2 size={12} strokeWidth={3} />
-                    )}
-                  </button>
-                  <p
-                    className={`text-[15px] flex-1 ${subtask.completed ? "text-neutral-500 line-through" : "text-neutral-200"}`}
-                  >
-                    {subtask.title}
-                  </p>
-                </div>
-              ))}
-              <button className="w-full p-4 border border-dashed border-white/10 rounded-2xl text-neutral-500 hover:text-white hover:border-white/20 text-[15px] font-medium transition-all flex items-center justify-center gap-2 bg-transparent hover:bg-white/2">
-                <Image
-                  src="/icons/plus.svg"
-                  alt="Add"
-                  width={16}
-                  height={16}
-                  className="opacity-50"
-                />
-                <span>Add a subtask...</span>
-              </button>
-            </div>
-          </div>
+          {/* Subtasks - HIDDEN FOR NOW */}
+          {/* <div className="space-y-4"> ... </div> */}
 
           {/* Activity Placeholder */}
           <div className="space-y-6 pb-10">

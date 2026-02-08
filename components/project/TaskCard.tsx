@@ -1,6 +1,6 @@
 "use client";
 
-import { Task } from "@/features/project/project.interface";
+import { Task } from "@/features/task/task.interface";
 import { List, MoreHorizontal } from "lucide-react";
 import Image from "next/image";
 
@@ -10,7 +10,9 @@ interface TaskCardProps {
 }
 
 export default function TaskCard({ task, onClick }: TaskCardProps) {
-  const completedSubtasks = task.subtasks.filter((s) => s.completed).length;
+  // Mock subtasks for now as API doesn't return them yet
+  const subtasks = [];
+  const completedSubtasks = 0;
 
   const priorityColors = {
     LOW: "bg-blue-500/10 text-blue-400 border-blue-500/20",
@@ -27,22 +29,13 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
       {/* Hover Effect */}
       <div className="absolute inset-0 bg-brand/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
-      {task.image && (
-        <div className="mb-3 rounded-lg overflow-hidden h-32 relative border border-white/5">
-          <Image
-            src={task.image}
-            alt={task.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        </div>
-      )}
+      {/* Image support can be added later if API supports it */}
 
       <div className="relative z-10">
         <div className="flex justify-between items-start mb-2 gap-2">
           <div className="flex flex-wrap gap-1.5">
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/5 text-neutral-400 border border-white/5 uppercase tracking-wider">
-              {task.tag}
+              Task
             </span>
             <span
               className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${priorityColors[task.priority]}`}
@@ -55,50 +48,44 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
           </button>
         </div>
 
-        <h4 className="text-sm font-medium text-white leading-snug mb-3 group-hover:text-brand transition-colors">
+        <h4 className="text-sm font-medium text-white leading-snug mb-3 group-hover:text-brand transition-colors line-clamp-2">
           {task.title}
         </h4>
 
         <div className="flex items-center justify-between">
           <div className="flex -space-x-1.5 focus-within:z-10">
-            {task.members.map((member) => (
+            {task.assignedTo ? (
               <div
-                key={member.id}
-                title={member.name}
+                title={task.assignedTo.name}
                 className="w-6 h-6 rounded-full bg-neutral-800 border-2 border-bg-dark-0 flex items-center justify-center text-[8px] text-white overflow-hidden"
               >
-                {member.avatarUrl ? (
+                {task.assignedTo.avatarUrl ? (
                   <Image
-                    src={member.avatarUrl}
-                    alt={member.name}
+                    src={task.assignedTo.avatarUrl}
+                    alt={task.assignedTo.name}
                     width={24}
                     height={24}
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  member.name
+                  task.assignedTo.name
                     .split(" ")
                     .map((n) => n[0])
                     .join("")
+                    .toUpperCase()
+                    .slice(0, 2)
                 )}
               </div>
-            ))}
-          </div>
-          <div className="flex items-center gap-2.5 text-xs text-neutral-500">
-            {task.subtasks.length > 0 && (
-              <div className="flex items-center gap-1 font-mono">
-                <List size={12} className="text-neutral-600" />
-                <span
-                  className={
-                    completedSubtasks === task.subtasks.length
-                      ? "text-green-400"
-                      : ""
-                  }
-                >
-                  {completedSubtasks}/{task.subtasks.length}
-                </span>
+            ) : (
+              <div className="w-6 h-6 rounded-full bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center text-[8px] text-neutral-500">
+                ?
               </div>
             )}
+          </div>
+          <div className="flex items-center gap-2.5 text-xs text-neutral-500">
+            {/* Subtasks logic commented out/mocked until supported */}
+            {/* {task.subtasks.length > 0 && ( ... )} */}
+
             {task.deadline && (
               <span className="text-[10px] opacity-60">
                 {new Date(task.deadline).toLocaleDateString([], {
