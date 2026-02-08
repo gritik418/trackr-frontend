@@ -1,6 +1,11 @@
-import { Workspace } from "@/types/workspace/workspace.interface";
+import {
+  Workspace,
+  WorkspaceMember,
+} from "@/types/workspace/workspace.interface";
 import { CreateWorkspaceDto } from "@/types/workspace/create-workspace.interface";
 import { UpdateWorkspaceDto } from "@/types/workspace/update-workspace.interface";
+import { Task } from "../task/task.interface";
+import { User } from "@/types/user/user.interface";
 
 export interface WorkspaceState {
   workspace: Workspace | null;
@@ -42,7 +47,7 @@ export interface DeleteWorkspaceResponse {
 export interface GetWorkspaceMembersResponse {
   success: boolean;
   message: string;
-  members: any[];
+  members: WorkspaceMember[];
 }
 
 export interface AddWorkspaceMemberRequest {
@@ -78,7 +83,7 @@ export interface WorkspaceInvite {
   expiresAt: string;
   invitedById: string;
   workspaceId: string;
-  invitedBy: any; // User type basically
+  invitedBy: User;
 }
 
 export interface GetWorkspaceInvitesResponse {

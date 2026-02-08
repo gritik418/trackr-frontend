@@ -13,7 +13,7 @@ const taskApi = createApi({
     baseUrl: API_BASE_URL,
     credentials: "include",
   }),
-  tagTypes: ["Tasks", "ProjectTasks"],
+  tagTypes: ["Tasks", "ProjectTasks", "WorkspaceTasks"],
   endpoints: (build) => ({
     getTasks: build.query<
       GetTasksResponse,
@@ -24,6 +24,16 @@ const taskApi = createApi({
         params: query,
       }),
       providesTags: ["ProjectTasks"],
+    }),
+    getWorkspaceTasks: build.query<
+      GetTasksResponse,
+      { workspaceId: string; query?: Omit<GetTasksQuery, "assignedToId"> }
+    >({
+      query: ({ workspaceId, query }) => ({
+        url: `/workspaces/${workspaceId}/my-tasks`,
+        params: query,
+      }),
+      providesTags: ["WorkspaceTasks", "ProjectTasks", "Tasks"],
     }),
     createTask: build.mutation<
       CreateTaskResponse,
@@ -39,6 +49,10 @@ const taskApi = createApi({
   }),
 });
 
-export const { useCreateTaskMutation, useGetTasksQuery } = taskApi;
+export const {
+  useCreateTaskMutation,
+  useGetTasksQuery,
+  useGetWorkspaceTasksQuery,
+} = taskApi;
 
 export default taskApi;
