@@ -12,6 +12,8 @@ export default async function OrgAdminLayout({
 }) {
   const { slug } = await params;
 
+  if (!slug) return null;
+
   return (
     <OrgProvider slug={slug}>
       <OrgGuard>

@@ -1,22 +1,16 @@
-'use client';
+import React from "react";
+import { WorkspaceLayout } from "@/components/dashboard/WorkspaceLayout";
 
-import React from 'react';
-import { useParams } from 'next/navigation';
-import { WorkspaceLayout } from '@/components/dashboard/WorkspaceLayout';
-
-export default function Layout({
+export default async function Layout({
   children,
-}: {    
+  params,
+}: {
   children: React.ReactNode;
+  params: Promise<{ slug: string }>;
 }) {
-  const params = useParams();
-  const slug = params?.slug as string || '';
+  const { slug } = await params;
 
   if (!slug) return null;
 
-  return (
-    <WorkspaceLayout slug={slug}>
-      {children}
-    </WorkspaceLayout>
-  );
+  return <WorkspaceLayout slug={slug}>{children}</WorkspaceLayout>;
 }

@@ -18,3 +18,9 @@ export interface CreateWorkspaceResponse {
   message: string;
   workspace: Workspace;
 }
+
+export interface GetWorkspaceDetailsResponse {
+  success: boolean;
+  message: string;
+  workspace: Workspace;
+}
