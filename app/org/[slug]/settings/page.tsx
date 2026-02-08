@@ -136,7 +136,7 @@ export default function OrgSettingsPage() {
                     alt="Logo"
                     width={200}
                     height={200}
-                    className="w-32 h-32 rounded-2xl"
+                    className="w-32 h-32 object-cover rounded-2xl"
                   />
                 ) : (
                   <div className="w-32 h-32 relative rounded-2xl bg-linear-to-br from-brand/20 to-purple-600/20 flex items-center justify-center border border-dashed border-white/10 cursor-default">

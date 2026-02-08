@@ -43,7 +43,7 @@ export function OrgSidebar({ slug }: { slug: string }) {
                   alt={organization.name}
                   width={40}
                   height={40}
-                  className="rounded-xl h-10 w-10"
+                  className="rounded-xl object-cover h-10 w-10"
                 />
               ) : (
                 <Building2 className="text-brand" size={20} />

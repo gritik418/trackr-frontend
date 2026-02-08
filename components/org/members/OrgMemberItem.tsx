@@ -2,6 +2,7 @@ import { formatRelativeTime, getInitials } from "@/lib/utils";
 import { OrganizationMember } from "@/types/organization/organization.interface";
 import { MoreVertical, Shield } from "lucide-react";
 import Image from "next/image";
+import { MemberOptionsDropdown } from "./MemberOptionsDropdown";
 
 type Props = {
   member: OrganizationMember;
@@ -59,9 +60,7 @@ const OrgMemberItem = ({ member }: Props) => {
         {formatRelativeTime(member.joinedAt)}
       </td>
       <td className="px-6 py-4 text-right">
-        <button className="p-2 text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all opacity-0 group-hover:opacity-100">
-          <MoreVertical size={16} />
-        </button>
+        {member.role !== "OWNER" && <MemberOptionsDropdown member={member} />}
       </td>
     </tr>
   );

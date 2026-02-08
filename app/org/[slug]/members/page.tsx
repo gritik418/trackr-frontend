@@ -145,7 +145,7 @@ export default function OrgMembersPage() {
       </div>
 
       {/* Main Content Card */}
-      <div className="relative z-10 rounded-3xl bg-org-card-bg/60 backdrop-blur-xl border border-white/5 shadow-2xl shadow-black/20 overflow-hidden flex flex-col min-h-[500px]">
+      <div className="relative z-10 rounded-3xl bg-org-card-bg/60 backdrop-blur-xl border border-white/5 shadow-2xl shadow-black/20 overflow-hidden flex flex-col min-h-[600px]">
         {/* Toolbar */}
         <div className="p-6 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Tabs */}
@@ -223,7 +223,7 @@ export default function OrgMembersPage() {
               />
               <input
                 type="text"
-                placeholder="Search members..."
+                placeholder={`Search ${activeTab === "active" ? "members" : "invitations"}...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-8 py-2 bg-white/5 border border-white/5 rounded-xl text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand/30 focus:bg-white/10 transition-all"
