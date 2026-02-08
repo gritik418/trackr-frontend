@@ -20,6 +20,15 @@ export interface GetProjectByIdResponse {
 }
 
 export type CreateProjectRequest = CreateProjectDto;
+export type UpdateProjectRequest = Partial<CreateProjectDto> & {
+  status?: Project["status"];
+};
+
+export interface UpdateProjectResponse {
+  success: boolean;
+  message: string;
+  project: Project;
+}
 
 export interface Task {
   id: string;

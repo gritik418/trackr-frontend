@@ -5,6 +5,8 @@ import {
   CreateProjectResponse,
   GetProjectByIdResponse,
   GetProjectsResponse,
+  UpdateProjectRequest,
+  UpdateProjectResponse,
 } from "./project.interface";
 
 const projectApi = createApi({
@@ -39,12 +41,29 @@ const projectApi = createApi({
       }),
       invalidatesTags: [{ type: "Projects", id: "LIST" }],
     }),
+    updateProject: build.mutation<
+      UpdateProjectResponse,
+      { workspaceId: string; projectId: string; body: UpdateProjectRequest }
+    >({
+      query: ({ workspaceId, projectId, body }) => ({
+        url: `/workspaces/${workspaceId}/projects/${projectId}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (result, error, { projectId }) => [
+        { type: "Projects", id: projectId },
+        { type: "Projects", id: "LIST" },
+      ],
+    }),
     getProjectById: build.query<
       GetProjectByIdResponse,
       { workspaceId: string; projectId: string }
     >({
       query: ({ workspaceId, projectId }) =>
         `/workspaces/${workspaceId}/projects/${projectId}`,
+      providesTags: (result, error, { projectId }) => [
+        { type: "Projects", id: projectId },
+      ],
     }),
   }),
 });
@@ -53,6 +72,7 @@ export const {
   useGetProjectsQuery,
   useCreateProjectMutation,
   useGetProjectByIdQuery,
+  useUpdateProjectMutation,
 } = projectApi;
 
 export default projectApi;

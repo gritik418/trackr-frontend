@@ -263,7 +263,9 @@ export default function ProjectDetailsPage() {
           <TaskListView tasks={MOCK_TASKS} onTaskClick={handleTaskClick} />
         )}
 
-        {activeTab === "settings" && <ProjectSettings project={project} />}
+        {activeTab === "settings" && project && (
+          <ProjectSettings project={project} />
+        )}
       </div>
 
       {/* Modals */}

@@ -1,10 +1,10 @@
 "use client";
 
+import { useUpdateProjectMutation } from "@/features/project/project.api";
 import { Project } from "@/types/project/project.interface";
 import {
   AlertTriangle,
   Archive,
-  Check,
   ChevronDown,
   Globe,
   Layout,
@@ -14,19 +14,54 @@ import {
   Trash2,
   UserPlus,
   Users,
+  Eye,
 } from "lucide-react";
-import { useState } from "react";
-import Image from "next/image";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 interface ProjectSettingsProps {
-  project: any; // Using any for mock interaction
+  project: Project;
 }
 
 export default function ProjectSettings({ project }: ProjectSettingsProps) {
+  const params = useParams();
+  const workspaceSlug = params.slug as string;
+  const projectId = project.id;
+
+  const [updateProject, { isLoading: isUpdating }] = useUpdateProjectMutation();
+
   const [name, setName] = useState(project?.name || "");
   const [description, setDescription] = useState(project?.description || "");
   const [status, setStatus] = useState(project?.status || "ACTIVE");
-  const [visibility, setVisibility] = useState("PRIVATE");
+  const [nature, setNature] = useState(project?.nature || "PRIVATE");
+
+  useEffect(() => {
+    if (project) {
+      setName(project.name);
+      setDescription(project.description || "");
+      setStatus(project.status);
+      setNature(project.nature);
+    }
+  }, [project]);
+
+  const handleSave = async () => {
+    try {
+      await updateProject({
+        workspaceId: project.workspaceId,
+        projectId,
+        body: {
+          name,
+          description,
+          status: status as Project["status"],
+          nature: nature as Project["nature"],
+        },
+      }).unwrap();
+      toast.success("Project updated successfully");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to update project");
+    }
+  };
 
   const [members] = useState([
     {
@@ -85,7 +120,9 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
               <div className="relative group">
                 <select
                   value={status}
-                  onChange={(e) => setStatus(e.target.value)}
+                  onChange={(e) =>
+                    setStatus(e.target.value as Project["status"])
+                  }
                   className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white appearance-none focus:outline-none focus:border-brand/40 cursor-pointer font-medium"
                 >
                   <option value="ACTIVE" className="bg-neutral-900">
@@ -124,23 +161,27 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
           <div className="flex items-center justify-between pt-4">
             <div className="flex items-center gap-4 p-1.5 bg-black/20 rounded-2xl w-fit border border-white/5">
               <button
-                onClick={() => setVisibility("PRIVATE")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${visibility === "PRIVATE" ? "bg-white/10 text-white shadow-lg" : "text-neutral-500 hover:text-neutral-300"}`}
+                onClick={() => setNature("PRIVATE")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${nature === "PRIVATE" ? "bg-white/10 text-white shadow-lg" : "text-neutral-500 hover:text-neutral-300"}`}
               >
                 <Lock size={14} />
                 Private
               </button>
               <button
-                onClick={() => setVisibility("PUBLIC")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${visibility === "PUBLIC" ? "bg-white/10 text-white shadow-lg" : "text-neutral-500 hover:text-neutral-300"}`}
+                onClick={() => setNature("PUBLIC")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${nature === "PUBLIC" ? "bg-white/10 text-white shadow-lg" : "text-neutral-500 hover:text-neutral-300"}`}
               >
                 <Globe size={14} />
                 Public
               </button>
             </div>
-            <button className="flex items-center gap-2 px-8 py-4 bg-brand text-bg-dark-0 font-black rounded-2xl hover:bg-brand-hover transition-all active:scale-95 shadow-xl shadow-brand/10">
+            <button
+              onClick={handleSave}
+              disabled={isUpdating}
+              className="flex items-center gap-2 px-8 py-4 bg-brand text-bg-dark-0 font-black rounded-2xl hover:bg-brand-hover transition-all active:scale-95 shadow-xl shadow-brand/10 disabled:opacity-50"
+            >
               <Save size={18} strokeWidth={3} />
-              Save Changes
+              {isUpdating ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </div>
@@ -157,73 +198,90 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
               Project Team
             </h3>
           </div>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-xl border border-white/5 transition-all">
-            <UserPlus size={16} />
-            Add Member
-          </button>
+          {nature === "PRIVATE" && (
+            <button className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-xl border border-white/5 transition-all">
+              <UserPlus size={16} />
+              Add Member
+            </button>
+          )}
         </div>
 
-        <div className="bg-dashboard-card-bg/40 border border-white/5 rounded-[32px] overflow-hidden backdrop-blur-xl shrink-0">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-white/5 border-b border-white/5">
-                <th className="px-8 py-4 text-[10px] font-bold text-neutral-500 uppercase tracking-widest">
-                  Member
-                </th>
-                <th className="px-8 py-4 text-[10px] font-bold text-neutral-500 uppercase tracking-widest">
-                  Role
-                </th>
-                <th className="px-8 py-4"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {members.map((member) => (
-                <tr
-                  key={member.id}
-                  className="group hover:bg-white/2 transition-all"
-                >
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-2xl bg-neutral-800 border border-white/5 flex items-center justify-center text-xs font-bold text-white">
-                        {member.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </div>
-                      <div>
-                        <p className="font-bold text-white tracking-tight group-hover:text-brand transition-colors">
-                          {member.name}
-                        </p>
-                        <div className="flex items-center gap-1.5 text-neutral-500 text-[10px] font-medium">
-                          <Mail size={10} />
-                          {member.email}
+        {nature === "PRIVATE" ? (
+          <div className="bg-dashboard-card-bg/40 border border-white/5 rounded-[32px] overflow-hidden backdrop-blur-xl shrink-0">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-white/5 border-b border-white/5">
+                  <th className="px-8 py-4 text-[10px] font-bold text-neutral-500 uppercase tracking-widest">
+                    Member
+                  </th>
+                  <th className="px-8 py-4 text-[10px] font-bold text-neutral-500 uppercase tracking-widest">
+                    Role
+                  </th>
+                  <th className="px-8 py-4"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {members.map((member) => (
+                  <tr
+                    key={member.id}
+                    className="group hover:bg-white/2 transition-all"
+                  >
+                    <td className="px-8 py-5">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-2xl bg-neutral-800 border border-white/5 flex items-center justify-center text-xs font-bold text-white">
+                          {member.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </div>
+                        <div>
+                          <p className="font-bold text-white tracking-tight group-hover:text-brand transition-colors">
+                            {member.name}
+                          </p>
+                          <div className="flex items-center gap-1.5 text-neutral-500 text-[10px] font-medium">
+                            <Mail size={10} />
+                            {member.email}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-8 py-5">
-                    <span
-                      className={`inline-flex px-3 py-1 rounded-full text-[10px] font-bold border uppercase tracking-wider ${
-                        member.role === "OWNER"
-                          ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
-                          : member.role === "ADMIN"
-                            ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
-                            : "bg-white/5 text-neutral-400 border-white/10"
-                      }`}
-                    >
-                      {member.role}
-                    </span>
-                  </td>
-                  <td className="px-8 py-5 text-right">
-                    <button className="p-2 text-neutral-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
-                      <Trash2 size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    </td>
+                    <td className="px-8 py-5">
+                      <span
+                        className={`inline-flex px-3 py-1 rounded-full text-[10px] font-bold border uppercase tracking-wider ${
+                          member.role === "OWNER"
+                            ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                            : member.role === "ADMIN"
+                              ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                              : "bg-white/5 text-neutral-400 border-white/10"
+                        }`}
+                      >
+                        {member.role}
+                      </span>
+                    </td>
+                    <td className="px-8 py-5 text-right">
+                      <button className="p-2 text-neutral-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="bg-white/2 border border-white/5 border-dashed rounded-[32px] p-12 flex flex-col items-center justify-center text-center space-y-4">
+            <div className="p-4 rounded-3xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+              <Eye size={32} />
+            </div>
+            <div className="max-w-xs space-y-1">
+              <h4 className="font-bold text-white">Anyone can access</h4>
+              <p className="text-neutral-500 text-xs">
+                Since this is a public project, anyone in this workspace can
+                view and contribute.
+              </p>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Danger Zone */}
