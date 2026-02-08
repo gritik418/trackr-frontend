@@ -45,7 +45,7 @@ const CreateProjectModal = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-in fade-in duration-300"
@@ -156,8 +156,8 @@ const CreateProjectModal = ({
               </div>
               <p className="text-[10px] text-neutral-500 font-medium flex items-center gap-1.5 ml-1">
                 {nature === "PRIVATE"
-                  ? "Only workspace members can access this project."
-                  : "Anyone in the organization can view this project."}
+                  ? "Only added members can access this project."
+                  : "Anyone in the workspace can access this project."}
               </p>
             </div>
           </div>
