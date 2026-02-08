@@ -1,5 +1,13 @@
 "use client";
 
+import CreateTaskModal from "@/components/project/CreateTaskModal";
+import ProjectOverview from "@/components/project/ProjectOverview";
+import TaskBoard from "@/components/project/TaskBoard";
+import TaskDetailModal from "@/components/project/TaskDetailModal";
+import TaskListView from "@/components/project/TaskListView";
+import { Task } from "@/features/project/project.interface";
+import { selectProject } from "@/features/project/project.slice";
+import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import {
   Calendar,
   Filter,
@@ -11,16 +19,9 @@ import {
   Settings,
   Share2,
 } from "lucide-react";
-import { useParams } from "next/navigation";
+import Link from "next/link";
 import { useState } from "react";
-import { Task } from "@/features/project/project.interface";
-import TaskCard from "@/components/project/TaskCard";
-import TaskBoard from "@/components/project/TaskBoard";
-import TaskDetailModal from "@/components/project/TaskDetailModal";
-import CreateTaskModal from "@/components/project/CreateTaskModal";
-import TaskListView from "@/components/project/TaskListView";
-import ProjectOverview from "@/components/project/ProjectOverview";
-import Image from "next/image";
+import { useSelector } from "react-redux";
 
 const MOCK_TASKS: Task[] = [
   {
@@ -116,14 +117,8 @@ const MOCK_TASKS: Task[] = [
 ];
 
 export default function ProjectDetailsPage() {
-  const params = useParams();
-  const projectId = params?.projectId as string;
-  const projectTitle = projectId
-    ? projectId
-        .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ")
-    : "Design Team Project";
+  const workspace = useSelector(selectWorkspace);
+  const project = useSelector(selectProject);
 
   const [activeTab, setActiveTab] = useState("board");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -156,14 +151,16 @@ export default function ProjectDetailsPage() {
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 text-sm text-neutral-500 mb-1">
-              <span>Projects</span>
+              <Link href={`/dashboard/${workspace?.slug}/projects`}>
+                Projects
+              </Link>
               <span>/</span>
               <span className="text-white hover:text-brand transition-colors cursor-pointer">
-                {projectTitle}
+                {project?.name}
               </span>
             </div>
             <h1 className="text-3xl font-bold text-white tracking-tight">
-              {projectTitle}
+              {project?.name}
             </h1>
           </div>
           <div className="flex items-center gap-3">

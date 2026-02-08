@@ -13,6 +13,12 @@ export interface CreateProjectResponse {
   project: Project;
 }
 
+export interface GetProjectByIdResponse {
+  success: boolean;
+  message: string;
+  project: Project;
+}
+
 export type CreateProjectRequest = CreateProjectDto;
 
 export interface Task {

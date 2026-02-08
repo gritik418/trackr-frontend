@@ -66,7 +66,7 @@ export default function TaskDetailModal({
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[110] flex items-center justify-end">
+    <div className="fixed inset-0 z-110 flex items-center justify-end">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-500"
@@ -152,7 +152,7 @@ export default function TaskDetailModal({
           {/* Description */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-neutral-400">
-              <div className="w-8 h-[1px] bg-white/10" />
+              <div className="w-8 h-px bg-white/10" />
               <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
                 Description
               </span>
@@ -166,7 +166,7 @@ export default function TaskDetailModal({
           {/* Members */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-neutral-400">
-              <div className="w-8 h-[1px] bg-white/10" />
+              <div className="w-8 h-px bg-white/10" />
               <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
                 Assignees
               </span>
@@ -209,7 +209,7 @@ export default function TaskDetailModal({
           {/* Subtasks */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-neutral-400">
-              <div className="w-8 h-[1px] bg-white/10" />
+              <div className="w-8 h-px bg-white/10" />
               <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
                 Subtasks
               </span>
@@ -250,7 +250,7 @@ export default function TaskDetailModal({
           {/* Activity Placeholder */}
           <div className="space-y-6 pb-10">
             <div className="flex items-center gap-2 text-neutral-400">
-              <div className="w-8 h-[1px] bg-white/10" />
+              <div className="w-8 h-px bg-white/10" />
               <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
                 Activity
               </span>

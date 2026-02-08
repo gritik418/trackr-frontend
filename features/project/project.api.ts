@@ -3,6 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
   CreateProjectRequest,
   CreateProjectResponse,
+  GetProjectByIdResponse,
   GetProjectsResponse,
 } from "./project.interface";
 
@@ -38,9 +39,20 @@ const projectApi = createApi({
       }),
       invalidatesTags: [{ type: "Projects", id: "LIST" }],
     }),
+    getProjectById: build.query<
+      GetProjectByIdResponse,
+      { workspaceId: string; projectId: string }
+    >({
+      query: ({ workspaceId, projectId }) =>
+        `/workspaces/${workspaceId}/projects/${projectId}`,
+    }),
   }),
 });
 
-export const { useGetProjectsQuery, useCreateProjectMutation } = projectApi;
+export const {
+  useGetProjectsQuery,
+  useCreateProjectMutation,
+  useGetProjectByIdQuery,
+} = projectApi;
 
 export default projectApi;
