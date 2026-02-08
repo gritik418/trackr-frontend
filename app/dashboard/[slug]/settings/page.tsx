@@ -1,25 +1,32 @@
 "use client";
 
 import { APP_DOMAIN } from "@/constants/index";
+import { useUpdateWorkspaceMutation } from "@/features/workspace/workspace.api";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
+import updateWorkspaceSchema from "@/lib/schemas/workspace/update-workspace.schema";
 import { getInitials } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Layout, ShieldAlert } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { BiDetail } from "react-icons/bi";
 import { IoImage } from "react-icons/io5";
 import { useSelector } from "react-redux";
 
 export default function WorkspaceSettingsPage() {
   const workspace = useSelector(selectWorkspace);
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [updateWorkspace] = useUpdateWorkspaceMutation();
 
   const {
     register,
     handleSubmit,
+    setValue,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm({
+    resolver: zodResolver(updateWorkspaceSchema),
     defaultValues: {
       name: workspace?.name || "",
       description: workspace?.description || "",
@@ -27,8 +34,36 @@ export default function WorkspaceSettingsPage() {
     },
   });
 
+  // Keep form in sync when workspace data loads/updates
+  useEffect(() => {
+    if (workspace) {
+      setValue("name", workspace.name);
+      setValue("description", workspace.description || "");
+      setValue("iconUrl", workspace.iconUrl || "");
+    }
+  }, [workspace, setValue]);
+
   const onSubmit = async (data: any) => {
-    alert("In-progress: Workspace settings update functionality.");
+    if (!workspace) return;
+
+    try {
+      await updateWorkspace({ id: workspace.id, body: data }).unwrap();
+      toast.success("Workspace updated successfully!");
+    } catch (error: any) {
+      const message =
+        error.data?.message || error.message || "Failed to update workspace";
+
+      if (error.data?.errors) {
+        Object.keys(error.data.errors).forEach((key) => {
+          setError(key as any, {
+            type: "server",
+            message: error.data.errors[key],
+          });
+        });
+      }
+
+      toast.error(Array.isArray(message) ? message[0] : message);
+    }
   };
 
   if (!workspace) return null;
@@ -143,6 +178,11 @@ export default function WorkspaceSettingsPage() {
                     className="w-full placeholder:text-neutral-600 resize-none pl-10 pr-4 py-2.5 bg-white/5 border border-white/5 rounded-xl text-white outline-none focus:ring-2 focus:ring-brand/20 transition-all font-medium"
                   />
                 </div>
+                {errors.description?.message && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {String(errors.description.message)}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2 flex flex-col md:col-span-2">
@@ -161,6 +201,11 @@ export default function WorkspaceSettingsPage() {
                     className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/5 rounded-xl text-white outline-none focus:ring-2 focus:ring-brand/20 transition-all placeholder:text-neutral-600 font-medium"
                   />
                 </div>
+                {errors.iconUrl?.message && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {String(errors.iconUrl.message)}
+                  </p>
+                )}
               </div>
             </div>
 

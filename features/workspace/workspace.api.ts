@@ -5,6 +5,8 @@ import {
   CreateWorkspaceResponse,
   GetWorkspacesResponse,
   GetWorkspaceDetailsResponse,
+  UpdateWorkspaceRequest,
+  UpdateWorkspaceResponse,
 } from "./workspace.interface";
 
 const workspaceApi = createApi({
@@ -39,6 +41,19 @@ const workspaceApi = createApi({
       }),
       invalidatesTags: ["workspaces"],
     }),
+    updateWorkspace: build.mutation<
+      UpdateWorkspaceResponse,
+      { id: string; body: UpdateWorkspaceRequest }
+    >({
+      query: ({ id, body }) => ({
+        url: `/workspaces/${id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (result) => [
+        { type: "workspaces", id: result?.workspace?.id },
+      ],
+    }),
   }),
 });
 
@@ -46,6 +61,7 @@ export const {
   useGetWorkspacesQuery,
   useGetWorkspaceDetailsQuery,
   useCreateWorkspaceMutation,
+  useUpdateWorkspaceMutation,
 } = workspaceApi;
 
 export default workspaceApi;

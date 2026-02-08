@@ -1,5 +1,6 @@
 import { Workspace } from "@/types/workspace/workspace.interface";
 import { CreateWorkspaceDto } from "@/types/workspace/create-workspace.interface";
+import { UpdateWorkspaceDto } from "@/types/workspace/update-workspace.interface";
 
 export interface WorkspaceState {
   workspace: Workspace | null;
@@ -20,6 +21,14 @@ export interface CreateWorkspaceResponse {
 }
 
 export interface GetWorkspaceDetailsResponse {
+  success: boolean;
+  message: string;
+  workspace: Workspace;
+}
+
+export type UpdateWorkspaceRequest = UpdateWorkspaceDto;
+
+export interface UpdateWorkspaceResponse {
   success: boolean;
   message: string;
   workspace: Workspace;
