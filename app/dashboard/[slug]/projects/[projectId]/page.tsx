@@ -7,6 +7,7 @@ import TaskDetailModal from "@/components/project/TaskDetailModal";
 import TaskListView from "@/components/project/TaskListView";
 import ProjectSettings from "@/components/project/ProjectSettings";
 import { Task } from "@/features/project/project.interface";
+import { TaskStatus } from "@/features/task/task.interface";
 import { selectProject } from "@/features/project/project.slice";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import {
@@ -126,7 +127,7 @@ export default function ProjectDetailsPage() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [initialStatusForCreate, setInitialStatusForCreate] =
-    useState<Task["status"]>("TODO");
+    useState<TaskStatus>(TaskStatus.TODO);
 
   const tabs = [
     { id: "overview", label: "Overview", icon: Layout },
@@ -140,8 +141,8 @@ export default function ProjectDetailsPage() {
     setIsDetailModalOpen(true);
   };
 
-  const handleAddTask = (status: Task["status"]) => {
-    setInitialStatusForCreate(status);
+  const handleAddTask = (status: string) => {
+    setInitialStatusForCreate(status as TaskStatus);
     setIsCreateModalOpen(true);
   };
 
