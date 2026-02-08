@@ -35,7 +35,7 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
         <div className="flex justify-between items-start mb-2 gap-2">
           <div className="flex flex-wrap gap-1.5">
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/5 text-neutral-400 border border-white/5 uppercase tracking-wider">
-              Task
+              {task.tag || "Task"}
             </span>
             <span
               className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${priorityColors[task.priority]}`}

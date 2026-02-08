@@ -130,6 +130,19 @@ export default function TaskDetailModal({
                   <p className="text-white font-medium">Design System</p>
                 </div>
               </div>
+              {task.tag && (
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-lg bg-white/5 border border-white/10">
+                    <Tag size={16} className="text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider">
+                      Tag
+                    </p>
+                    <p className="text-white font-medium">{task.tag}</p>
+                  </div>
+                </div>
+              )}
               {task.deadline && (
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 rounded-lg bg-white/5 border border-white/10">

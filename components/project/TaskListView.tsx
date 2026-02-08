@@ -87,8 +87,16 @@ export default function TaskListView({
                         <p className="text-sm font-semibold text-white group-hover:text-brand transition-colors tracking-tight line-clamp-1">
                           {task.title}
                         </p>
-                        <p className="text-[10px] text-neutral-500 font-mono tracking-tighter uppercase">
-                          {task.id.slice(0, 8)}
+                        <p className="text-[10px] text-neutral-500 font-mono tracking-tighter uppercase flex items-center gap-2">
+                          <span>{task.id.slice(0, 8)}</span>
+                          {task.tag && (
+                            <>
+                              <span className="w-1 h-1 rounded-full bg-white/20" />
+                              <span className="text-brand/80 font-bold">
+                                {task.tag}
+                              </span>
+                            </>
+                          )}
                         </p>
                       </div>
                     </div>

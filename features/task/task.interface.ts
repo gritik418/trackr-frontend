@@ -19,6 +19,7 @@ export interface Task {
   status: TaskStatus;
   priority: TaskPriority;
   deadline?: string | null;
+  tag?: string | null;
   workspaceId: string;
   projectId: string;
   assignedToId?: string | null;
@@ -50,6 +51,7 @@ export interface CreateTaskRequest {
   status?: TaskStatus;
   priority?: TaskPriority;
   deadline?: string | null | Date;
+  tag?: string | null;
   assignedToId?: string | null;
   categoryId?: string | null;
   links?: CreateTaskLinkDto[];
@@ -65,6 +67,7 @@ export interface GetTasksQuery {
   status?: TaskStatus;
   priority?: TaskPriority;
   assignedToId?: string;
+  tag?: string;
 }
 
 export interface GetTasksResponse {

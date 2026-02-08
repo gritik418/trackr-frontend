@@ -91,6 +91,7 @@ export default function CreateTaskModal({
           description: description || null,
           priority,
           status,
+          tag: tag || null,
           deadline: deadline ? new Date(deadline).toISOString() : null,
         },
       }).unwrap();
