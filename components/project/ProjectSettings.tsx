@@ -1,11 +1,13 @@
 "use client";
 
+import AddProjectMemberModal from "@/components/project/AddProjectMemberModal";
 import { useUpdateProjectMutation } from "@/features/project/project.api";
 import { Project } from "@/types/project/project.interface";
 import {
   AlertTriangle,
   Archive,
   ChevronDown,
+  Eye,
   Globe,
   Layout,
   Lock,
@@ -14,9 +16,7 @@ import {
   Trash2,
   UserPlus,
   Users,
-  Eye,
 } from "lucide-react";
-import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -25,8 +25,6 @@ interface ProjectSettingsProps {
 }
 
 export default function ProjectSettings({ project }: ProjectSettingsProps) {
-  const params = useParams();
-  const workspaceSlug = params.slug as string;
   const projectId = project.id;
 
   const [updateProject, { isLoading: isUpdating }] = useUpdateProjectMutation();
@@ -35,6 +33,7 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
   const [description, setDescription] = useState(project?.description || "");
   const [status, setStatus] = useState(project?.status || "ACTIVE");
   const [nature, setNature] = useState(project?.nature || "PRIVATE");
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
 
   useEffect(() => {
     if (project) {
@@ -63,7 +62,7 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
     }
   };
 
-  const [members] = useState([
+  const [members, setMembers] = useState([
     {
       id: "u1",
       name: "Ritik Gupta",
@@ -87,8 +86,31 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
     },
   ]);
 
+  const handleAddMember = (member: any) => {
+    // Check if member already exists (should be handled by modal filter, but double check)
+    if (members.find((m) => m.id === member.user.id)) return;
+
+    setMembers([
+      ...members,
+      {
+        id: member.user.id,
+        name: member.user.name,
+        email: member.user.email,
+        role: "MEMBER", // Default role
+        avatar: member.user.avatarUrl,
+      },
+    ]);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-10 pb-20 animate-in fade-in slide-in-from-bottom-5 duration-700">
+      <AddProjectMemberModal
+        isOpen={isAddMemberModalOpen}
+        onClose={() => setIsAddMemberModalOpen(false)}
+        workspaceId={project.workspaceId}
+        currentMemberIds={members.map((m) => m.id)}
+        onAddMember={handleAddMember}
+      />
       {/* General Settings */}
       <section className="space-y-6">
         <div className="flex items-center gap-3 mb-2">
@@ -199,7 +221,10 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
             </h3>
           </div>
           {nature === "PRIVATE" && (
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-xl border border-white/5 transition-all">
+            <button
+              onClick={() => setIsAddMemberModalOpen(true)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-xl border border-white/5 transition-all"
+            >
               <UserPlus size={16} />
               Add Member
             </button>
