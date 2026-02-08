@@ -5,7 +5,7 @@ import ProjectOverview from "@/components/project/ProjectOverview";
 import TaskBoard from "@/components/project/TaskBoard";
 import TaskDetailModal from "@/components/project/TaskDetailModal";
 import TaskListView from "@/components/project/TaskListView";
-import { ProjectSettings } from "@/components/project/ProjectSettings";
+import ProjectSettings from "@/components/project/ProjectSettings";
 import { Task } from "@/features/task/task.interface";
 import { TaskStatus } from "@/features/task/task.interface";
 import { useGetTasksQuery } from "@/features/task/task.api";
@@ -55,8 +55,8 @@ export default function ProjectDetailsPage() {
     setIsDetailModalOpen(true);
   };
 
-  const handleAddTask = (status: string) => {
-    setInitialStatusForCreate(status as TaskStatus);
+  const handleAddTask = (status: TaskStatus) => {
+    setInitialStatusForCreate(status);
     setIsCreateModalOpen(true);
   };
 
@@ -152,7 +152,7 @@ export default function ProjectDetailsPage() {
               />
             </div>
             <button
-              onClick={() => handleAddTask("TODO")}
+              onClick={() => handleAddTask(TaskStatus.TODO)}
               className="ml-2 px-4 py-2 bg-brand text-bg-dark-0 text-sm font-black rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all flex items-center gap-2 active:scale-95"
             >
               <Plus size={18} strokeWidth={3} />
