@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { WorkspaceSidebar } from "./WorkspaceSidebar";
+import DashboardSidebar from "./DashboardSidebar";
 import { DashboardHeader } from "./DashboardHeader";
-import WorkspaceProvider from "./WorkspaceProvider";
+import DashboardProvider from "./DashboardProvider";
 
-export function WorkspaceLayout({
+export default function DashboardLayout({
   children,
   slug,
 }: {
@@ -15,10 +15,10 @@ export function WorkspaceLayout({
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   return (
-    <WorkspaceProvider slug={slug}>
+    <DashboardProvider slug={slug}>
       <div className="flex h-screen bg-dashboard-bg text-white font-sans selection:bg-brand/30 overflow-hidden">
         {/* Sidebar */}
-        <WorkspaceSidebar
+        <DashboardSidebar
           slug={slug}
           isExpanded={isSidebarExpanded}
           onMouseEnter={() => setIsSidebarExpanded(true)}
@@ -34,6 +34,6 @@ export function WorkspaceLayout({
           </main>
         </div>
       </div>
-    </WorkspaceProvider>
+    </DashboardProvider>
   );
 }

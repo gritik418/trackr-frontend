@@ -3,9 +3,9 @@
 import { useGetWorkspaceDetailsQuery } from "@/features/workspace/workspace.api";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
-import OrgContextLoading from "../org/OrgContextLoading";
+import DashboardContextLoading from "./DashboardContextLoading";
 
-const WorkspaceProvider = ({
+const DashboardProvider = ({
   children,
   slug,
 }: {
@@ -25,7 +25,7 @@ const WorkspaceProvider = ({
   }, [isLoading, error, data, router]);
 
   if (isLoading) {
-    return <OrgContextLoading />;
+    return <DashboardContextLoading />;
   }
 
   if (error || !data?.workspace) {
@@ -35,4 +35,4 @@ const WorkspaceProvider = ({
   return <>{children}</>;
 };
 
-export default WorkspaceProvider;
+export default DashboardProvider;

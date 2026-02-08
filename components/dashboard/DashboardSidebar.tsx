@@ -16,21 +16,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
-import WorkspaceSwitcher from "./WorkspaceSwitcher";
+import WorkspaceSwitcher from "../workspace/WorkspaceSwitcher";
 
-interface WorkspaceSidebarProps {
+interface DashboardSidebarProps {
   slug: string;
   isExpanded: boolean;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
 }
 
-export function WorkspaceSidebar({
+export default function DashboardSidebar({
   slug,
   isExpanded,
   onMouseEnter,
   onMouseLeave,
-}: WorkspaceSidebarProps) {
+}: DashboardSidebarProps) {
   const pathname = usePathname();
   const workspace = useSelector(selectWorkspace);
   const baseUrl = `/dashboard/${slug}`;

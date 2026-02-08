@@ -1,5 +1,5 @@
 import React from "react";
-import { WorkspaceLayout } from "@/components/dashboard/WorkspaceLayout";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
 
 export default async function Layout({
   children,
@@ -12,5 +12,5 @@ export default async function Layout({
 
   if (!slug) return null;
 
-  return <WorkspaceLayout slug={slug}>{children}</WorkspaceLayout>;
+  return <DashboardLayout slug={slug}>{children}</DashboardLayout>;
 }
