@@ -20,6 +20,7 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
@@ -226,8 +227,9 @@ export default function WorkspaceMembersPage() {
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center text-brand font-bold text-sm overflow-hidden shrink-0">
                             {member.user.avatarUrl ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
+                              <Image
+                                width={40}
+                                height={40}
                                 src={member.user.avatarUrl}
                                 alt={member.user.name}
                                 className="w-full h-full object-cover"
@@ -252,7 +254,7 @@ export default function WorkspaceMembersPage() {
                           onChange={(e) =>
                             handleUpdateRole(member.id, e.target.value)
                           }
-                          disabled={member.role === "OWNER"} // Ownership handled separately or restricted
+                          disabled={member.role === "OWNER"}
                           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-transparent focus:outline-none transition-all cursor-pointer ${
                             member.role === "OWNER" || member.role === "ADMIN"
                               ? "bg-purple-500/10 text-purple-400 border-purple-500/20"

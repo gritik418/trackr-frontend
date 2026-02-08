@@ -14,3 +14,32 @@ export interface CreateProjectResponse {
 }
 
 export type CreateProjectRequest = CreateProjectDto;
+
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  tag: string;
+  status:
+    | "TODO"
+    | "IN_PROGRESS"
+    | "IN_REVIEW"
+    | "BLOCKED"
+    | "ON_HOLD"
+    | "DONE"
+    | "CANCELED";
+  priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  members: {
+    id: string;
+    name: string;
+    avatarUrl?: string;
+  }[];
+  image?: string;
+  subtasks: {
+    id: string;
+    title: string;
+    completed: boolean;
+  }[];
+  createdAt: string;
+  deadline?: string;
+}
