@@ -15,9 +15,13 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Image from "next/image";
 import { selectProjects } from "@/features/project/project.slice";
+import { useParams, useRouter } from "next/navigation";
 
 export default function WorkspaceTasksPage() {
   const workspace = useSelector(selectWorkspace);
+  const params = useParams();
+  const slug = params?.slug as string;
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const projects = useSelector(selectProjects);
   const [selectedStatuses, setSelectedStatuses] = useState<TaskStatus[]>([]);
@@ -275,6 +279,8 @@ export default function WorkspaceTasksPage() {
                       <TaskItem
                         key={task.id}
                         task={task}
+                        slug={slug}
+                        router={router}
                         projectName={
                           projects?.find((p) => p.id === task.projectId)
                             ?.name || "Project"
@@ -300,6 +306,8 @@ export default function WorkspaceTasksPage() {
                       <TaskItem
                         key={task.id}
                         task={task}
+                        slug={slug}
+                        router={router}
                         projectName={
                           projects?.find((p) => p.id === task.projectId)
                             ?.name || "Project"
@@ -326,7 +334,17 @@ export default function WorkspaceTasksPage() {
   );
 }
 
-function TaskItem({ task, projectName }: { task: Task; projectName: string }) {
+function TaskItem({
+  task,
+  projectName,
+  slug,
+  router,
+}: {
+  task: Task;
+  projectName: string;
+  slug: string;
+  router: any;
+}) {
   const getStatusColor = (status: TaskStatus) => {
     switch (status) {
       case TaskStatus.DONE:
@@ -348,7 +366,14 @@ function TaskItem({ task, projectName }: { task: Task; projectName: string }) {
   };
 
   return (
-    <div className="group relative flex items-start gap-4 p-5 rounded-2xl border border-white/5 bg-dashboard-card-bg/40 hover:bg-dashboard-card-bg/80 hover:border-brand/20 hover:shadow-lg hover:shadow-brand/5 transition-all duration-300 cursor-pointer overflow-hidden">
+    <div
+      onClick={() =>
+        router.push(
+          `/dashboard/${slug}/projects/${task.projectId}/tasks/${task.id}`,
+        )
+      }
+      className="group relative flex items-start gap-4 p-5 rounded-2xl border border-white/5 bg-dashboard-card-bg/40 hover:bg-dashboard-card-bg/80 hover:border-brand/20 hover:shadow-lg hover:shadow-brand/5 transition-all duration-300 cursor-pointer overflow-hidden"
+    >
       {/* Left Accent Border on Hover */}
       <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-brand opacity-0 group-hover:opacity-100 transition-opacity" />
 
