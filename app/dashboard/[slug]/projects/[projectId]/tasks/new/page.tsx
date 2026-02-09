@@ -18,6 +18,10 @@ import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import { useGetWorkspaceMembersQuery } from "@/features/workspace/workspace.api";
+import {
+  useGetProjectByIdQuery,
+  useGetProjectMembersQuery,
+} from "@/features/project/project.api";
 import MemberMultiSelect from "@/components/project/MemberMultiSelect";
 import Link from "next/link";
 
@@ -30,7 +34,7 @@ export default function CreateTaskPage() {
   const projectId = params.projectId as string;
   const initialStatusFromQuery = searchParams.get("status") as TaskStatus;
 
-  const [createTask, { isLoading }] = useCreateTaskMutation();
+  const [createTask, { isLoading: isCreating }] = useCreateTaskMutation();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -43,10 +47,36 @@ export default function CreateTaskPage() {
   const [assignedToIds, setAssignedToIds] = useState<string[]>([]);
 
   const workspace = useSelector(selectWorkspace);
-  const { data: membersData } = useGetWorkspaceMembersQuery(workspace?.id!, {
-    skip: !workspace?.id,
-  });
-  const members = membersData?.members || [];
+
+  // Fetch Project Details to check Nature
+  const { data: projectData, isLoading: isProjectLoading } =
+    useGetProjectByIdQuery(
+      { workspaceId: workspace?.id!, projectId },
+      { skip: !workspace?.id || !projectId },
+    );
+
+  const isPrivate = projectData?.project?.nature === "PRIVATE";
+
+  // Fetch Workspace Members
+  const { data: workspaceMembersData, isLoading: isWorkspaceMembersLoading } =
+    useGetWorkspaceMembersQuery(workspace?.id!, {
+      skip: !workspace?.id || isPrivate,
+    });
+
+  // Fetch Project Members
+  const { data: projectMembersData, isLoading: isProjectMembersLoading } =
+    useGetProjectMembersQuery(
+      { workspaceId: workspace?.id!, projectId },
+      { skip: !workspace?.id || !projectId || !isPrivate },
+    );
+
+  const members = isPrivate
+    ? projectMembersData?.members || []
+    : workspaceMembersData?.members || [];
+
+  const isLoadingMembers =
+    isProjectLoading ||
+    (isPrivate ? isProjectMembersLoading : isWorkspaceMembersLoading);
 
   const priorityOptions = [
     { value: TaskPriority.LOW, label: "Low", color: "text-blue-400" },
@@ -278,10 +308,10 @@ export default function CreateTaskPage() {
           </button>
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isCreating}
             className="px-12 py-4 cursor-pointer bg-brand text-bg-dark-0 font-black rounded-2xl hover:bg-brand-hover hover:shadow-[0_0_30px_rgba(var(--brand-rgb),0.3)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
           >
-            {isLoading ? "Creating Task..." : "Create Task"}
+            {isCreating ? "Creating Task..." : "Create Task"}
           </button>
         </div>
       </form>

@@ -1,5 +1,6 @@
 import { Project } from "@/types/project/project.interface";
 import { CreateProjectDto } from "@/types/project/create-project.interface";
+import { WorkspaceMember } from "@/types/workspace/workspace.interface";
 
 export interface GetProjectsResponse {
   success: boolean;
@@ -17,6 +18,12 @@ export interface GetProjectByIdResponse {
   success: boolean;
   message: string;
   project: Project;
+}
+
+export interface GetProjectMembersResponse {
+  success: boolean;
+  message: string;
+  members: WorkspaceMember[];
 }
 
 export type CreateProjectRequest = CreateProjectDto;

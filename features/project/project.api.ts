@@ -4,6 +4,7 @@ import {
   CreateProjectRequest,
   CreateProjectResponse,
   GetProjectByIdResponse,
+  GetProjectMembersResponse,
   GetProjectsResponse,
   UpdateProjectRequest,
   UpdateProjectResponse,
@@ -65,6 +66,16 @@ const projectApi = createApi({
         { type: "Projects", id: projectId },
       ],
     }),
+    getProjectMembers: build.query<
+      GetProjectMembersResponse,
+      { workspaceId: string; projectId: string }
+    >({
+      query: ({ workspaceId, projectId }) =>
+        `/workspaces/${workspaceId}/projects/${projectId}/members`,
+      providesTags: (result, error, { projectId }) => [
+        { type: "Projects", id: `${projectId}-members` },
+      ],
+    }),
   }),
 });
 
@@ -73,6 +84,7 @@ export const {
   useCreateProjectMutation,
   useGetProjectByIdQuery,
   useUpdateProjectMutation,
+  useGetProjectMembersQuery,
 } = projectApi;
 
 export default projectApi;
