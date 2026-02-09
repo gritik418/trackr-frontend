@@ -6,6 +6,7 @@ import { Project } from "@/types/project/project.interface";
 import {
   Activity,
   CheckSquare,
+  ChevronLeft,
   Folder,
   FolderOpenDot,
   LayoutDashboard,
@@ -47,12 +48,6 @@ export default function DashboardSidebar({
     { name: "Activity", href: `${baseUrl}/activity`, icon: Activity },
   ];
 
-  // const projects = [
-  //   { name: "Website Redesign", href: `${baseUrl}/projects/website-redesign` },
-  //   { name: "Mobile App Launch", href: `${baseUrl}/projects/mobile-app` },
-  //   { name: "Q1 Marketing", href: `${baseUrl}/projects/q1-marketing` },
-  // ];
-
   useEffect(() => {
     if (workspace?.projects) {
       setProjects(workspace.projects);
@@ -72,36 +67,41 @@ export default function DashboardSidebar({
         {/* Org Header */}
         <div className="h-16 flex items-center px-4 shrink-0 transition-opacity duration-300">
           {/* Org Icon */}
-          {workspace?.organization?.logoUrl ? (
-            <Image
-              src={workspace?.organization?.logoUrl}
-              alt="Org Logo"
-              width={48}
-              height={48}
-              className="rounded-lg min-w-12! max-w-12! min-h-12! max-h-12! object-cover"
-            />
-          ) : (
-            <div className="w-12 h-12 border-3 border-white/30 rounded-lg bg-indigo-500 flex items-center justify-center shrink-0">
-              <span className="font-bold text-white text-sm">
-                {getInitials(workspace?.organization?.name || "")}
+          <Link
+            href={`/org/${workspace?.organization?.slug}`}
+            className="flex w-full items-center cursor-pointer group/logo shrink-0"
+          >
+            {workspace?.organization?.logoUrl ? (
+              <Image
+                src={workspace?.organization?.logoUrl}
+                alt="Org Logo"
+                width={48}
+                height={48}
+                className="rounded-lg min-w-12! max-w-12! min-h-12! max-h-12! object-cover"
+              />
+            ) : (
+              <div className="w-12 h-12 border-3 border-white/30 rounded-lg bg-indigo-500 flex items-center justify-center shrink-0">
+                <span className="font-bold text-white text-sm">
+                  {getInitials(workspace?.organization?.name || "")}
+                </span>
+              </div>
+            )}
+
+            {/* Org Name */}
+            <div
+              className={cn(
+                "ml-3 transition-opacity flex flex-col duration-200 overflow-hidden",
+                isExpanded ? "opacity-100" : "opacity-0 w-0",
+              )}
+            >
+              <span className="font-bold text-white whitespace-nowrap">
+                {workspace?.organization?.name}
+              </span>
+              <span className="font-bold uppercase text-[10px] text-slate-400 whitespace-nowrap">
+                organization
               </span>
             </div>
-          )}
-
-          {/* Org Name */}
-          <div
-            className={cn(
-              "ml-3 transition-opacity flex flex-col duration-200 overflow-hidden",
-              isExpanded ? "opacity-100" : "opacity-0 w-0",
-            )}
-          >
-            <span className="font-bold text-white whitespace-nowrap">
-              {workspace?.organization?.name}
-            </span>
-            <span className="font-bold uppercase text-[10px] text-slate-400 whitespace-nowrap">
-              organization
-            </span>
-          </div>
+          </Link>
         </div>
 
         {/* Workspace Switcher */}

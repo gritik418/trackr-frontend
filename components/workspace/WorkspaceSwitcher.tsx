@@ -145,11 +145,21 @@ const WorkspaceSwitcher = ({ isExpanded, workspace }: Props) => {
                 className="w-full cursor-pointer flex items-center gap-2.5 p-2 rounded-lg bg-brand/10 text-brand border border-brand/20 group text-left"
                 onClick={() => setIsOpen(false)}
               >
-                <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shrink-0">
-                  <span className="text-[10px] font-bold text-black">
-                    {getInitials(workspace?.name || "")}
-                  </span>
-                </div>
+                {workspace?.iconUrl ? (
+                  <Image
+                    src={workspace?.iconUrl}
+                    alt="Workspace Icon"
+                    width={32}
+                    height={32}
+                    className="rounded-lg w-8 h-8 object-cover"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shrink-0">
+                    <span className="text-[10px] font-bold text-black">
+                      {getInitials(workspace?.name || "")}
+                    </span>
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold truncate">
                     {workspace?.name}
@@ -167,11 +177,21 @@ const WorkspaceSwitcher = ({ isExpanded, workspace }: Props) => {
                     className="w-full cursor-pointer flex items-center gap-2.5 p-2 rounded-lg text-dashboard-item-text hover:text-white hover:bg-white/5 transition-all text-left group"
                     onClick={() => handleSwitchWorkspace(ws)}
                   >
-                    <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-white/5 flex items-center justify-center shrink-0 group-hover:bg-indigo-500/30 transition-colors">
-                      <span className="text-[10px] font-bold text-indigo-300">
-                        {getInitials(ws.name)}
-                      </span>
-                    </div>
+                    {ws?.iconUrl ? (
+                      <Image
+                        src={ws.iconUrl}
+                        alt="Workspace Icon"
+                        width={32}
+                        height={32}
+                        className="rounded-lg w-8 h-8 object-cover"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-white/5 flex items-center justify-center shrink-0 group-hover:bg-indigo-500/30 transition-colors">
+                        <span className="text-[10px] font-bold text-indigo-300">
+                          {getInitials(ws.name)}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium truncate">{ws.name}</p>
                     </div>

@@ -20,7 +20,7 @@ const DashboardProvider = ({
 
   useEffect(() => {
     if (!isLoading && (error || !data?.workspace)) {
-      router.replace("/");
+      router.replace("/org");
     }
   }, [isLoading, error, data, router]);
 
