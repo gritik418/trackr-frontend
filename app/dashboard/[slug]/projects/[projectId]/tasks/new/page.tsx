@@ -99,7 +99,7 @@ export default function CreateTaskPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div className="mx-auto py-8">
       {/* Header & Breadcrumbs */}
       <div className="flex flex-col gap-6 mb-10">
         <div className="flex items-center gap-4">
@@ -133,7 +133,7 @@ export default function CreateTaskPage() {
       >
         <div className="lg:col-span-2 space-y-8">
           {/* Main Info Card */}
-          <div className="bg-dashboard-card-bg/50 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 space-y-8 shadow-2xl">
+          <div className="bg-dashboard-card-bg/50 flex flex-col h-full backdrop-blur-xl border border-white/10 rounded-2xl p-8 space-y-8 shadow-2xl">
             {/* Title */}
             <div className="space-y-3">
               <label className="text-xs font-bold text-neutral-500 uppercase tracking-[0.2em] flex items-center gap-2 px-1">
@@ -147,12 +147,12 @@ export default function CreateTaskPage() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="E.g., Design system components"
-                className="w-full bg-white/5 border border-white/10 rounded-3xl px-6 py-5 text-xl text-white placeholder:text-neutral-700 focus:outline-none focus:border-brand/30 focus:bg-white/10 transition-all font-medium shadow-inner"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-5 text-xl text-white placeholder:text-neutral-700 focus:outline-none focus:border-brand/30 focus:bg-white/10 transition-all font-medium shadow-inner"
               />
             </div>
 
             {/* Description */}
-            <div className="space-y-3">
+            <div className="space-y-3 flex flex-col flex-1">
               <label className="text-xs font-bold text-neutral-500 uppercase tracking-[0.2em] flex items-center gap-2 px-1">
                 <AlignLeft size={14} className="text-brand" />
                 Description
@@ -161,32 +161,15 @@ export default function CreateTaskPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Describe the task in detail..."
-                className="w-full bg-white/5 border border-white/10 rounded-3xl px-6 py-5 text-lg text-neutral-300 placeholder:text-neutral-700 focus:outline-none focus:border-brand/30 focus:bg-white/10 transition-all min-h-[220px] resize-none shadow-inner leading-relaxed"
+                className="w-full bg-white/5 flex-1 border border-white/10 rounded-xl px-6 py-5 text-lg text-neutral-300 placeholder:text-neutral-700 focus:outline-none focus:border-brand/30 focus:bg-white/10 transition-all min-h-[220px] resize-none shadow-inner leading-relaxed"
               />
             </div>
-          </div>
-
-          <div className="flex items-center justify-between gap-4 pt-4">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="px-8 py-4 text-neutral-400 hover:text-white font-bold transition-all"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="px-12 py-4 bg-brand text-bg-dark-0 font-black rounded-2xl hover:bg-brand-hover hover:shadow-[0_0_30px_rgba(var(--brand-rgb),0.3)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
-            >
-              {isLoading ? "Creating Task..." : "Create Task"}
-            </button>
           </div>
         </div>
 
         {/* Sidebar Configuration */}
         <div className="space-y-6">
-          <div className="bg-dashboard-card-bg/50 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 space-y-8 shadow-xl">
+          <div className="bg-dashboard-card-bg/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 space-y-8 shadow-xl">
             {/* Status & Priority */}
             <div className="space-y-6">
               <div className="space-y-3">
@@ -269,20 +252,37 @@ export default function CreateTaskPage() {
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="bg-dashboard-card-bg/50 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 shadow-xl">
-            <div className="space-y-4">
-              <label className="text-xs font-bold text-neutral-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                <UserPlus size={14} className="text-emerald-400" />
-                Assignees
-              </label>
-              <MemberMultiSelect
-                members={members}
-                selectedIds={assignedToIds}
-                onToggle={toggleAssignee}
-              />
-            </div>
+        <div className="bg-dashboard-card-bg/50 lg:col-span-3 w-full backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-xl">
+          <div className="space-y-4">
+            <label className="text-xs font-bold text-neutral-500 uppercase tracking-[0.2em] flex items-center gap-2">
+              <UserPlus size={14} className="text-emerald-400" />
+              Assignees
+            </label>
+            <MemberMultiSelect
+              members={members}
+              selectedIds={assignedToIds}
+              onToggle={toggleAssignee}
+            />
           </div>
+        </div>
+
+        <div className="flex w-full lg:col-span-3 items-center justify-end gap-4 pt-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="px-8 cursor-pointer py-4 text-neutral-400 hover:text-white font-bold transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="px-12 py-4 cursor-pointer bg-brand text-bg-dark-0 font-black rounded-2xl hover:bg-brand-hover hover:shadow-[0_0_30px_rgba(var(--brand-rgb),0.3)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+          >
+            {isLoading ? "Creating Task..." : "Create Task"}
+          </button>
         </div>
       </form>
     </div>
