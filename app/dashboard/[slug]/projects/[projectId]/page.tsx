@@ -4,6 +4,7 @@ import ProjectOverview from "@/components/project/ProjectOverview";
 import TaskBoard from "@/components/project/TaskBoard";
 import TaskListView from "@/components/project/TaskListView";
 import ProjectSettings from "@/components/project/ProjectSettings";
+import ProjectMembers from "@/components/project/ProjectMembers";
 import { Task } from "@/features/task/task.interface";
 import { TaskStatus } from "@/features/task/task.interface";
 import { useGetTasksQuery } from "@/features/task/task.api";
@@ -19,6 +20,7 @@ import {
   Search,
   Settings,
   Share2,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -39,6 +41,7 @@ export default function ProjectDetailsPage() {
     { id: "overview", label: "Overview", icon: Layout },
     { id: "board", label: "Board", icon: Layout },
     { id: "list", label: "List", icon: List },
+    { id: "members", label: "Members", icon: Users },
     { id: "settings", label: "Settings", icon: Settings },
   ];
 
@@ -180,6 +183,10 @@ export default function ProjectDetailsPage() {
 
             {activeTab === "list" && (
               <TaskListView tasks={tasks} onTaskClick={handleTaskClick} />
+            )}
+
+            {activeTab === "members" && project && (
+              <ProjectMembers project={project} />
             )}
           </>
         )}
