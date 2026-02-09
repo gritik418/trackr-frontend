@@ -17,6 +17,7 @@ import {
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
+import CommentSection from "./CommentSection";
 
 interface TaskDetailModalProps {
   isOpen: boolean;
@@ -233,40 +234,8 @@ export default function TaskDetailModal({
           {/* Subtasks - HIDDEN FOR NOW */}
           {/* <div className="space-y-4"> ... </div> */}
 
-          {/* Activity Placeholder */}
-          <div className="space-y-6 pb-10">
-            <div className="flex items-center gap-2 text-neutral-400">
-              <div className="w-8 h-px bg-white/10" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
-                Activity
-              </span>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-xl bg-brand/20 border border-brand/30 flex items-center justify-center text-brand font-bold text-xs shrink-0">
-                RG
-              </div>
-              <div className="flex-1 space-y-4">
-                <div className="relative">
-                  <textarea
-                    placeholder="Write a comment..."
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand/30 min-h-[100px] transition-all"
-                  />
-                  <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                    <button className="p-2 text-neutral-500 hover:text-white rounded-lg transition-colors">
-                      <Paperclip size={16} />
-                    </button>
-                    <button className="p-2 text-neutral-500 hover:text-white rounded-lg transition-colors">
-                      <MessageSquare size={16} />
-                    </button>
-                  </div>
-                </div>
-                <button className="px-6 py-2.5 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand-hover transition-colors shadow-lg shadow-brand/10 text-sm ml-auto block">
-                  Comment
-                </button>
-              </div>
-            </div>
-          </div>
+          {/* Activity Section / Comments */}
+          <CommentSection taskId={task.id} />
         </div>
       </div>
     </div>,
