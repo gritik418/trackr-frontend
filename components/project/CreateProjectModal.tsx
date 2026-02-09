@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FolderPlus, Globe, Lock, X } from "lucide-react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import {
   createProjectSchema,
@@ -37,8 +38,17 @@ const CreateProjectModal = ({
 
   const nature = watch("nature");
 
+  React.useEffect(() => {
+    if (!open) {
+      reset({
+        name: "",
+        description: "",
+        nature: "PRIVATE",
+      });
+    }
+  }, [open, reset]);
+
   const handleClose = () => {
-    reset();
     onClose();
   };
 

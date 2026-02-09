@@ -1,13 +1,15 @@
 "use client";
 
 import CreateProjectModal from "@/components/project/CreateProjectModal";
+import DeleteProjectModal from "@/components/project/DeleteProjectModal";
 import {
   useCreateProjectMutation,
   useGetProjectsQuery,
 } from "@/features/project/project.api";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import { CreateProjectFormData } from "@/lib/schemas/project/create-project.schema";
-import { Clock, Loader2, Lock, MoreVertical, Plus, Search } from "lucide-react";
+import { Project } from "@/types/project/project.interface";
+import { Clock, Loader2, Lock, Plus, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -20,6 +22,8 @@ export default function ProjectsListPage() {
   const slug = params?.slug as string;
   const workspace = useSelector(selectWorkspace);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const { data, isLoading } = useGetProjectsQuery(workspace?.id || "", {
     skip: !workspace?.id,
@@ -36,10 +40,18 @@ export default function ProjectsListPage() {
         body: formData,
       }).unwrap();
       toast.success("Project created successfully!");
+
       setIsModalOpen(false);
     } catch (error: any) {
       toast.error(error.data?.message || "Failed to create project");
     }
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, project: Project) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedProject(project);
+    setIsDeleteModalOpen(true);
   };
 
   const projects = data?.projects || [];
@@ -125,8 +137,11 @@ export default function ProjectsListPage() {
                   )}
                   {project.nature}
                 </span>
-                <button className="text-neutral-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100">
-                  <MoreVertical size={16} />
+                <button
+                  onClick={(e) => handleDeleteClick(e, project)}
+                  className="p-1.5 rounded-lg text-neutral-500 hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+                >
+                  <Trash2 size={16} />
                 </button>
               </div>
 
@@ -211,6 +226,20 @@ export default function ProjectsListPage() {
         onSubmit={handleCreateProject}
         isSubmitting={isCreating}
       />
+
+      {selectedProject && (
+        <DeleteProjectModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            setSelectedProject(null);
+          }}
+          workspaceId={workspace?.id || ""}
+          projectId={selectedProject.id}
+          projectName={selectedProject.name}
+          slug={slug}
+        />
+      )}
     </div>
   );
 }
