@@ -26,6 +26,7 @@ export interface Workspace {
   organization: Organization;
   description: string | null;
   ownerId: string;
+  owner: User;
   members: WorkspaceMember[];
   projects: any[];
   createdAt: string;

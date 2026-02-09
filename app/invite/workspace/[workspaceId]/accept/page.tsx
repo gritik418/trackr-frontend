@@ -8,10 +8,12 @@ import {
   Check,
   Clock,
   Fingerprint,
+  Globe,
   Layers,
   LayoutDashboard,
   Shield,
   Sparkles,
+  User,
   X,
   Zap,
 } from "lucide-react";
@@ -24,6 +26,7 @@ import {
 } from "@/features/workspace/workspace.api";
 import { WorkspaceInviteStatus } from "@/features/workspace/workspace.interface";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 export default function WorkspaceAcceptInvitePage() {
   const params = useParams();
@@ -48,7 +51,6 @@ export default function WorkspaceAcceptInvitePage() {
   const [isDeclining, setIsDeclining] = useState(false);
 
   const invite = previewData?.invite;
-  const workspace = previewData?.workspace;
 
   const handleAccept = async () => {
     try {
@@ -68,6 +70,16 @@ export default function WorkspaceAcceptInvitePage() {
       setIsAccepting(false);
     }
   };
+
+  const workspace = invite?.workspace;
+
+  const formattedExpiryDate = new Date(
+    invite?.expiresAt || "",
+  ).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 
   if (isLoading) {
     return (
@@ -204,11 +216,10 @@ export default function WorkspaceAcceptInvitePage() {
                   <Layers size={24} />
                 </div>
                 <h3 className="text-xl font-black tracking-tight text-white">
-                  About the Workspace
+                  {workspace?.name}
                 </h3>
                 <p className="text-sm text-neutral-400 leading-relaxed font-light">
-                  {workspace?.description ||
-                    "A dedicated high-performance workspace for your team tasks and project orchestration."}
+                  {workspace?.description || "No description provided"}
                 </p>
               </div>
 
@@ -217,29 +228,47 @@ export default function WorkspaceAcceptInvitePage() {
                   <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
                     Organization
                   </p>
-                  <p className="text-sm text-white font-semibold flex items-center gap-2">
-                    <Building2 size={14} className="text-brand" />
-                    {workspace?.organization.name}
-                  </p>
+                  <div className="text-sm text-white font-semibold flex items-center gap-2">
+                    {workspace?.organization.logoUrl ? (
+                      <Image
+                        src={workspace?.organization.logoUrl}
+                        alt=""
+                        width={40}
+                        height={40}
+                        className="rounded-sm h-10 w-10 object-cover"
+                      />
+                    ) : (
+                      <Building2 size={40} className="text-brand" />
+                    )}
+                    <div className="flex flex-col">
+                      <p>{workspace?.organization.name}</p>
+
+                      <span className="text-xs text-slate-400 flex items-center gap-1">
+                        <Globe size={12} />{" "}
+                        {workspace?.organization?.websiteUrl}
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
-                    Workspace Capabilities
+                    Workspace Owner
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      "Task Tracking",
-                      "Team Sync",
-                      "Roadmaps",
-                      "Analytics",
-                    ].map((t) => (
-                      <span
-                        key={t}
-                        className="px-2 py-0.5 rounded bg-white/5 border border-white/5 text-[10px] text-neutral-400 font-mono"
-                      >
-                        {t}
-                      </span>
-                    ))}
+                  <div className="text-sm text-white font-semibold flex items-center gap-2">
+                    {workspace?.owner?.avatarUrl ? (
+                      <Image
+                        src={workspace?.owner.avatarUrl}
+                        alt=""
+                        width={30}
+                        height={30}
+                        className="rounded-sm h-8 w-8 object-cover"
+                      />
+                    ) : (
+                      <User size={30} className="text-brand" />
+                    )}
+                    <div className="flex flex-col">
+                      <p>{workspace?.owner.name}</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -288,17 +317,27 @@ export default function WorkspaceAcceptInvitePage() {
                     {invite.invitedBy.name}
                   </p>
                 </div>
-                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-neutral-400">
-                  Active
+                <div className="px-3 py-1 capitalize rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-neutral-400">
+                  {invite.status.toLowerCase()}
                 </div>
               </div>
 
               <div className="flex flex-col items-center text-center space-y-8">
                 {/* Workspace Visual */}
                 <div className="relative mb-2">
-                  <div className="w-24 h-24 rounded-2xl bg-linear-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center relative z-10 shadow-2xl overflow-hidden group/icon transition-all duration-500 group-hover:scale-105">
-                    <Layers size={48} className="text-brand relative z-10" />
-                  </div>
+                  {workspace?.iconUrl ? (
+                    <Image
+                      src={workspace.iconUrl}
+                      alt=""
+                      width={96}
+                      height={96}
+                      className="rounded-2xl h-24 w-24 object-cover bg-linear-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center relative z-10 shadow-2xl overflow-hidden group/icon transition-all duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-2xl bg-linear-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center relative z-10 shadow-2xl overflow-hidden group/icon transition-all duration-500 group-hover:scale-105">
+                      <Layers size={48} className="text-brand relative z-10" />
+                    </div>
+                  )}
                   <div className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-[#00E599]/10 border border-[#00E599]/30 flex items-center justify-center backdrop-blur-lg animate-pulse z-20">
                     <Check size={20} className="text-[#00E599]" />
                   </div>
@@ -372,7 +411,7 @@ export default function WorkspaceAcceptInvitePage() {
               <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-neutral-500 font-bold text-[9px] uppercase tracking-widest">
                   <Clock size={14} className="text-brand/50" />
-                  Expires: Feb 15
+                  Expires: {formattedExpiryDate}
                 </div>
                 <Link
                   href="#"

@@ -87,6 +87,7 @@ export interface WorkspaceInvite {
   role: string;
   status: WorkspaceInviteStatus;
   createdAt: string;
+  workspace: Workspace;
   expiresAt: string;
   invitedById: string;
   workspaceId: string;
@@ -124,14 +125,6 @@ export interface PreviewWorkspaceInviteResponse {
   success: boolean;
   message: string;
   invite: WorkspaceInvite;
-  workspace: {
-    id: string;
-    name: string;
-    description: string | null;
-    organization: {
-      name: string;
-    };
-  };
 }
 
 export interface AcceptWorkspaceInviteResponse {
