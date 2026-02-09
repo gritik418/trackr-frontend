@@ -2,7 +2,6 @@
 
 import ProjectOverview from "@/components/project/ProjectOverview";
 import TaskBoard from "@/components/project/TaskBoard";
-import TaskDetailModal from "@/components/project/TaskDetailModal";
 import TaskListView from "@/components/project/TaskListView";
 import ProjectSettings from "@/components/project/ProjectSettings";
 import { Task } from "@/features/task/task.interface";
@@ -24,16 +23,17 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
 export default function ProjectDetailsPage() {
   const workspace = useSelector(selectWorkspace);
   const project = useSelector(selectProject);
   const router = useRouter();
+  const params = useParams();
+  const slug = params.slug as string;
+  const projectId = params.projectId as string;
 
   const [activeTab, setActiveTab] = useState("board");
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const tabs = [
     { id: "overview", label: "Overview", icon: Layout },
@@ -49,8 +49,7 @@ export default function ProjectDetailsPage() {
   const tasks = tasksData?.tasks || [];
 
   const handleTaskClick = (task: Task) => {
-    setSelectedTask(task);
-    setIsDetailModalOpen(true);
+    router.push(`/dashboard/${slug}/projects/${projectId}/tasks/${task.id}`);
   };
 
   const handleAddTask = (status: TaskStatus) => {
@@ -189,13 +188,6 @@ export default function ProjectDetailsPage() {
           <ProjectSettings project={project} />
         )}
       </div>
-
-      {/* Modals */}
-      <TaskDetailModal
-        isOpen={isDetailModalOpen}
-        onClose={() => setIsDetailModalOpen(false)}
-        task={selectedTask}
-      />
     </div>
   );
 }

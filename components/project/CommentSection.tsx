@@ -16,16 +16,29 @@ import Image from "next/image";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { formatDistanceToNow } from "date-fns";
+import { useUser } from "@/providers/AuthProvider";
 
 interface CommentSectionProps {
   taskId: string;
 }
 
 export default function CommentSection({ taskId }: CommentSectionProps) {
+  const { user: currentUser } = useUser();
   const [content, setContent] = useState("");
   const { data: commentsData, isLoading } = useGetCommentsQuery(taskId);
   const [addComment, { isLoading: isAdding }] = useAddCommentMutation();
   const [deleteComment] = useDeleteCommentMutation();
+
+  const getInitials = (name: string) => {
+    return (
+      name
+        ?.split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2) || "??"
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,8 +75,18 @@ export default function CommentSection({ taskId }: CommentSectionProps) {
 
       {/* Comment Input */}
       <div className="flex gap-4">
-        <div className="w-8 h-8 rounded-xl bg-brand/20 border border-brand/30 flex items-center justify-center text-brand font-bold text-xs shrink-0">
-          U
+        <div className="w-9 h-9 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center overflow-hidden shrink-0 ring-2 ring-brand/5 shadow-brand/10 shadow-lg">
+          {currentUser?.avatarUrl ? (
+            <img
+              src={currentUser.avatarUrl}
+              alt={currentUser.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-brand font-black text-xs">
+              {getInitials(currentUser?.name || "User")}
+            </span>
+          )}
         </div>
         <form onSubmit={handleSubmit} className="flex-1 space-y-4">
           <div className="relative">
