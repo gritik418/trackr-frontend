@@ -80,7 +80,7 @@ export default function OrgAcceptInvitePage() {
 
       if (res.success) {
         toast.success(res.message);
-        router.push("/login");
+        router.push("/");
       }
     } catch (err: any) {
       toast.error(err.data?.message || "Failed to decline invitation");

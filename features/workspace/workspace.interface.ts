@@ -79,6 +79,7 @@ export enum WorkspaceInviteStatus {
   ACCEPTED = "ACCEPTED",
   EXPIRED = "EXPIRED",
   REVOKED = "REVOKED",
+  REJECTED = "REJECTED",
 }
 
 export interface WorkspaceInvite {

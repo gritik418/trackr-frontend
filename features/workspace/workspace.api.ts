@@ -117,6 +117,17 @@ const workspaceApi = createApi({
       }),
       invalidatesTags: ["workspaces", "workspaceInvites"],
     }),
+    declineWorkspaceInvite: build.mutation<
+      AcceptWorkspaceInviteResponse,
+      { workspaceId: string; body: { token: string } }
+    >({
+      query: ({ workspaceId, body }) => ({
+        url: `/workspaces/${workspaceId}/invites/reject`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["workspaceInvites"],
+    }),
     revokeWorkspaceInvite: build.mutation<
       RevokeWorkspaceInviteResponse,
       { workspaceId: string; inviteId: string }
@@ -178,6 +189,7 @@ export const {
   useSendWorkspaceInviteMutation,
   usePreviewWorkspaceInviteQuery,
   useAcceptWorkspaceInviteMutation,
+  useDeclineWorkspaceInviteMutation,
   useRevokeWorkspaceInviteMutation,
   useResendWorkspaceInviteMutation,
 } = workspaceApi;

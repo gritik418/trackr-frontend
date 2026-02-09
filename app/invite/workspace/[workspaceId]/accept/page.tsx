@@ -23,6 +23,7 @@ import { useState } from "react";
 import {
   usePreviewWorkspaceInviteQuery,
   useAcceptWorkspaceInviteMutation,
+  useDeclineWorkspaceInviteMutation,
 } from "@/features/workspace/workspace.api";
 import { WorkspaceInviteStatus } from "@/features/workspace/workspace.interface";
 import toast from "react-hot-toast";
@@ -44,8 +45,8 @@ export default function WorkspaceAcceptInvitePage() {
     { skip: !token || !workspaceId },
   );
 
-  const [acceptWorkspaceInvite, { isLoading: isAcceptingMutation }] =
-    useAcceptWorkspaceInviteMutation();
+  const [acceptWorkspaceInvite] = useAcceptWorkspaceInviteMutation();
+  const [declineWorkspaceInvite] = useDeclineWorkspaceInviteMutation();
 
   const [isAccepting, setIsAccepting] = useState(false);
   const [isDeclining, setIsDeclining] = useState(false);
@@ -62,12 +63,31 @@ export default function WorkspaceAcceptInvitePage() {
 
       if (res.success) {
         toast.success(res.message);
-        router.push(`/dashboard/workspace/${workspaceId}`); // Assuming this is the path
+        router.push(`/dashboard/${workspace?.slug}`);
       }
     } catch (err: any) {
       toast.error(err.data?.message || "Failed to accept invitation");
     } finally {
       setIsAccepting(false);
+    }
+  };
+
+  const handleDecline = async () => {
+    try {
+      setIsDeclining(true);
+      const res = await declineWorkspaceInvite({
+        workspaceId,
+        body: { token },
+      }).unwrap();
+
+      if (res.success) {
+        toast.success(res.message);
+        router.push("/");
+      }
+    } catch (err: any) {
+      toast.error(err.data?.message || "Failed to decline invitation");
+    } finally {
+      setIsDeclining(false);
     }
   };
 
@@ -398,11 +418,15 @@ export default function WorkspaceAcceptInvitePage() {
                   </button>
 
                   <button
-                    onClick={() => setIsDeclining(true)}
+                    onClick={handleDecline}
                     disabled={isAccepting || isDeclining}
                     className="w-full h-14 cursor-pointer flex items-center justify-center gap-3 bg-transparent text-neutral-500 font-bold text-sm rounded-2xl border border-white/5 transition-all duration-300 hover:bg-white/5 hover:text-red-400 hover:border-red-400/20 disabled:opacity-50"
                   >
-                    Decline Invitation
+                    {isDeclining ? (
+                      <div className="h-5 w-5 border-2 border-neutral-500/30 border-t-neutral-500 rounded-full animate-spin"></div>
+                    ) : (
+                      "Decline Invitation"
+                    )}
                   </button>
                 </div>
               </div>
