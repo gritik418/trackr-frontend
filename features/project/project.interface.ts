@@ -23,7 +23,26 @@ export interface GetProjectByIdResponse {
 export interface GetProjectMembersResponse {
   success: boolean;
   message: string;
-  members: WorkspaceMember[];
+  members: (WorkspaceMember & {
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      avatarUrl?: string;
+    };
+    role: "OWNER" | "ADMIN" | "MEMBER";
+  })[];
+}
+
+export interface AddProjectMemberRequest {
+  userId: string;
+  role: "OWNER" | "ADMIN" | "MEMBER";
+}
+
+export interface AddProjectMemberResponse {
+  success: boolean;
+  message: string;
+  member: any;
 }
 
 export type CreateProjectRequest = CreateProjectDto;

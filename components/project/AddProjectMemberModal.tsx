@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  useAddMemberToProjectMutation,
+  useGetProjectMembersQuery,
+} from "@/features/project/project.api";
 import { useGetWorkspaceMembersQuery } from "@/features/workspace/workspace.api";
 import { Search, UserPlus, Users, X } from "lucide-react";
 import Image from "next/image";
@@ -10,24 +14,27 @@ interface AddProjectMemberModalProps {
   isOpen: boolean;
   onClose: () => void;
   workspaceId: string;
+  projectId: string;
   currentMemberIds: string[];
-  onAddMember: (member: any) => void;
 }
 
 export default function AddProjectMemberModal({
   isOpen,
   onClose,
   workspaceId,
+  projectId,
   currentMemberIds,
-  onAddMember,
 }: AddProjectMemberModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: membersData, isLoading } = useGetWorkspaceMembersQuery(
-    workspaceId,
-    {
-      skip: !workspaceId,
-    },
+  const [selectedRole, setSelectedRole] = useState<"MEMBER" | "ADMIN">(
+    "MEMBER",
   );
+  const { data: membersData, isLoading: isWorkspaceMembersLoading } =
+    useGetWorkspaceMembersQuery(workspaceId, {
+      skip: !workspaceId,
+    });
+
+  const [addMember, { isLoading: isAdding }] = useAddMemberToProjectMutation();
 
   if (!isOpen) return null;
 
@@ -48,9 +55,20 @@ export default function AddProjectMemberModal({
     return nameMatch || emailMatch;
   });
 
-  const handleAdd = (member: any) => {
-    onAddMember(member);
-    toast.success(`Added ${member.user.name} to project (Mock)`);
+  const handleAdd = async (member: any) => {
+    try {
+      await addMember({
+        workspaceId,
+        projectId,
+        body: {
+          userId: member.user.id,
+          role: selectedRole,
+        },
+      }).unwrap();
+      toast.success(`Added ${member.user.name} to project as ${selectedRole}`);
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to add member");
+    }
   };
 
   const getInitials = (name: string) => {
@@ -85,8 +103,8 @@ export default function AddProjectMemberModal({
           </button>
         </div>
 
-        {/* Search */}
-        <div className="p-4 border-b border-white/5 bg-white/2">
+        {/* Filters and Role Selection */}
+        <div className="p-4 border-b border-white/5 bg-white/2 space-y-3">
           <div className="relative">
             <Search
               className="absolute left-4 top-3.5 text-neutral-500"
@@ -101,11 +119,34 @@ export default function AddProjectMemberModal({
               autoFocus
             />
           </div>
+
+          <div className="flex items-center gap-2 p-1 bg-white/5 rounded-xl">
+            <button
+              onClick={() => setSelectedRole("MEMBER")}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                selectedRole === "MEMBER"
+                  ? "bg-brand text-bg-dark-0 shadow-lg"
+                  : "text-neutral-500 hover:text-white"
+              }`}
+            >
+              AS MEMBER
+            </button>
+            <button
+              onClick={() => setSelectedRole("ADMIN")}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                selectedRole === "ADMIN"
+                  ? "bg-brand text-bg-dark-0 shadow-lg"
+                  : "text-neutral-500 hover:text-white"
+              }`}
+            >
+              AS ADMIN
+            </button>
+          </div>
         </div>
 
         {/* List */}
         <div className="max-h-[400px] overflow-y-auto p-2">
-          {isLoading ? (
+          {isWorkspaceMembersLoading ? (
             <div className="flex flex-col items-center justify-center py-10 text-neutral-500 space-y-2">
               <div className="w-6 h-6 border-2 border-brand/30 border-t-brand rounded-full animate-spin" />
               <p className="text-sm">Loading members...</p>

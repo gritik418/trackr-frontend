@@ -1,6 +1,8 @@
 import { API_BASE_URL } from "@/constants";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
+  AddProjectMemberRequest,
+  AddProjectMemberResponse,
   CreateProjectRequest,
   CreateProjectResponse,
   GetProjectByIdResponse,
@@ -86,6 +88,31 @@ const projectApi = createApi({
       }),
       invalidatesTags: [{ type: "Projects", id: "LIST" }],
     }),
+    addMemberToProject: build.mutation<
+      AddProjectMemberResponse,
+      { workspaceId: string; projectId: string; body: AddProjectMemberRequest }
+    >({
+      query: ({ workspaceId, projectId, body }) => ({
+        url: `/workspaces/${workspaceId}/projects/${projectId}/members`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (result, error, { projectId }) => [
+        { type: "Projects", id: `${projectId}-members` },
+      ],
+    }),
+    removeMemberFromProject: build.mutation<
+      { success: boolean; message: string },
+      { workspaceId: string; projectId: string; userId: string }
+    >({
+      query: ({ workspaceId, projectId, userId }) => ({
+        url: `/workspaces/${workspaceId}/projects/${projectId}/members/${userId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (result, error, { projectId }) => [
+        { type: "Projects", id: `${projectId}-members` },
+      ],
+    }),
   }),
 });
 
@@ -96,6 +123,8 @@ export const {
   useUpdateProjectMutation,
   useGetProjectMembersQuery,
   useDeleteProjectMutation,
+  useAddMemberToProjectMutation,
+  useRemoveMemberFromProjectMutation,
 } = projectApi;
 
 export default projectApi;

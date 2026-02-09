@@ -1,9 +1,15 @@
 "use client";
 
 import AddProjectMemberModal from "@/components/project/AddProjectMemberModal";
+import {
+  useGetProjectMembersQuery,
+  useRemoveMemberFromProjectMutation,
+} from "@/features/project/project.api";
 import { Project } from "@/types/project/project.interface";
-import { Eye, Mail, Trash2, UserPlus, Users } from "lucide-react";
+import { Eye, Mail, Trash2, UserPlus, Users, Loader2 } from "lucide-react";
+import NextImage from "next/image";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface ProjectMembersProps {
   project: Project;
@@ -12,44 +18,35 @@ interface ProjectMembersProps {
 export default function ProjectMembers({ project }: ProjectMembersProps) {
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
 
-  const [members, setMembers] = useState([
-    {
-      id: "u1",
-      name: "Ritik Gupta",
-      email: "ritik@trackr.com",
-      role: "OWNER",
-      avatar: null,
-    },
-    {
-      id: "u2",
-      name: "Sarah Connor",
-      email: "sarah@trackr.com",
-      role: "ADMIN",
-      avatar: null,
-    },
-    {
-      id: "u3",
-      name: "Mike Johnson",
-      email: "mike@trackr.com",
-      role: "MEMBER",
-      avatar: null,
-    },
-  ]);
+  const { data: membersData, isLoading } = useGetProjectMembersQuery({
+    workspaceId: project.workspaceId,
+    projectId: project.id,
+  });
 
-  const handleAddMember = (member: any) => {
-    if (members.find((m) => m.id === member.user.id)) return;
+  const [removeMember, { isLoading: isRemoving }] =
+    useRemoveMemberFromProjectMutation();
 
-    setMembers([
-      ...members,
-      {
-        id: member.user.id,
-        name: member.user.name,
-        email: member.user.email,
-        role: "MEMBER",
-        avatar: member.user.avatarUrl,
-      },
-    ]);
+  const handleRemoveMember = async (userId: string) => {
+    try {
+      await removeMember({
+        workspaceId: project.workspaceId,
+        projectId: project.id,
+        userId,
+      }).unwrap();
+      toast.success("Member removed from project");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to remove member");
+    }
   };
+
+  const members =
+    membersData?.members.map((m: any) => ({
+      id: m.user.id,
+      name: m.user.name,
+      email: m.user.email,
+      role: m.role,
+      avatar: m.user.avatarUrl,
+    })) || [];
 
   const nature = project.nature;
 
@@ -59,8 +56,8 @@ export default function ProjectMembers({ project }: ProjectMembersProps) {
         isOpen={isAddMemberModalOpen}
         onClose={() => setIsAddMemberModalOpen(false)}
         workspaceId={project.workspaceId}
+        projectId={project.id}
         currentMemberIds={members.map((m) => m.id)}
-        onAddMember={handleAddMember}
       />
 
       <div className="flex items-center justify-between mb-2">
@@ -83,7 +80,12 @@ export default function ProjectMembers({ project }: ProjectMembersProps) {
         )}
       </div>
 
-      {nature === "PRIVATE" ? (
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-20 text-neutral-500">
+          <Loader2 className="w-10 h-10 animate-spin text-brand mb-4" />
+          <p>Loading project team...</p>
+        </div>
+      ) : nature === "PRIVATE" ? (
         <div className="bg-dashboard-card-bg/40 border border-white/5 rounded-[32px] overflow-hidden backdrop-blur-xl shadow-2xl">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -105,12 +107,22 @@ export default function ProjectMembers({ project }: ProjectMembersProps) {
                 >
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-neutral-800 border border-white/5 flex items-center justify-center text-sm font-bold text-white group-hover:scale-105 transition-transform">
-                        {member.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </div>
+                      {member.avatar ? (
+                        <NextImage
+                          src={member.avatar}
+                          alt={member.name}
+                          width={48}
+                          height={48}
+                          className="w-12 h-12 rounded-2xl border border-white/5 object-cover group-hover:scale-105 transition-transform"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-2xl bg-neutral-800 border border-white/5 flex items-center justify-center text-sm font-bold text-white group-hover:scale-105 transition-transform">
+                          {member.name
+                            .split(" ")
+                            .map((n: string) => n[0])
+                            .join("")}
+                        </div>
+                      )}
                       <div>
                         <p className="font-bold text-white tracking-tight group-hover:text-brand transition-colors text-lg">
                           {member.name}
@@ -136,9 +148,15 @@ export default function ProjectMembers({ project }: ProjectMembersProps) {
                     </span>
                   </td>
                   <td className="px-8 py-6 text-right">
-                    <button className="p-2.5 text-neutral-600 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all opacity-0 group-hover:opacity-100">
-                      <Trash2 size={20} />
-                    </button>
+                    {member.role !== "OWNER" && (
+                      <button
+                        onClick={() => handleRemoveMember(member.id)}
+                        disabled={isRemoving}
+                        className="p-2.5 text-neutral-600 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
