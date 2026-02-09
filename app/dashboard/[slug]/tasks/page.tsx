@@ -14,14 +14,17 @@ import {
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Image from "next/image";
+import { selectProjects } from "@/features/project/project.slice";
 
 export default function WorkspaceTasksPage() {
   const workspace = useSelector(selectWorkspace);
   const [searchQuery, setSearchQuery] = useState("");
+  const projects = useSelector(selectProjects);
   const [selectedStatuses, setSelectedStatuses] = useState<TaskStatus[]>([]);
   const [selectedPriorities, setSelectedPriorities] = useState<TaskPriority[]>(
     [],
   );
+  const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const { data, isLoading } = useGetWorkspaceTasksQuery(
     {
@@ -44,6 +47,12 @@ export default function WorkspaceTasksPage() {
     if (
       selectedPriorities.length > 0 &&
       !selectedPriorities.includes(task.priority)
+    )
+      return false;
+
+    if (
+      selectedProjectIds.length > 0 &&
+      !selectedProjectIds.includes(task.projectId)
     )
       return false;
 
@@ -89,6 +98,14 @@ export default function WorkspaceTasksPage() {
     );
   };
 
+  const toggleProject = (projectId: string) => {
+    setSelectedProjectIds((prev) =>
+      prev.includes(projectId)
+        ? prev.filter((id) => id !== projectId)
+        : [...prev, projectId],
+    );
+  };
+
   useEffect(() => {
     if (data?.tasks) {
       setTasks(data.tasks);
@@ -98,18 +115,18 @@ export default function WorkspaceTasksPage() {
     <div className="flex h-[calc(100vh-2rem)] overflow-hidden animate-in fade-in duration-700">
       {/* Sidebar Filters */}
       <div className="w-64 border-r border-white/5 pr-6 hidden lg:flex flex-col gap-8 overflow-y-auto pt-2">
-        {/* Projects Filter - Visual Only for now as endpoint returns tasks across projects */}
+        {/* Projects Filter */}
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
               Projects
             </h3>
             <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-neutral-500">
-              {workspace?.projects?.length || 0}
+              {projects?.length || 0}
             </span>
           </div>
           <div className="space-y-1">
-            {workspace?.projects?.map((p) => (
+            {projects?.map((p) => (
               <label
                 key={p.id}
                 className="flex items-center gap-3 p-2 rounded-lg text-sm text-neutral-400 hover:text-white hover:bg-white/5 cursor-pointer transition-all group"
@@ -117,6 +134,8 @@ export default function WorkspaceTasksPage() {
                 <div className="relative flex items-center justify-center">
                   <input
                     type="checkbox"
+                    checked={selectedProjectIds.includes(p.id)}
+                    onChange={() => toggleProject(p.id)}
                     className="peer appearance-none w-4 h-4 rounded border border-white/20 bg-white/5 checked:bg-brand checked:border-brand transition-colors"
                   />
                   <Check
@@ -201,7 +220,7 @@ export default function WorkspaceTasksPage() {
           </h2>
           <p className="text-neutral-400 text-sm">
             You have {filteredTasks.length} open tasks across{" "}
-            {workspace?.projects?.length || 0} projects.
+            {projects?.length || 0} projects.
           </p>
         </div>
 
@@ -253,7 +272,14 @@ export default function WorkspaceTasksPage() {
                   </h3>
                   <div className="space-y-3">
                     {todayTasks.map((task) => (
-                      <TaskItem key={task.id} task={task} />
+                      <TaskItem
+                        key={task.id}
+                        task={task}
+                        projectName={
+                          projects?.find((p) => p.id === task.projectId)
+                            ?.name || "Project"
+                        }
+                      />
                     ))}
                   </div>
                 </div>
@@ -271,7 +297,14 @@ export default function WorkspaceTasksPage() {
                   </h3>
                   <div className="space-y-3">
                     {upcomingTasks.map((task) => (
-                      <TaskItem key={task.id} task={task} />
+                      <TaskItem
+                        key={task.id}
+                        task={task}
+                        projectName={
+                          projects?.find((p) => p.id === task.projectId)
+                            ?.name || "Project"
+                        }
+                      />
                     ))}
                   </div>
                 </div>
@@ -293,7 +326,7 @@ export default function WorkspaceTasksPage() {
   );
 }
 
-function TaskItem({ task }: { task: Task }) {
+function TaskItem({ task, projectName }: { task: Task; projectName: string }) {
   const getStatusColor = (status: TaskStatus) => {
     switch (status) {
       case TaskStatus.DONE:
@@ -340,7 +373,7 @@ function TaskItem({ task }: { task: Task }) {
           <span
             className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider bg-white/5 text-neutral-400 border-white/10`}
           >
-            Project
+            {projectName}
           </span>
 
           <span
