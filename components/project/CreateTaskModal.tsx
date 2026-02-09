@@ -11,6 +11,7 @@ import {
   Plus,
   Tag,
   Type,
+  User,
   UserPlus,
   X,
 } from "lucide-react";
@@ -18,6 +19,10 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
+import { selectWorkspace } from "@/features/workspace/workspace.slice";
+import { useGetWorkspaceMembersQuery } from "@/features/workspace/workspace.api";
+import Image from "next/image";
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -42,6 +47,13 @@ export default function CreateTaskModal({
   const [status, setStatus] = useState<TaskStatus>(initialStatus);
   const [tag, setTag] = useState("Feature");
   const [deadline, setDeadline] = useState("");
+  const [assignedToId, setAssignedToId] = useState<string | null>(null);
+
+  const workspace = useSelector(selectWorkspace);
+  const { data: membersData } = useGetWorkspaceMembersQuery(workspace?.id!, {
+    skip: !workspace?.id,
+  });
+  const members = membersData?.members || [];
 
   useEffect(() => {
     setMounted(true);
@@ -93,6 +105,7 @@ export default function CreateTaskModal({
           status,
           tag: tag || null,
           deadline: deadline ? new Date(deadline).toISOString() : null,
+          assignedToId,
         },
       }).unwrap();
       toast.success("Task created successfully");
@@ -103,6 +116,7 @@ export default function CreateTaskModal({
       setStatus(initialStatus);
       setTag("Feature");
       setDeadline("");
+      setAssignedToId(null);
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to create task");
     }
@@ -261,6 +275,38 @@ export default function CreateTaskModal({
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand/30 transition-all scheme-dark"
+              />
+            </div>
+          </div>
+
+          {/* Assignee Selection */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-neutral-500 uppercase tracking-[0.15em] flex items-center gap-2">
+              <UserPlus size={14} />
+              Assign To
+            </label>
+            <div className="relative group">
+              <select
+                value={assignedToId || ""}
+                onChange={(e) => setAssignedToId(e.target.value || null)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand/30 cursor-pointer"
+              >
+                <option value="" className="bg-neutral-900">
+                  Unassigned
+                </option>
+                {members.map((member) => (
+                  <option
+                    key={member.id}
+                    value={member.user.id}
+                    className="bg-neutral-900"
+                  >
+                    {member.user.name} ({member.user.email})
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                size={16}
+                className="absolute right-4 top-3.5 text-neutral-500 pointer-events-none group-focus-within:rotate-180 transition-transform"
               />
             </div>
           </div>

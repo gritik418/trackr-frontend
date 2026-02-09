@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import Image from "next/image";
 
 export default function WorkspaceTasksPage() {
   const workspace = useSelector(selectWorkspace);
@@ -384,17 +385,27 @@ function TaskItem({ task }: { task: Task }) {
           </div>
         )}
 
-        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+        <div className="flex items-center gap-2 transition-all">
           {task.assignedTo && (
             <div
-              className="w-7 h-7 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center text-[10px] text-brand font-bold"
+              className="w-7 h-7 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center text-[10px] text-brand font-bold overflow-hidden"
               title={task.assignedTo.name}
             >
-              {task.assignedTo.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")
-                .substring(0, 2)}
+              {task.assignedTo.avatarUrl ? (
+                <Image
+                  src={task.assignedTo.avatarUrl}
+                  alt={task.assignedTo.name}
+                  width={28}
+                  height={28}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                task.assignedTo.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .substring(0, 2)
+              )}
             </div>
           )}
         </div>
