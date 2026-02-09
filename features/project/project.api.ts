@@ -76,6 +76,16 @@ const projectApi = createApi({
         { type: "Projects", id: `${projectId}-members` },
       ],
     }),
+    deleteProject: build.mutation<
+      { success: boolean; message: string },
+      { workspaceId: string; projectId: string }
+    >({
+      query: ({ workspaceId, projectId }) => ({
+        url: `/workspaces/${workspaceId}/projects/${projectId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [{ type: "Projects", id: "LIST" }],
+    }),
   }),
 });
 
@@ -85,6 +95,7 @@ export const {
   useGetProjectByIdQuery,
   useUpdateProjectMutation,
   useGetProjectMembersQuery,
+  useDeleteProjectMutation,
 } = projectApi;
 
 export default projectApi;

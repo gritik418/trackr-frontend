@@ -192,7 +192,7 @@ export default function ProjectDetailsPage() {
         )}
 
         {activeTab === "settings" && project && (
-          <ProjectSettings project={project} />
+          <ProjectSettings project={project} slug={slug} />
         )}
       </div>
     </div>

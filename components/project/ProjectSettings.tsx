@@ -1,9 +1,11 @@
 "use client";
 
 import { useUpdateProjectMutation } from "@/features/project/project.api";
+import DeleteProjectModal from "@/components/project/DeleteProjectModal";
 import { Project } from "@/types/project/project.interface";
 import {
   AlertTriangle,
+  Archive,
   ChevronDown,
   Globe,
   Layout,
@@ -16,9 +18,13 @@ import toast from "react-hot-toast";
 
 interface ProjectSettingsProps {
   project: Project;
+  slug: string;
 }
 
-export default function ProjectSettings({ project }: ProjectSettingsProps) {
+export default function ProjectSettings({
+  project,
+  slug,
+}: ProjectSettingsProps) {
   const projectId = project.id;
 
   const [updateProject, { isLoading: isUpdating }] = useUpdateProjectMutation();
@@ -27,6 +33,7 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
   const [description, setDescription] = useState(project?.description || "");
   const [status, setStatus] = useState(project?.status || "ACTIVE");
   const [nature, setNature] = useState(project?.nature || "PRIVATE");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     if (project) {
@@ -156,7 +163,7 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
       </section>
 
       {/* Danger Zone */}
-      <section className="space-y-6 flex flex-col pt-10">
+      <section className="space-y-6 pt-10">
         <div className="flex items-center gap-3 mb-2">
           <div className="p-2.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500">
             <AlertTriangle size={20} />
@@ -176,12 +183,24 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
               permanently lost.
             </p>
           </div>
-          <button className="flex items-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-all shadow-xl shadow-red-500/20 active:scale-95">
+          <button
+            onClick={() => setIsDeleteModalOpen(true)}
+            className="flex items-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-all shadow-xl shadow-red-500/20 active:scale-95"
+          >
             <Trash2 size={18} />
             Delete permanently
           </button>
         </div>
       </section>
+
+      <DeleteProjectModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        workspaceId={project.workspaceId}
+        projectId={projectId}
+        projectName={project.name}
+        slug={slug}
+      />
     </div>
   );
 }
