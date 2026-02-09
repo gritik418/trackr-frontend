@@ -23,6 +23,7 @@ import { useSelector } from "react-redux";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import { useGetWorkspaceMembersQuery } from "@/features/workspace/workspace.api";
 import Image from "next/image";
+import MemberMultiSelect from "./MemberMultiSelect";
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -288,55 +289,16 @@ export default function CreateTaskModal({
           </div>
 
           {/* Assignee Selection */}
-          <div className="space-y-4">
+          <div className="space-y-4 pt-2">
             <label className="text-xs font-bold text-neutral-500 uppercase tracking-[0.15em] flex items-center gap-2">
               <UserPlus size={14} />
               Assign To
             </label>
-            <div className="flex flex-wrap gap-3">
-              {members.map((member) => {
-                const isSelected = assignedToIds.includes(member.user.id);
-                return (
-                  <button
-                    key={member.id}
-                    type="button"
-                    onClick={() => toggleAssignee(member.user.id)}
-                    className={`flex items-center gap-2 p-1.5 pr-4 rounded-2xl border transition-all ${
-                      isSelected
-                        ? "bg-brand/10 border-brand text-brand shadow-[0_0_15px_rgba(var(--brand-rgb),0.2)]"
-                        : "bg-white/5 border-white/10 text-neutral-400 hover:bg-white/10 hover:border-white/20"
-                    }`}
-                  >
-                    <div className="w-8 h-8 rounded-xl bg-neutral-800 border border-white/5 flex items-center justify-center text-xs font-bold overflow-hidden">
-                      {member.user.avatarUrl ? (
-                        <Image
-                          src={member.user.avatarUrl}
-                          alt={member.user.name}
-                          width={32}
-                          height={32}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        member.user.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase()
-                          .slice(0, 2)
-                      )}
-                    </div>
-                    <span className="text-sm font-semibold">
-                      {member.user.name}
-                    </span>
-                  </button>
-                );
-              })}
-              {members.length === 0 && (
-                <p className="text-xs text-neutral-600 italic py-2">
-                  No members available to assign.
-                </p>
-              )}
-            </div>
+            <MemberMultiSelect
+              members={members}
+              selectedIds={assignedToIds}
+              onToggle={toggleAssignee}
+            />
           </div>
 
           {/* Footer Actions */}
