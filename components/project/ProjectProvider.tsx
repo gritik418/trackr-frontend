@@ -3,6 +3,8 @@ import { useGetProjectByIdQuery } from "@/features/project/project.api";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import React from "react";
 import { useSelector } from "react-redux";
+import ProjectLoading from "./ProjectLoading";
+import ProjectNotFound from "./ProjectNotFound";
 
 const ProjectProvider = ({
   children,
@@ -24,14 +26,14 @@ const ProjectProvider = ({
   );
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <ProjectLoading />;
   }
 
   if (!data) {
-    return <div>Project not found</div>;
+    return <ProjectNotFound />;
   }
 
-  return <div>{children}</div>;
+  return <>{children}</>;
 };
 
 export default ProjectProvider;
