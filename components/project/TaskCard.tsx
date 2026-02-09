@@ -54,28 +54,31 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
 
         <div className="flex items-center justify-between">
           <div className="flex -space-x-1.5 focus-within:z-10">
-            {task.assignedTo ? (
-              <div
-                title={task.assignedTo.name}
-                className="w-6 h-6 rounded-full bg-neutral-800 border-2 border-bg-dark-0 flex items-center justify-center text-[8px] text-white overflow-hidden"
-              >
-                {task.assignedTo.avatarUrl ? (
-                  <Image
-                    src={task.assignedTo.avatarUrl}
-                    alt={task.assignedTo.name}
-                    width={24}
-                    height={24}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  task.assignedTo.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()
-                    .slice(0, 2)
-                )}
-              </div>
+            {task.assignees && task.assignees.length > 0 ? (
+              task.assignees.map((assignee) => (
+                <div
+                  key={assignee.id}
+                  title={assignee.name}
+                  className="w-6 h-6 rounded-full bg-neutral-800 border-2 border-bg-dark-0 flex items-center justify-center text-[8px] text-white overflow-hidden hover:z-10 transition-all hover:scale-110"
+                >
+                  {assignee.avatarUrl ? (
+                    <Image
+                      src={assignee.avatarUrl}
+                      alt={assignee.name}
+                      width={24}
+                      height={24}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    assignee.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2)
+                  )}
+                </div>
+              ))
             ) : (
               <div className="w-6 h-6 rounded-full bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center text-[8px] text-neutral-500">
                 ?

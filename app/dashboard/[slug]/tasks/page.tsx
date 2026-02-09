@@ -385,27 +385,34 @@ function TaskItem({ task }: { task: Task }) {
           </div>
         )}
 
-        <div className="flex items-center gap-2 transition-all">
-          {task.assignedTo && (
-            <div
-              className="w-7 h-7 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center text-[10px] text-brand font-bold overflow-hidden"
-              title={task.assignedTo.name}
-            >
-              {task.assignedTo.avatarUrl ? (
-                <Image
-                  src={task.assignedTo.avatarUrl}
-                  alt={task.assignedTo.name}
-                  width={28}
-                  height={28}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                task.assignedTo.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")
-                  .substring(0, 2)
-              )}
+        <div className="flex items-center -space-x-2 transition-all">
+          {task.assignees &&
+            task.assignees.map((assignee) => (
+              <div
+                key={assignee.id}
+                className="w-7 h-7 rounded-full bg-brand/10 border-2 border-dashboard-card-bg/95 flex items-center justify-center text-[10px] text-brand font-bold overflow-hidden hover:z-10 transition-all hover:scale-110"
+                title={assignee.name}
+              >
+                {assignee.avatarUrl ? (
+                  <Image
+                    src={assignee.avatarUrl}
+                    alt={assignee.name}
+                    width={28}
+                    height={28}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  assignee.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .substring(0, 2)
+                )}
+              </div>
+            ))}
+          {(!task.assignees || task.assignees.length === 0) && (
+            <div className="w-7 h-7 rounded-full bg-white/5 border border-dashed border-white/10 flex items-center justify-center text-[10px] text-neutral-600">
+              ?
             </div>
           )}
         </div>

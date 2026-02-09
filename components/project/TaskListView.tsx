@@ -119,28 +119,31 @@ export default function TaskListView({
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex -space-x-1.5 overflow-hidden">
-                      {task.assignedTo ? (
-                        <div
-                          className="w-6 h-6 rounded-full border-2 border-bg-dark-0 bg-neutral-800 flex items-center justify-center text-[8px] text-white relative z-0 hover:z-10 transition-transform hover:scale-110"
-                          title={task.assignedTo.name}
-                        >
-                          {task.assignedTo.avatarUrl ? (
-                            <Image
-                              src={task.assignedTo.avatarUrl}
-                              alt={task.assignedTo.name}
-                              width={24}
-                              height={24}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            task.assignedTo.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")
-                              .toUpperCase()
-                              .slice(0, 2)
-                          )}
-                        </div>
+                      {task.assignees && task.assignees.length > 0 ? (
+                        task.assignees.map((assignee) => (
+                          <div
+                            key={assignee.id}
+                            className="w-6 h-6 rounded-full border-2 border-bg-dark-0 bg-neutral-800 flex items-center justify-center text-[8px] text-white relative z-0 hover:z-10 transition-transform hover:scale-110"
+                            title={assignee.name}
+                          >
+                            {assignee.avatarUrl ? (
+                              <Image
+                                src={assignee.avatarUrl}
+                                alt={assignee.name}
+                                width={24}
+                                height={24}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              assignee.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .toUpperCase()
+                                .slice(0, 2)
+                            )}
+                          </div>
+                        ))
                       ) : (
                         <span className="text-neutral-600 text-[10px] italic">
                           Unassigned

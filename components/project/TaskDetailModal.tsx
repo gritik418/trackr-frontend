@@ -188,32 +188,41 @@ export default function TaskDetailModal({
               </span>
             </div>
             <div className="flex flex-wrap gap-3">
-              {task.assignedTo && (
-                <div className="flex items-center gap-3 p-2 pr-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-colors cursor-pointer group">
-                  <div className="w-8 h-8 rounded-xl bg-neutral-800 border border-white/5 flex items-center justify-center text-xs text-white overflow-hidden group-hover:border-brand/50 transition-colors">
-                    {task.assignedTo.avatarUrl ? (
-                      <Image
-                        src={task.assignedTo.avatarUrl}
-                        alt={task.assignedTo.name}
-                        width={32}
-                        height={32}
-                      />
-                    ) : (
-                      task.assignedTo.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .toUpperCase()
-                        .slice(0, 2)
-                    )}
+              {task.assignees && task.assignees.length > 0 ? (
+                task.assignees.map((assignee) => (
+                  <div
+                    key={assignee.id}
+                    className="flex items-center gap-3 p-2 pr-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-colors cursor-pointer group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-neutral-800 border border-white/5 flex items-center justify-center text-xs text-white overflow-hidden group-hover:border-brand/50 transition-colors">
+                      {assignee.avatarUrl ? (
+                        <Image
+                          src={assignee.avatarUrl}
+                          alt={assignee.name}
+                          width={32}
+                          height={32}
+                        />
+                      ) : (
+                        assignee.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .toUpperCase()
+                          .slice(0, 2)
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white group-hover:text-brand transition-colors">
+                        {assignee.name}
+                      </p>
+                      <p className="text-[10px] text-neutral-500">Assignee</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white group-hover:text-brand transition-colors">
-                      {task.assignedTo.name}
-                    </p>
-                    <p className="text-[10px] text-neutral-500">Assignee</p>
-                  </div>
-                </div>
+                ))
+              ) : (
+                <p className="text-sm text-neutral-600 italic">
+                  No one assigned yet
+                </p>
               )}
               <button className="w-10 h-10 rounded-2xl border border-dashed border-white/20 flex items-center justify-center text-neutral-500 hover:text-white hover:border-white/40 hover:bg-white/5 transition-all">
                 <User size={18} />

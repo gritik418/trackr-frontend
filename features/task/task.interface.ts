@@ -22,17 +22,16 @@ export interface Task {
   tag?: string | null;
   workspaceId: string;
   projectId: string;
-  assignedToId?: string | null;
   categoryId?: string | null;
   createdById: string;
   createdAt: string;
   updatedAt: string;
-  assignedTo?: {
+  assignees: {
     id: string;
     name: string;
     email: string;
     avatarUrl?: string | null;
-  } | null;
+  }[];
   links?: {
     id: string;
     title?: string | null;
@@ -52,7 +51,7 @@ export interface CreateTaskRequest {
   priority?: TaskPriority;
   deadline?: string | null | Date;
   tag?: string | null;
-  assignedToId?: string | null;
+  assignedToIds?: string[];
   categoryId?: string | null;
   links?: CreateTaskLinkDto[];
 }
@@ -66,7 +65,7 @@ export interface CreateTaskResponse {
 export interface GetTasksQuery {
   status?: TaskStatus;
   priority?: TaskPriority;
-  assignedToId?: string;
+  assignedToIds?: string[];
   tag?: string;
 }
 

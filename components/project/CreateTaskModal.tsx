@@ -47,7 +47,7 @@ export default function CreateTaskModal({
   const [status, setStatus] = useState<TaskStatus>(initialStatus);
   const [tag, setTag] = useState("Feature");
   const [deadline, setDeadline] = useState("");
-  const [assignedToId, setAssignedToId] = useState<string | null>(null);
+  const [assignedToIds, setAssignedToIds] = useState<string[]>([]);
 
   const workspace = useSelector(selectWorkspace);
   const { data: membersData } = useGetWorkspaceMembersQuery(workspace?.id!, {
@@ -105,7 +105,7 @@ export default function CreateTaskModal({
           status,
           tag: tag || null,
           deadline: deadline ? new Date(deadline).toISOString() : null,
-          assignedToId,
+          assignedToIds,
         },
       }).unwrap();
       toast.success("Task created successfully");
@@ -116,10 +116,18 @@ export default function CreateTaskModal({
       setStatus(initialStatus);
       setTag("Feature");
       setDeadline("");
-      setAssignedToId(null);
+      setAssignedToIds([]);
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to create task");
     }
+  };
+
+  const toggleAssignee = (userId: string) => {
+    setAssignedToIds((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId],
+    );
   };
 
   return createPortal(
@@ -280,34 +288,54 @@ export default function CreateTaskModal({
           </div>
 
           {/* Assignee Selection */}
-          <div className="space-y-2">
+          <div className="space-y-4">
             <label className="text-xs font-bold text-neutral-500 uppercase tracking-[0.15em] flex items-center gap-2">
               <UserPlus size={14} />
               Assign To
             </label>
-            <div className="relative group">
-              <select
-                value={assignedToId || ""}
-                onChange={(e) => setAssignedToId(e.target.value || null)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand/30 cursor-pointer"
-              >
-                <option value="" className="bg-neutral-900">
-                  Unassigned
-                </option>
-                {members.map((member) => (
-                  <option
+            <div className="flex flex-wrap gap-3">
+              {members.map((member) => {
+                const isSelected = assignedToIds.includes(member.user.id);
+                return (
+                  <button
                     key={member.id}
-                    value={member.user.id}
-                    className="bg-neutral-900"
+                    type="button"
+                    onClick={() => toggleAssignee(member.user.id)}
+                    className={`flex items-center gap-2 p-1.5 pr-4 rounded-2xl border transition-all ${
+                      isSelected
+                        ? "bg-brand/10 border-brand text-brand shadow-[0_0_15px_rgba(var(--brand-rgb),0.2)]"
+                        : "bg-white/5 border-white/10 text-neutral-400 hover:bg-white/10 hover:border-white/20"
+                    }`}
                   >
-                    {member.user.name} ({member.user.email})
-                  </option>
-                ))}
-              </select>
-              <ChevronDown
-                size={16}
-                className="absolute right-4 top-3.5 text-neutral-500 pointer-events-none group-focus-within:rotate-180 transition-transform"
-              />
+                    <div className="w-8 h-8 rounded-xl bg-neutral-800 border border-white/5 flex items-center justify-center text-xs font-bold overflow-hidden">
+                      {member.user.avatarUrl ? (
+                        <Image
+                          src={member.user.avatarUrl}
+                          alt={member.user.name}
+                          width={32}
+                          height={32}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        member.user.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .toUpperCase()
+                          .slice(0, 2)
+                      )}
+                    </div>
+                    <span className="text-sm font-semibold">
+                      {member.user.name}
+                    </span>
+                  </button>
+                );
+              })}
+              {members.length === 0 && (
+                <p className="text-xs text-neutral-600 italic py-2">
+                  No members available to assign.
+                </p>
+              )}
             </div>
           </div>
 
