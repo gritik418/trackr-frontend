@@ -15,46 +15,51 @@ import {
   Lock,
   ArrowUpRight,
   Fingerprint,
-  Layers,
-  LayoutDashboard,
+  Command,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-export default function WorkspaceAcceptInvitePage() {
+export default function OrgAcceptInvitePage() {
   const [isAccepting, setIsAccepting] = useState(false);
   const [isDeclining, setIsDeclining] = useState(false);
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
 
   // Mock data for UI design
   const invite = {
     orgName: "Acme Dynamics",
-    workspaceName: "Core Platform",
-    workspaceDescription:
-      "The central infrastructure powering all Acme Dynamics high-frequency trading services and real-time data pipelines.",
+    orgLogo: null,
+    orgDescription:
+      "Building the next generation of autonomous infrastructure and high-frequency software systems.",
     inviterName: "Sarah Chen",
+    inviterAvatar: null,
     role: "Lead Systems Engineer",
     expiryDate: "2024-02-15T00:00:00.000Z",
   };
 
-  const workspaceFeatures = [
+  const platformFeatures = [
     {
-      title: "Isolated Environment",
+      title: "High-Velocity Workspace",
       description:
-        "Dedicated resources and configuration for this specific workspace.",
-      icon: Layers,
-      color: "text-purple-400",
-    },
-    {
-      title: "Project Management",
-      description: "Full access to Kanban boards, sprints, and epic tracking.",
-      icon: LayoutDashboard,
-      color: "text-indigo-400",
-    },
-    {
-      title: "High-Performance API",
-      description: "Optimized 50ms latency for all real-time interactions.",
+        "Optimized for speed with real-time sync and 50ms interactions.",
       icon: Zap,
       color: "text-amber-400",
+    },
+    {
+      title: "Enterprise Security",
+      description:
+        "End-to-end encryption and granular role-based access control.",
+      icon: Lock,
+      color: "text-emerald-400",
+    },
+    {
+      title: "Seamless Collaboration",
+      description: "Shared roadmaps, kanban boards, and integrated team chat.",
+      icon: Users,
+      color: "text-blue-400",
     },
   ];
 
@@ -84,9 +89,9 @@ export default function WorkspaceAcceptInvitePage() {
             Security
           </Link>
           <div className="h-4 w-px bg-white/10" />
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brand">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#00E599]">
             <Fingerprint size={16} />
-            Workspace Invite
+            Secure Invite
           </div>
         </div>
       </nav>
@@ -98,65 +103,55 @@ export default function WorkspaceAcceptInvitePage() {
           <div className="space-y-6 animate-in fade-in slide-in-from-left-8 duration-1000 fill-mode-both">
             <div className="inline-flex items-center gap-2.5 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em]">
               <Sparkles size={12} className="text-brand" />
-              Collaborate in Workspace
+              Organization Invite
             </div>
 
             <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-[1.05] text-transparent bg-clip-text bg-linear-to-b from-white to-white/60">
-              Welcome to <br />
-              <span className="text-brand">{invite.workspaceName}</span>
+              Welcome to the <br />
+              <span className="text-brand">Future of Shipping.</span>
             </h1>
 
             <p className="text-neutral-400 text-lg lg:text-xl font-light leading-relaxed max-w-2xl">
-              You&apos;ve been invited to join the{" "}
-              <span className="text-white font-bold">
-                {invite.workspaceName}
-              </span>{" "}
-              workspace within{" "}
-              <span className="text-white font-bold">{invite.orgName}</span>.
-              Get ready to ship with precision and speed.
+              Trackr is the orchestration layer for the world&apos;s most
+              ambitious engineering teams. Accelerate your workflow with a tool
+              built for elite performance.
             </p>
           </div>
 
-          {/* About the Workspace Segment */}
+          {/* About the Organization Segment */}
           <div className="space-y-10 animate-in fade-in slide-in-from-left-8 duration-1000 delay-200 fill-mode-both">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8 rounded-[32px] bg-white/[0.03] border border-white/5 backdrop-blur-3xl relative group hover:bg-white/[0.05] transition-all duration-500">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8 rounded-[32px] bg-white/3 border border-white/5 backdrop-blur-3xl relative group hover:bg-white/5 transition-all duration-500">
               <div className="absolute top-4 right-4 p-2 rounded-full bg-white/5 border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
                 <ArrowUpRight size={16} className="text-neutral-400" />
               </div>
 
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
-                  <Layers size={24} />
+                <div className="w-12 h-12 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center text-brand">
+                  <Building2 size={24} />
                 </div>
                 <h3 className="text-xl font-black tracking-tight text-white">
-                  About the Workspace
+                  About {invite.orgName}
                 </h3>
                 <p className="text-sm text-neutral-400 leading-relaxed font-light">
-                  {invite.workspaceDescription}
+                  {invite.orgDescription}
                 </p>
               </div>
 
               <div className="space-y-6">
                 <div className="space-y-2">
                   <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
-                    Organization
+                    Industry
                   </p>
-                  <p className="text-sm text-white font-semibold flex items-center gap-2">
-                    <Building2 size={14} className="text-brand" />
-                    {invite.orgName}
+                  <p className="text-sm text-white font-semibold">
+                    Infrastructure & Systems
                   </p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
-                    Workspace Capabilities
+                    Core Tech
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {[
-                      "Task Tracking",
-                      "Team Sync",
-                      "Roadmaps",
-                      "Analytics",
-                    ].map((t) => (
+                    {["Rust", "Next.js", "Prisma", "Redis"].map((t) => (
                       <span
                         key={t}
                         className="px-2 py-0.5 rounded bg-white/5 border border-white/5 text-[10px] text-neutral-400 font-mono"
@@ -170,9 +165,9 @@ export default function WorkspaceAcceptInvitePage() {
             </div>
           </div>
 
-          {/* Workspace Highlights */}
+          {/* Platform Pillars */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-400 fill-mode-both">
-            {workspaceFeatures.map((f, i) => (
+            {platformFeatures.map((f, i) => (
               <div key={i} className="space-y-4 group">
                 <div
                   className={`w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center ${f.color} border border-white/10 group-hover:scale-110 transition-transform duration-500 shadow-xl group-hover:shadow-${f.color.split("-")[1]}/20`}
@@ -194,19 +189,19 @@ export default function WorkspaceAcceptInvitePage() {
         <div className="lg:col-span-5 lg:sticky lg:top-32 animate-in fade-in zoom-in duration-1000 fill-mode-both">
           <div className="relative group">
             {/* Animated Accent Glow */}
-            <div className="absolute -inset-1.5 bg-linear-to-r from-brand/40 via-indigo-500/20 to-purple-500/30 blur-2xl opacity-30 group-hover:opacity-60 transition-opacity duration-700 rounded-[40px]" />
+            <div className="absolute -inset-1.5 bg-linear-to-r from-brand/40 via-blue-500/20 to-purple-500/30 blur-2xl opacity-30 group-hover:opacity-60 transition-opacity duration-700 rounded-[40px]" />
 
             <div className="relative bg-black/40 backdrop-blur-3xl border border-white/10 ring-1 ring-inset ring-white/10 rounded-[36px] p-8 lg:p-10 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.8)] overflow-hidden">
               {/* Inviter Info Header */}
               <div className="flex items-center gap-4 mb-10 pb-6 border-b border-white/5">
                 <div className="w-14 h-14 rounded-full border border-white/10 bg-neutral-900 flex items-center justify-center overflow-hidden shrink-0">
-                  <div className="w-full h-full bg-linear-to-br from-brand/30 to-indigo-600/30 flex items-center justify-center text-xl font-black text-brand">
+                  <div className="w-full h-full bg-linear-to-br from-brand/30 to-blue-600/30 flex items-center justify-center text-xl font-black text-brand">
                     {invite.inviterName.charAt(0)}
                   </div>
                 </div>
                 <div className="flex-1">
                   <p className="text-[10px] text-neutral-500 font-black uppercase tracking-[0.2em] mb-0.5">
-                    Invited by
+                    Invitation from
                   </p>
                   <p className="text-lg font-bold text-white tracking-tight">
                     {invite.inviterName}
@@ -218,10 +213,10 @@ export default function WorkspaceAcceptInvitePage() {
               </div>
 
               <div className="flex flex-col items-center text-center space-y-8">
-                {/* Workspace Visual */}
+                {/* Org Visual */}
                 <div className="relative mb-2">
                   <div className="w-24 h-24 rounded-2xl bg-linear-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center relative z-10 shadow-2xl overflow-hidden group/icon transition-all duration-500 group-hover:scale-105">
-                    <Layers size={48} className="text-brand relative z-10" />
+                    <Building2 size={48} className="text-brand relative z-10" />
                   </div>
                   <div className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-[#00E599]/10 border border-[#00E599]/30 flex items-center justify-center backdrop-blur-lg animate-pulse z-20">
                     <Check size={20} className="text-[#00E599]" />
@@ -231,29 +226,29 @@ export default function WorkspaceAcceptInvitePage() {
                 {/* Invite Content */}
                 <div className="space-y-3 px-4">
                   <h2 className="text-2xl font-black tracking-tighter text-white">
-                    Join Workspace
+                    Join the Space
                   </h2>
                   <p className="text-neutral-400 text-sm leading-relaxed font-light">
-                    Accept the invitation to start working within{" "}
+                    Accept the invitation to start collaborating within{" "}
                     <span className="text-white font-bold">
-                      {invite.workspaceName}
-                    </span>
-                    .
+                      {invite.orgName}
+                    </span>{" "}
+                    as a {invite.role}.
                   </p>
                 </div>
 
-                {/* Organization Badge */}
+                {/* Role Summary */}
                 <div className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-400">
-                      <Building2 size={18} />
+                      <Command size={18} />
                     </div>
                     <div className="text-left">
                       <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-tight">
-                        Parent Organization
+                        Designated Role
                       </p>
                       <p className="text-sm font-bold text-white tracking-tight">
-                        {invite.orgName}
+                        {invite.role}
                       </p>
                     </div>
                   </div>
@@ -272,11 +267,11 @@ export default function WorkspaceAcceptInvitePage() {
                       <div className="h-6 w-6 border-3 border-bg-dark-0/30 border-t-bg-dark-0 rounded-full animate-spin"></div>
                     ) : (
                       <>
-                        Confirm and Join
+                        Confirm and Accept
                         <ArrowRight
                           size={20}
                           strokeWidth={3}
-                          className="group-hover/btn:translate-x-1 transition-all duration-300"
+                          className="group-hover/btn:translate-x-1- transition-all duration-300"
                         />
                       </>
                     )}
@@ -295,14 +290,16 @@ export default function WorkspaceAcceptInvitePage() {
               {/* Expiry Footer */}
               <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-neutral-500 font-bold text-[9px] uppercase tracking-widest">
-                  <Clock size={14} className="text-brand/50" />
-                  Expires: Feb 15
+                  <div className="flex items-center gap-2">
+                    <Clock size={14} className="text-brand/50" />
+                    Expires: Feb 15
+                  </div>
                 </div>
                 <Link
                   href="#"
                   className="text-[9px] text-neutral-500 font-bold uppercase tracking-widest hover:text-brand transition-colors decoration-dashed underline underline-offset-4 decoration-white/20"
                 >
-                  Security Policy
+                  View Privacy Policy
                 </Link>
               </div>
             </div>
@@ -320,7 +317,7 @@ export default function WorkspaceAcceptInvitePage() {
         </div>
         <div className="flex items-center gap-8 text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
           <Link href="#" className="hover:text-brand transition-colors">
-            Workspace Cloud
+            Security Cloud
           </Link>
           <Link href="#" className="hover:text-brand transition-colors">
             Privacy Infrastructure
