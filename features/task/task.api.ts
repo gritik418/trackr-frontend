@@ -47,9 +47,15 @@ const taskApi = createApi({
       }),
       invalidatesTags: ["ProjectTasks"],
     }),
-    getTaskById: build.query<GetTaskByIdResponse, string>({
-      query: (taskId) => `/tasks/${taskId}`,
-      providesTags: (result, error, taskId) => [{ type: "Tasks", id: taskId }],
+    getTaskById: build.query<
+      GetTaskByIdResponse,
+      { taskId: string; projectId: string }
+    >({
+      query: ({ taskId, projectId }) =>
+        `/projects/${projectId}/tasks/${taskId}`,
+      providesTags: (result, error, { taskId }) => [
+        { type: "Tasks", id: taskId },
+      ],
     }),
   }),
 });

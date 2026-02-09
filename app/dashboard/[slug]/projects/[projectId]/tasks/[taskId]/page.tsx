@@ -1,29 +1,24 @@
 "use client";
 
+import CommentSection from "@/components/project/CommentSection";
 import { useGetTaskByIdQuery } from "@/features/task/task.api";
-import { TaskPriority, TaskStatus } from "@/features/task/task.interface";
+import { cn } from "@/lib/utils";
 import {
   AlertCircle,
   Calendar,
   CheckCircle2,
+  ChevronLeft,
   Clock,
   ExternalLink,
   Flag,
-  MessageSquare,
   MoreHorizontal,
-  MoreVertical,
-  Paperclip,
   Share2,
   Tag,
   User,
-  X,
-  ChevronLeft,
 } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import CommentSection from "@/components/project/CommentSection";
-import { cn } from "@/lib/utils";
+import { useParams, useRouter } from "next/navigation";
 
 export default function TaskDetailPage() {
   const params = useParams();
@@ -32,7 +27,17 @@ export default function TaskDetailPage() {
   const slug = params.slug as string;
   const projectId = params.projectId as string;
 
-  const { data: taskData, isLoading, error } = useGetTaskByIdQuery(taskId);
+  const {
+    data: taskData,
+    isLoading,
+    error,
+  } = useGetTaskByIdQuery(
+    { taskId, projectId },
+    {
+      skip: !taskId || !projectId,
+      refetchOnMountOrArgChange: true,
+    },
+  );
   const task = taskData?.task;
 
   if (isLoading) {

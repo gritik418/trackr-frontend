@@ -29,8 +29,6 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
       {/* Hover Effect */}
       <div className="absolute inset-0 bg-brand/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
-      {/* Image support can be added later if API supports it */}
-
       <div className="relative z-10">
         <div className="flex justify-between items-start mb-2 gap-2">
           <div className="flex flex-wrap gap-1.5">
@@ -86,9 +84,6 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
             )}
           </div>
           <div className="flex items-center gap-2.5 text-xs text-neutral-500">
-            {/* Subtasks logic commented out/mocked until supported */}
-            {/* {task.subtasks.length > 0 && ( ... )} */}
-
             {task.deadline && (
               <span className="text-[10px] opacity-60">
                 {new Date(task.deadline).toLocaleDateString([], {

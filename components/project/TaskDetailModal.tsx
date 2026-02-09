@@ -6,8 +6,6 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
-  MessageSquare,
-  Paperclip,
   Tag,
   User,
   X,
