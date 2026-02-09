@@ -1,6 +1,5 @@
 "use client";
 
-import CreateTaskModal from "@/components/project/CreateTaskModal";
 import ProjectOverview from "@/components/project/ProjectOverview";
 import TaskBoard from "@/components/project/TaskBoard";
 import TaskDetailModal from "@/components/project/TaskDetailModal";
@@ -25,17 +24,16 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 
 export default function ProjectDetailsPage() {
   const workspace = useSelector(selectWorkspace);
   const project = useSelector(selectProject);
+  const router = useRouter();
 
   const [activeTab, setActiveTab] = useState("board");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [initialStatusForCreate, setInitialStatusForCreate] =
-    useState<TaskStatus>(TaskStatus.TODO);
 
   const tabs = [
     { id: "overview", label: "Overview", icon: Layout },
@@ -56,8 +54,9 @@ export default function ProjectDetailsPage() {
   };
 
   const handleAddTask = (status: TaskStatus) => {
-    setInitialStatusForCreate(status);
-    setIsCreateModalOpen(true);
+    router.push(
+      `/dashboard/${workspace?.slug}/projects/${project?.id}/tasks/new?status=${status}`,
+    );
   };
 
   return (
@@ -90,7 +89,7 @@ export default function ProjectDetailsPage() {
                 </div>
               ))}
               <button
-                onClick={() => setIsCreateModalOpen(true)}
+                onClick={() => handleAddTask(TaskStatus.TODO)}
                 className="w-8 h-8 rounded-full border-2 border-bg-dark-0 bg-white/10 flex items-center justify-center text-xs text-white hover:bg-brand hover:text-bg-dark-0 transition-all active:scale-95"
               >
                 <Plus size={14} />
@@ -196,12 +195,6 @@ export default function ProjectDetailsPage() {
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         task={selectedTask}
-      />
-
-      <CreateTaskModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        initialStatus={initialStatusForCreate}
       />
     </div>
   );
