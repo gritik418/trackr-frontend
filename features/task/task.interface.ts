@@ -74,3 +74,9 @@ export interface GetTasksResponse {
   message: string;
   tasks: Task[];
 }
+
+export interface GetTaskByIdResponse {
+  success: boolean;
+  message: string;
+  task: Task;
+}

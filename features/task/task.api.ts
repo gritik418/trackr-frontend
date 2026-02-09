@@ -3,6 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
   CreateTaskRequest,
   CreateTaskResponse,
+  GetTaskByIdResponse,
   GetTasksQuery,
   GetTasksResponse,
 } from "./task.interface";
@@ -46,6 +47,10 @@ const taskApi = createApi({
       }),
       invalidatesTags: ["ProjectTasks"],
     }),
+    getTaskById: build.query<GetTaskByIdResponse, string>({
+      query: (taskId) => `/tasks/${taskId}`,
+      providesTags: (result, error, taskId) => [{ type: "Tasks", id: taskId }],
+    }),
   }),
 });
 
@@ -53,6 +58,7 @@ export const {
   useCreateTaskMutation,
   useGetTasksQuery,
   useGetWorkspaceTasksQuery,
+  useGetTaskByIdQuery,
 } = taskApi;
 
 export default taskApi;
