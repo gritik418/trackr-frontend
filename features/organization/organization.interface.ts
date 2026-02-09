@@ -64,3 +64,32 @@ export interface GetInvitationsResponse {
   message: string;
   invitations: OrganizationInvitation[];
 }
+
+export interface PreviewOrgInviteResponse {
+  success: boolean;
+  message: string;
+  invite: OrganizationInvitation & {
+    invitedBy: {
+      name: string;
+      email: string;
+    };
+  };
+  organization: {
+    id: string;
+    name: string;
+    slug: string;
+    websiteUrl?: string;
+    logoUrl?: string;
+    description?: string;
+    owner: {
+      id: string;
+      name: string;
+      avatarUrl?: string;
+    };
+  };
+}
+
+export interface AcceptOrgInviteResponse {
+  success: boolean;
+  message: string;
+}

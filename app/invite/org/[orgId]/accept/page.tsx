@@ -2,43 +2,110 @@
 
 import { Logo } from "@/components/ui/Logo";
 import {
-  Check,
-  X,
-  Users,
-  Shield,
-  Clock,
-  Sparkles,
-  Building2,
-  Mail,
+  useAcceptOrgInviteMutation,
+  usePreviewOrgInviteQuery,
+} from "@/features/organization/organization.api";
+import {
   ArrowRight,
-  Zap,
-  Lock,
   ArrowUpRight,
+  Building2,
+  Check,
+  Clock,
   Fingerprint,
-  Command,
+  Globe,
+  Lock,
+  Shield,
+  Sparkles,
+  User,
+  Users,
+  X,
+  Zap,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function OrgAcceptInvitePage() {
+  const params = useParams();
+  const router = useRouter();
+  const orgId = params.orgId as string;
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") || "";
+
+  const {
+    data: previewData,
+    isLoading,
+    error,
+  } = usePreviewOrgInviteQuery({ orgId, token }, { skip: !token || !orgId });
+
+  const [acceptOrgInvite, { isLoading: isAcceptingMutation }] =
+    useAcceptOrgInviteMutation();
+
   const [isAccepting, setIsAccepting] = useState(false);
   const [isDeclining, setIsDeclining] = useState(false);
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
 
-  // Mock data for UI design
-  const invite = {
-    orgName: "Acme Dynamics",
-    orgLogo: null,
-    orgDescription:
-      "Building the next generation of autonomous infrastructure and high-frequency software systems.",
-    inviterName: "Sarah Chen",
-    inviterAvatar: null,
-    role: "Lead Systems Engineer",
-    expiryDate: "2024-02-15T00:00:00.000Z",
+  const invite = previewData?.invite;
+  const organization = previewData?.organization;
+
+  const handleAccept = async () => {
+    try {
+      setIsAccepting(true);
+      const res = await acceptOrgInvite({
+        orgId,
+        body: { token },
+      }).unwrap();
+
+      if (res.success) {
+        toast.success(res.message);
+        router.push(`/dashboard/${organization?.slug}`);
+      }
+    } catch (err: any) {
+      toast.error(err.data?.message || "Failed to accept invitation");
+    } finally {
+      setIsAccepting(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full bg-[#020202] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Logo size={48} />
+          <div className="h-8 w-8 border-4 border-brand/30 border-t-brand rounded-full animate-spin" />
+          <p className="text-neutral-500 font-bold text-xs uppercase tracking-widest animate-pulse">
+            Authenticating Invitation...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !invite || !orgId) {
+    return (
+      <div className="min-h-screen w-full bg-[#020202] flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-white/5 border border-white/10 rounded-[32px] p-12 text-center space-y-6 backdrop-blur-3xl">
+          <div className="w-20 h-20 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-400">
+            <X size={40} />
+          </div>
+          <h2 className="text-2xl font-black tracking-tight">
+            Invalid Invitation
+          </h2>
+          <p className="text-neutral-400 font-light leading-relaxed">
+            This invitation link is invalid, expired, or has already been used.
+            Please contact your organization administrator.
+          </p>
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-2 text-brand font-bold text-xs uppercase tracking-widest hover:underline"
+          >
+            Return to Login <ArrowRight size={16} />
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const platformFeatures = [
     {
@@ -62,6 +129,17 @@ export default function OrgAcceptInvitePage() {
       color: "text-blue-400",
     },
   ];
+
+  const formattedExpiresAt = new Date(invite.expiresAt).toLocaleDateString(
+    "en-US",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    },
+  );
+
+  console.log(invite);
 
   return (
     <div className="min-h-screen w-full bg-[#020202] text-white flex flex-col p-6 lg:p-12 relative overflow-x-hidden font-sans selection:bg-brand/30">
@@ -130,37 +208,54 @@ export default function OrgAcceptInvitePage() {
                   <Building2 size={24} />
                 </div>
                 <h3 className="text-xl font-black tracking-tight text-white">
-                  About {invite.orgName}
+                  About {organization?.name}
                 </h3>
                 <p className="text-sm text-neutral-400 leading-relaxed font-light">
-                  {invite.orgDescription}
+                  {organization?.description || "No description provided"}
                 </p>
               </div>
 
               <div className="space-y-6">
-                <div className="space-y-2">
-                  <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
-                    Industry
-                  </p>
-                  <p className="text-sm text-white font-semibold">
-                    Infrastructure & Systems
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
-                    Core Tech
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {["Rust", "Next.js", "Prisma", "Redis"].map((t) => (
-                      <span
-                        key={t}
-                        className="px-2 py-0.5 rounded bg-white/5 border border-white/5 text-[10px] text-neutral-400 font-mono"
-                      >
-                        {t}
-                      </span>
-                    ))}
+                {organization?.websiteUrl ? (
+                  <div className="space-y-2">
+                    <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
+                      Website
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Globe size={16} />
+                      <p className="text-sm text-white font-semibold">
+                        {organization?.websiteUrl}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                ) : null}
+
+                {organization?.owner ? (
+                  <div className="space-y-2">
+                    <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
+                      Owner
+                    </p>
+                    <div className="flex items-center gap-2">
+                      {organization?.owner.avatarUrl ? (
+                        <Image
+                          src={organization?.owner.avatarUrl}
+                          alt={organization?.owner.name}
+                          width={20}
+                          height={20}
+                          className="rounded-sm h-5 w-5"
+                        />
+                      ) : (
+                        <User size={20} />
+                      )}
+
+                      <div>
+                        <p className="text-sm text-white font-semibold">
+                          {organization?.owner.name}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
@@ -196,7 +291,7 @@ export default function OrgAcceptInvitePage() {
               <div className="flex items-center gap-4 mb-10 pb-6 border-b border-white/5">
                 <div className="w-14 h-14 rounded-full border border-white/10 bg-neutral-900 flex items-center justify-center overflow-hidden shrink-0">
                   <div className="w-full h-full bg-linear-to-br from-brand/30 to-blue-600/30 flex items-center justify-center text-xl font-black text-brand">
-                    {invite.inviterName.charAt(0)}
+                    {invite.invitedBy.name.charAt(0)}
                   </div>
                 </div>
                 <div className="flex-1">
@@ -204,20 +299,33 @@ export default function OrgAcceptInvitePage() {
                     Invitation from
                   </p>
                   <p className="text-lg font-bold text-white tracking-tight">
-                    {invite.inviterName}
+                    {invite.invitedBy.name}
                   </p>
                 </div>
-                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-neutral-400">
-                  Active
+                <div className="px-3 py-1 capitalize rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-neutral-400">
+                  {invite.status.toLowerCase()}
                 </div>
               </div>
 
               <div className="flex flex-col items-center text-center space-y-8">
                 {/* Org Visual */}
                 <div className="relative mb-2">
-                  <div className="w-24 h-24 rounded-2xl bg-linear-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center relative z-10 shadow-2xl overflow-hidden group/icon transition-all duration-500 group-hover:scale-105">
-                    <Building2 size={48} className="text-brand relative z-10" />
-                  </div>
+                  {organization?.logoUrl ? (
+                    <Image
+                      src={organization.logoUrl}
+                      alt={organization.name}
+                      width={100}
+                      height={100}
+                      className="w-24 h-24 object-cover rounded-2xl bg-linear-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center relative z-10 shadow-2xl overflow-hidden group/icon transition-all duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-2xl bg-linear-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center relative z-10 shadow-2xl overflow-hidden group/icon transition-all duration-500 group-hover:scale-105">
+                      <Building2
+                        size={48}
+                        className="text-brand relative z-10"
+                      />
+                    </div>
+                  )}
                   <div className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-[#00E599]/10 border border-[#00E599]/30 flex items-center justify-center backdrop-blur-lg animate-pulse z-20">
                     <Check size={20} className="text-[#00E599]" />
                   </div>
@@ -231,9 +339,13 @@ export default function OrgAcceptInvitePage() {
                   <p className="text-neutral-400 text-sm leading-relaxed font-light">
                     Accept the invitation to start collaborating within{" "}
                     <span className="text-white font-bold">
-                      {invite.orgName}
+                      {organization?.name}
                     </span>{" "}
-                    as a {invite.role}.
+                    as {invite.role === "ADMIN" ? "an" : "a"}{" "}
+                    <span className="text-white font-bold capitalize">
+                      {invite.role.toLowerCase()}
+                    </span>
+                    .
                   </p>
                 </div>
 
@@ -241,11 +353,15 @@ export default function OrgAcceptInvitePage() {
                 <div className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-400">
-                      <Command size={18} />
+                      {invite.role === "ADMIN" ? (
+                        <Shield size={18} />
+                      ) : (
+                        <User size={18} />
+                      )}
                     </div>
                     <div className="text-left">
                       <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-tight">
-                        Designated Role
+                        Assigned Role
                       </p>
                       <p className="text-sm font-bold text-white tracking-tight">
                         {invite.role}
@@ -258,7 +374,7 @@ export default function OrgAcceptInvitePage() {
                 {/* Action Buttons */}
                 <div className="w-full space-y-4 pt-4">
                   <button
-                    onClick={() => setIsAccepting(true)}
+                    onClick={handleAccept}
                     disabled={isAccepting || isDeclining}
                     className="group/btn relative w-full h-16 cursor-pointer flex items-center justify-center gap-3 bg-brand text-bg-dark-0 font-black text-base rounded-2xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:shadow-[0_20px_40px_-10px_rgba(var(--brand-rgb),0.3)] disabled:opacity-50 overflow-hidden"
                   >
@@ -292,7 +408,7 @@ export default function OrgAcceptInvitePage() {
                 <div className="flex items-center gap-2 text-neutral-500 font-bold text-[9px] uppercase tracking-widest">
                   <div className="flex items-center gap-2">
                     <Clock size={14} className="text-brand/50" />
-                    Expires: Feb 15
+                    Expires: {formattedExpiresAt}
                   </div>
                 </div>
                 <Link

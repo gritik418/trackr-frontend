@@ -8,6 +8,8 @@ import {
   GetOrganizationsResponse,
   InviteMemberDto,
   UpdateOrgDto,
+  PreviewOrgInviteResponse,
+  AcceptOrgInviteResponse,
 } from "./organization.interface";
 
 const organizationApi = createApi({
@@ -78,6 +80,24 @@ const organizationApi = createApi({
       }),
       providesTags: ["invites"],
     }),
+    previewOrgInvite: build.query<
+      PreviewOrgInviteResponse,
+      { orgId: string; token: string }
+    >({
+      query: ({ orgId, token }) => `/${orgId}/invites/preview?token=${token}`,
+      providesTags: ["invites"],
+    }),
+    acceptOrgInvite: build.mutation<
+      AcceptOrgInviteResponse,
+      { orgId: string; body: { token: string } }
+    >({
+      query: ({ orgId, body }) => ({
+        url: `/${orgId}/invites/accept`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["organizations", "invites"],
+    }),
     revokeInvite: build.mutation<void, { orgId: string; inviteId: string }>({
       query: ({ orgId, inviteId }) => ({
         url: `/${orgId}/invites/${inviteId}`,
@@ -104,6 +124,8 @@ export const {
   useInviteMemberMutation,
   useGetOrganizationMembersQuery,
   useGetOrganizationInvitesQuery,
+  usePreviewOrgInviteQuery,
+  useAcceptOrgInviteMutation,
   useRevokeInviteMutation,
   useResendInviteMutation,
 } = organizationApi;

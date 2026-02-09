@@ -112,3 +112,22 @@ export interface ResendWorkspaceInviteResponse {
   success: boolean;
   message: string;
 }
+
+export interface PreviewWorkspaceInviteResponse {
+  success: boolean;
+  message: string;
+  invite: WorkspaceInvite;
+  workspace: {
+    id: string;
+    name: string;
+    description: string | null;
+    organization: {
+      name: string;
+    };
+  };
+}
+
+export interface AcceptWorkspaceInviteResponse {
+  success: boolean;
+  message: string;
+}

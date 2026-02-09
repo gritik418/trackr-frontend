@@ -2,42 +2,110 @@
 
 import { Logo } from "@/components/ui/Logo";
 import {
-  Check,
-  X,
-  Users,
-  Shield,
-  Clock,
-  Sparkles,
-  Building2,
-  Mail,
   ArrowRight,
-  Zap,
-  Lock,
   ArrowUpRight,
+  Building2,
+  Check,
+  Clock,
   Fingerprint,
   Layers,
   LayoutDashboard,
+  Shield,
+  Sparkles,
+  X,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import {
+  usePreviewWorkspaceInviteQuery,
+  useAcceptWorkspaceInviteMutation,
+} from "@/features/workspace/workspace.api";
+import toast from "react-hot-toast";
 
 export default function WorkspaceAcceptInvitePage() {
+  const params = useParams();
+  const router = useRouter();
+  const workspaceId = params.workspaceId as string;
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") || "";
+
+  const {
+    data: previewData,
+    isLoading,
+    error,
+  } = usePreviewWorkspaceInviteQuery(
+    { workspaceId, token },
+    { skip: !token || !workspaceId },
+  );
+
+  const [acceptWorkspaceInvite, { isLoading: isAcceptingMutation }] =
+    useAcceptWorkspaceInviteMutation();
+
   const [isAccepting, setIsAccepting] = useState(false);
   const [isDeclining, setIsDeclining] = useState(false);
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
 
-  // Mock data for UI design
-  const invite = {
-    orgName: "Acme Dynamics",
-    workspaceName: "Core Platform",
-    workspaceDescription:
-      "The central infrastructure powering all Acme Dynamics high-frequency trading services and real-time data pipelines.",
-    inviterName: "Sarah Chen",
-    role: "Lead Systems Engineer",
-    expiryDate: "2024-02-15T00:00:00.000Z",
+  const invite = previewData?.invite;
+  const workspace = previewData?.workspace;
+
+  const handleAccept = async () => {
+    try {
+      setIsAccepting(true);
+      const res = await acceptWorkspaceInvite({
+        workspaceId,
+        body: { token },
+      }).unwrap();
+
+      if (res.success) {
+        toast.success(res.message);
+        router.push(`/dashboard/workspace/${workspaceId}`); // Assuming this is the path
+      }
+    } catch (err: any) {
+      toast.error(err.data?.message || "Failed to accept invitation");
+    } finally {
+      setIsAccepting(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full bg-[#020202] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Logo size={48} />
+          <div className="h-8 w-8 border-4 border-brand/30 border-t-brand rounded-full animate-spin" />
+          <p className="text-neutral-500 font-bold text-xs uppercase tracking-widest animate-pulse">
+            Authenticating Invitation...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !invite) {
+    return (
+      <div className="min-h-screen w-full bg-[#020202] flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-white/5 border border-white/10 rounded-[32px] p-12 text-center space-y-6 backdrop-blur-3xl">
+          <div className="w-20 h-20 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-400">
+            <X size={40} />
+          </div>
+          <h2 className="text-2xl font-black tracking-tight">
+            Invalid Invitation
+          </h2>
+          <p className="text-neutral-400 font-light leading-relaxed">
+            This invitation link is invalid, expired, or has already been used.
+            Please contact your workspace administrator.
+          </p>
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-2 text-brand font-bold text-xs uppercase tracking-widest hover:underline"
+          >
+            Return to Login <ArrowRight size={16} />
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const workspaceFeatures = [
     {
@@ -106,17 +174,17 @@ export default function WorkspaceAcceptInvitePage() {
 
             <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-[1.05] text-transparent bg-clip-text bg-linear-to-b from-white to-white/60">
               Welcome to <br />
-              <span className="text-brand">{invite.workspaceName}</span>
+              <span className="text-brand">{workspace?.name}</span>
             </h1>
 
             <p className="text-neutral-400 text-lg lg:text-xl font-light leading-relaxed max-w-2xl">
               You&apos;ve been invited to join the{" "}
-              <span className="text-white font-bold">
-                {invite.workspaceName}
-              </span>{" "}
+              <span className="text-white font-bold">{workspace?.name}</span>{" "}
               workspace within{" "}
-              <span className="text-white font-bold">{invite.orgName}</span>.
-              Get ready to ship with precision and speed.
+              <span className="text-white font-bold">
+                {workspace?.organization.name}
+              </span>
+              . Get ready to ship with precision and speed.
             </p>
           </div>
 
@@ -135,7 +203,8 @@ export default function WorkspaceAcceptInvitePage() {
                   About the Workspace
                 </h3>
                 <p className="text-sm text-neutral-400 leading-relaxed font-light">
-                  {invite.workspaceDescription}
+                  {workspace?.description ||
+                    "A dedicated high-performance workspace for your team tasks and project orchestration."}
                 </p>
               </div>
 
@@ -146,7 +215,7 @@ export default function WorkspaceAcceptInvitePage() {
                   </p>
                   <p className="text-sm text-white font-semibold flex items-center gap-2">
                     <Building2 size={14} className="text-brand" />
-                    {invite.orgName}
+                    {workspace?.organization.name}
                   </p>
                 </div>
                 <div className="space-y-2">
@@ -204,7 +273,7 @@ export default function WorkspaceAcceptInvitePage() {
               <div className="flex items-center gap-4 mb-10 pb-6 border-b border-white/5">
                 <div className="w-14 h-14 rounded-full border border-white/10 bg-neutral-900 flex items-center justify-center overflow-hidden shrink-0">
                   <div className="w-full h-full bg-linear-to-br from-brand/30 to-indigo-600/30 flex items-center justify-center text-xl font-black text-brand">
-                    {invite.inviterName.charAt(0)}
+                    {invite.invitedBy.name.charAt(0)}
                   </div>
                 </div>
                 <div className="flex-1">
@@ -212,7 +281,7 @@ export default function WorkspaceAcceptInvitePage() {
                     Invited by
                   </p>
                   <p className="text-lg font-bold text-white tracking-tight">
-                    {invite.inviterName}
+                    {invite.invitedBy.name}
                   </p>
                 </div>
                 <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-neutral-400">
@@ -239,7 +308,7 @@ export default function WorkspaceAcceptInvitePage() {
                   <p className="text-neutral-400 text-sm leading-relaxed font-light">
                     Accept the invitation to start working within{" "}
                     <span className="text-white font-bold">
-                      {invite.workspaceName}
+                      {workspace?.name}
                     </span>
                     .
                   </p>
@@ -256,7 +325,7 @@ export default function WorkspaceAcceptInvitePage() {
                         Parent Organization
                       </p>
                       <p className="text-sm font-bold text-white tracking-tight">
-                        {invite.orgName}
+                        {workspace?.organization.name}
                       </p>
                     </div>
                   </div>
@@ -266,7 +335,7 @@ export default function WorkspaceAcceptInvitePage() {
                 {/* Action Buttons */}
                 <div className="w-full space-y-4 pt-4">
                   <button
-                    onClick={() => setIsAccepting(true)}
+                    onClick={handleAccept}
                     disabled={isAccepting || isDeclining}
                     className="group/btn relative w-full h-16 cursor-pointer flex items-center justify-center gap-3 bg-brand text-bg-dark-0 font-black text-base rounded-2xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:shadow-[0_20px_40px_-10px_rgba(var(--brand-rgb),0.3)] disabled:opacity-50 overflow-hidden"
                   >
@@ -323,7 +392,7 @@ export default function WorkspaceAcceptInvitePage() {
         </div>
         <div className="flex items-center gap-8 text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
           <Link href="#" className="hover:text-brand transition-colors">
-            Workspace Cloud
+            {workspace?.organization.name} Cloud
           </Link>
           <Link href="#" className="hover:text-brand transition-colors">
             Privacy Infrastructure

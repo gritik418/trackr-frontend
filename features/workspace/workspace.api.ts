@@ -17,6 +17,8 @@ import {
   SendWorkspaceInviteResponse,
   RevokeWorkspaceInviteResponse,
   ResendWorkspaceInviteResponse,
+  PreviewWorkspaceInviteResponse,
+  AcceptWorkspaceInviteResponse,
 } from "./workspace.interface";
 
 const workspaceApi = createApi({
@@ -96,6 +98,25 @@ const workspaceApi = createApi({
       }),
       providesTags: ["workspaceInvites"],
     }),
+    previewWorkspaceInvite: build.query<
+      PreviewWorkspaceInviteResponse,
+      { workspaceId: string; token: string }
+    >({
+      query: ({ workspaceId, token }) =>
+        `/workspaces/${workspaceId}/invites/preview?token=${token}`,
+      providesTags: ["workspaceInvites"],
+    }),
+    acceptWorkspaceInvite: build.mutation<
+      AcceptWorkspaceInviteResponse,
+      { workspaceId: string; body: { token: string } }
+    >({
+      query: ({ workspaceId, body }) => ({
+        url: `/workspaces/${workspaceId}/invites/accept`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["workspaces", "workspaceInvites"],
+    }),
     revokeWorkspaceInvite: build.mutation<
       RevokeWorkspaceInviteResponse,
       { workspaceId: string; inviteId: string }
@@ -155,6 +176,8 @@ export const {
   useRemoveWorkspaceMemberMutation,
   useGetWorkspaceInvitesQuery,
   useSendWorkspaceInviteMutation,
+  usePreviewWorkspaceInviteQuery,
+  useAcceptWorkspaceInviteMutation,
   useRevokeWorkspaceInviteMutation,
   useResendWorkspaceInviteMutation,
 } = workspaceApi;
