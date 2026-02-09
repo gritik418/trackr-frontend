@@ -1,12 +1,12 @@
 "use client";
 
+import { useGetProjectsQuery } from "@/features/project/project.api";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import { cn, getInitials } from "@/lib/utils";
 import { Project } from "@/types/project/project.interface";
 import {
   Activity,
   CheckSquare,
-  ChevronLeft,
   Folder,
   FolderOpenDot,
   LayoutDashboard,
@@ -19,6 +19,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import WorkspaceSwitcher from "../workspace/WorkspaceSwitcher";
+import ProjectItemSkeleton from "./skeletons/ProjectItemSkeleton";
 
 interface DashboardSidebarProps {
   slug: string;
@@ -33,12 +34,13 @@ export default function DashboardSidebar({
   onMouseEnter,
   onMouseLeave,
 }: DashboardSidebarProps) {
-  const [projects, setProjects] = useState<Project[]>([]);
   const pathname = usePathname();
+  const [projects, setProjects] = useState<Project[]>([]);
   const workspace = useSelector(selectWorkspace);
+  const { data, isLoading } = useGetProjectsQuery(workspace?.id || "", {
+    skip: !workspace?.id,
+  });
   const baseUrl = `/dashboard/${slug}`;
-
-  console.log(workspace);
 
   const navItems = [
     { name: "Overview", href: baseUrl, icon: LayoutDashboard },
@@ -49,10 +51,10 @@ export default function DashboardSidebar({
   ];
 
   useEffect(() => {
-    if (workspace?.projects) {
-      setProjects(workspace.projects);
+    if (data) {
+      setProjects(data.projects);
     }
-  }, [workspace?.projects]);
+  }, [data]);
 
   return (
     <aside
@@ -161,56 +163,62 @@ export default function DashboardSidebar({
         </nav>
 
         {/* Projects Section */}
-        <div className="flex-1 px-3 py-2 overflow-y-auto scrollbar-none border-t border-dashboard-border mt-2">
-          <div className="flex inset-0 top-0 items-center justify-between px-3 mb-2 transition-opacity duration-300 overflow-hidden">
-            <span
-              className={cn(
-                "text-[10px] font-bold text-neutral-500 uppercase tracking-widest whitespace-nowrap",
-                isExpanded ? "opacity-100" : "opacity-0",
-              )}
-            >
-              Projects
-            </span>
-          </div>
+        {projects.length > 0 && (
+          <div className="flex-1 px-3 py-2 overflow-y-auto scrollbar-none border-t border-dashboard-border mt-2">
+            <div className="flex inset-0 top-0 items-center justify-between px-3 mb-2 transition-opacity duration-300 overflow-hidden">
+              <span
+                className={cn(
+                  "text-[10px] font-bold text-neutral-500 uppercase tracking-widest whitespace-nowrap",
+                  isExpanded ? "opacity-100" : "opacity-0",
+                )}
+              >
+                Projects
+              </span>
+            </div>
 
-          <div className="space-y-0.5">
-            {projects.map((project) => {
-              const isProjectActive = pathname.includes(project.id);
-              return (
-                <Link
-                  key={project.name}
-                  href={`${baseUrl}/projects/${project.id}`}
-                  className={cn(
-                    "relative h-9 flex items-center px-2.5 rounded-lg transition-all duration-200 group/project overflow-hidden",
-                    isProjectActive
-                      ? "bg-brand/10 text-brand"
-                      : "text-dashboard-item-text hover:text-dashboard-item-text-active hover:bg-dashboard-item-bg-hover",
-                  )}
-                >
-                  <div className="w-5 h-5 flex items-center justify-center shrink-0">
-                    <Folder
-                      size={16}
-                      className={
-                        isProjectActive
-                          ? "text-brand"
-                          : "group-hover/project:text-dashboard-item-text-active"
-                      }
-                    />
-                  </div>
+            <div className="space-y-1">
+              {isLoading
+                ? Array.from({ length: 3 }).map((_, i) => (
+                    <ProjectItemSkeleton key={i} isExpanded={isExpanded} />
+                  ))
+                : projects.map((project) => {
+                    const isProjectActive = pathname.includes(project.id);
+                    return (
+                      <Link
+                        key={project.name}
+                        href={`${baseUrl}/projects/${project.id}`}
+                        className={cn(
+                          "relative h-9 flex items-center px-2.5 rounded-lg transition-all duration-200 group/project overflow-hidden",
+                          isProjectActive
+                            ? "bg-brand/10 text-brand"
+                            : "text-dashboard-item-text hover:text-dashboard-item-text-active hover:bg-dashboard-item-bg-hover",
+                        )}
+                      >
+                        <div className="w-5 h-5 flex items-center justify-center shrink-0">
+                          <Folder
+                            size={16}
+                            className={
+                              isProjectActive
+                                ? "text-brand"
+                                : "group-hover/project:text-dashboard-item-text-active"
+                            }
+                          />
+                        </div>
 
-                  <span
-                    className={cn(
-                      "ml-3 text-[13px] font-medium whitespace-nowrap transition-opacity duration-300",
-                      isExpanded ? "opacity-100 delay-75" : "opacity-0",
-                    )}
-                  >
-                    {project.name}
-                  </span>
-                </Link>
-              );
-            })}
+                        <span
+                          className={cn(
+                            "ml-3 text-[13px] font-medium whitespace-nowrap transition-opacity duration-300",
+                            isExpanded ? "opacity-100 delay-75" : "opacity-0",
+                          )}
+                        >
+                          {project.name}
+                        </span>
+                      </Link>
+                    );
+                  })}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Settings / Bottom */}
         <div className="p-3 border-t border-dashboard-border space-y-1 bg-dashboard-sidebar-bg shrink-0">
