@@ -48,6 +48,7 @@ export enum OrgInviteStatus {
   ACCEPTED = "ACCEPTED",
   EXPIRED = "EXPIRED",
   REVOKED = "REVOKED",
+  REJECTED = "REJECTED",
 }
 
 export interface OrganizationInvitation {

@@ -48,6 +48,8 @@ const OrgInviteItem = ({ invite, orgId }: Props) => {
         return "bg-red-500/10 text-red-400 border-red-500/20";
       case "EXPIRED":
         return "bg-gray-500/10 text-gray-400 border-gray-500/20";
+      case "REJECTED":
+        return "bg-red-800/10 text-red-600 border-red-800/20";
       default:
         return "bg-white/5 text-neutral-400 border-white/10";
     }
@@ -90,7 +92,12 @@ const OrgInviteItem = ({ invite, orgId }: Props) => {
           <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100">
             <button
               onClick={() => setShowRevokeModal(true)}
-              disabled={isRevoking || invite.status === "REVOKED"}
+              disabled={
+                isRevoking ||
+                invite.status === "REVOKED" ||
+                invite.status === "REJECTED" ||
+                invite.status === "ACCEPTED"
+              }
               className="p-2 cursor-pointer text-neutral-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               title="Revoke Invite"
             >
@@ -102,7 +109,12 @@ const OrgInviteItem = ({ invite, orgId }: Props) => {
             </button>
             <button
               onClick={handleResend}
-              disabled={isResending || invite.status === "REVOKED"}
+              disabled={
+                isResending ||
+                invite.status === "REVOKED" ||
+                invite.status === "REJECTED" ||
+                invite.status === "ACCEPTED"
+              }
               className="p-2 cursor-pointer text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               title="Resend"
             >

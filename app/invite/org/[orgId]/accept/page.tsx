@@ -6,6 +6,7 @@ import {
   useDeclineOrgInviteMutation,
   usePreviewOrgInviteQuery,
 } from "@/features/organization/organization.api";
+import { OrgInviteStatus } from "@/features/organization/organization.interface";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -102,7 +103,9 @@ export default function OrgAcceptInvitePage() {
     );
   }
 
-  if (error || !invite || !orgId) {
+  if (error || !invite || !orgId || invite.status === OrgInviteStatus.EXPIRED) {
+    const isExpired = invite?.status === OrgInviteStatus.EXPIRED;
+
     return (
       <div className="min-h-screen w-full bg-[#020202] flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-white/5 border border-white/10 rounded-[32px] p-12 text-center space-y-6 backdrop-blur-3xl">
@@ -110,11 +113,12 @@ export default function OrgAcceptInvitePage() {
             <X size={40} />
           </div>
           <h2 className="text-2xl font-black tracking-tight">
-            Invalid Invitation
+            {isExpired ? "Invitation Expired" : "Invalid Invitation"}
           </h2>
           <p className="text-neutral-400 font-light leading-relaxed">
-            This invitation link is invalid, expired, or has already been used.
-            Please contact your organization administrator.
+            {isExpired
+              ? "This invitation link has expired. Please contact your organization administrator to receive a new invite."
+              : "This invitation link is invalid or has already been used. Please contact your organization administrator."}
           </p>
           <Link
             href="/login"

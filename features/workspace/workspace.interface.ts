@@ -74,11 +74,18 @@ export interface RemoveWorkspaceMemberResponse {
   message: string;
 }
 
+export enum WorkspaceInviteStatus {
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
+  EXPIRED = "EXPIRED",
+  REVOKED = "REVOKED",
+}
+
 export interface WorkspaceInvite {
   id: string;
   email: string;
   role: string;
-  status: string;
+  status: WorkspaceInviteStatus;
   createdAt: string;
   expiresAt: string;
   invitedById: string;
