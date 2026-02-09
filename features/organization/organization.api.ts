@@ -98,6 +98,17 @@ const organizationApi = createApi({
       }),
       invalidatesTags: ["organizations", "invites"],
     }),
+    declineOrgInvite: build.mutation<
+      AcceptOrgInviteResponse,
+      { orgId: string; body: { token: string } }
+    >({
+      query: ({ orgId, body }) => ({
+        url: `/${orgId}/invites/reject`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["invites"],
+    }),
     revokeInvite: build.mutation<void, { orgId: string; inviteId: string }>({
       query: ({ orgId, inviteId }) => ({
         url: `/${orgId}/invites/${inviteId}`,
@@ -126,6 +137,7 @@ export const {
   useGetOrganizationInvitesQuery,
   usePreviewOrgInviteQuery,
   useAcceptOrgInviteMutation,
+  useDeclineOrgInviteMutation,
   useRevokeInviteMutation,
   useResendInviteMutation,
 } = organizationApi;

@@ -3,6 +3,7 @@
 import { Logo } from "@/components/ui/Logo";
 import {
   useAcceptOrgInviteMutation,
+  useDeclineOrgInviteMutation,
   usePreviewOrgInviteQuery,
 } from "@/features/organization/organization.api";
 import {
@@ -40,8 +41,8 @@ export default function OrgAcceptInvitePage() {
     error,
   } = usePreviewOrgInviteQuery({ orgId, token }, { skip: !token || !orgId });
 
-  const [acceptOrgInvite, { isLoading: isAcceptingMutation }] =
-    useAcceptOrgInviteMutation();
+  const [acceptOrgInvite] = useAcceptOrgInviteMutation();
+  const [declineOrgInvite] = useDeclineOrgInviteMutation();
 
   const [isAccepting, setIsAccepting] = useState(false);
   const [isDeclining, setIsDeclining] = useState(false);
@@ -65,6 +66,25 @@ export default function OrgAcceptInvitePage() {
       toast.error(err.data?.message || "Failed to accept invitation");
     } finally {
       setIsAccepting(false);
+    }
+  };
+
+  const handleDecline = async () => {
+    try {
+      setIsDeclining(true);
+      const res = await declineOrgInvite({
+        orgId,
+        body: { token },
+      }).unwrap();
+
+      if (res.success) {
+        toast.success(res.message);
+        router.push("/login");
+      }
+    } catch (err: any) {
+      toast.error(err.data?.message || "Failed to decline invitation");
+    } finally {
+      setIsDeclining(false);
     }
   };
 
@@ -394,7 +414,7 @@ export default function OrgAcceptInvitePage() {
                   </button>
 
                   <button
-                    onClick={() => setIsDeclining(true)}
+                    onClick={handleDecline}
                     disabled={isAccepting || isDeclining}
                     className="w-full h-14 cursor-pointer flex items-center justify-center gap-3 bg-transparent text-neutral-500 font-bold text-sm rounded-2xl border border-white/5 transition-all duration-300 hover:bg-white/5 hover:text-red-400 hover:border-red-400/20 disabled:opacity-50"
                   >
