@@ -5,7 +5,6 @@ import { Navbar } from "@/components/common/Navbar";
 import { Features } from "@/components/marketing/Features";
 import { Hero } from "@/components/marketing/Hero";
 import { Pricing } from "@/components/marketing/Pricing";
-import { resolveRedirectPath } from "@/lib/utils";
 import { useUser } from "@/providers/AuthProvider";
 import { ArrowRight, Globe, Shield, Sparkles } from "lucide-react";
 import Link from "next/link";
@@ -17,7 +16,9 @@ export default function HomePage() {
 
   const handleRedirect = () => {
     if (user) {
-      router.push(resolveRedirectPath(user));
+      router.push("/org");
+    } else {
+      router.push("/login");
     }
   };
 

@@ -135,7 +135,7 @@ const organizationApi = createApi({
       { orgId: string; memberId: string; role: string }
     >({
       query: ({ orgId, memberId, role }) => ({
-        url: `/${orgId}/members/${memberId}`,
+        url: `/${orgId}/members/${memberId}/role`,
         method: "PATCH",
         body: { role },
       }),

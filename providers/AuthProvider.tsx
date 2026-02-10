@@ -1,11 +1,12 @@
 "use client";
 
 import { useAuth } from "@/features/auth/auth.hooks";
+import { User } from "@/types/user/user.interface";
 import { usePathname, useRouter } from "next/navigation";
 import React, { createContext, useContext, useEffect } from "react";
 
 interface AuthContextType {
-  user: any | undefined;
+  user: User;
   isLoading: boolean;
   isAuthenticated: boolean;
 }

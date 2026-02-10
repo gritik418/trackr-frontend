@@ -5,6 +5,7 @@ import { Shield } from "lucide-react";
 import Image from "next/image";
 import { MemberOptionsDropdown } from "./MemberOptionsDropdown";
 import AdminOrOwnerGuard from "@/components/guards/AdminOrOwnerGuard";
+import OwnerGuard from "@/components/guards/OwnerGuard";
 
 type Props = {
   member: OrganizationMember;
@@ -36,7 +37,7 @@ const OrgMemberItem = ({ member, orgUserRole }: Props) => {
               <div className="text-sm font-medium text-white group-hover:text-brand transition-colors">
                 {member.user.name}
               </div>
-              {user.id === member.user.id && (
+              {user?.id === member.user.id && (
                 <span className="text-xs text-blue-400 font-semibold">
                   (You)
                 </span>
@@ -73,8 +74,22 @@ const OrgMemberItem = ({ member, orgUserRole }: Props) => {
       </td>
       <td className="px-6 py-4 text-right">
         <AdminOrOwnerGuard role={orgUserRole}>
-          {member.role !== "OWNER" && user.id !== member.user.id ? (
-            <MemberOptionsDropdown member={member} />
+          {member.role !== "OWNER" && user?.id !== member.user.id ? (
+            <>
+              {member.role === "ADMIN" ? (
+                <OwnerGuard role={orgUserRole}>
+                  <MemberOptionsDropdown
+                    member={member}
+                    orgUserRole={orgUserRole}
+                  />
+                </OwnerGuard>
+              ) : (
+                <MemberOptionsDropdown
+                  member={member}
+                  orgUserRole={orgUserRole}
+                />
+              )}
+            </>
           ) : null}
         </AdminOrOwnerGuard>
       </td>

@@ -15,12 +15,14 @@ import {
 } from "@/features/organization/organization.api";
 import { toast } from "react-hot-toast";
 import { ConfirmRemoveMemberModal } from "./ConfirmRemoveMemberModal";
+import OwnerGuard from "@/components/guards/OwnerGuard";
 
 type Props = {
   member: OrganizationMember;
+  orgUserRole: string;
 };
 
-export const MemberOptionsDropdown = ({ member }: Props) => {
+export const MemberOptionsDropdown = ({ member, orgUserRole }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -97,8 +99,8 @@ export const MemberOptionsDropdown = ({ member }: Props) => {
       }).unwrap();
       toast.success(`Role updated to ${newRole.toLowerCase()}`);
       setIsOpen(false);
-    } catch (error) {
-      toast.error("Failed to update role");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to update role");
     }
   };
 
@@ -111,7 +113,7 @@ export const MemberOptionsDropdown = ({ member }: Props) => {
         onClick={() => setIsOpen(!isOpen)}
         disabled={isRemoving || isUpdatingRole}
         className={cn(
-          "p-2 text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all outline-none disabled:opacity-50",
+          "p-2 text-neutral-500 cursor-pointer hover:text-white hover:bg-white/10 rounded-lg transition-all outline-none disabled:opacity-50",
           isOpen
             ? "opacity-100 bg-white/10 text-white"
             : "opacity-0 group-hover:opacity-100",
@@ -146,7 +148,7 @@ export const MemberOptionsDropdown = ({ member }: Props) => {
                 <button
                   onClick={() => handleUpdateRole("ADMIN")}
                   disabled={isUpdatingRole}
-                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-neutral-300 hover:text-white hover:bg-white/5 transition-colors font-medium group disabled:opacity-50"
+                  className="flex cursor-pointer items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-neutral-300 hover:text-white hover:bg-white/5 transition-colors font-medium group disabled:opacity-50"
                 >
                   <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
                     <ShieldCheck size={16} />
@@ -164,7 +166,7 @@ export const MemberOptionsDropdown = ({ member }: Props) => {
                 <button
                   onClick={() => handleUpdateRole("MEMBER")}
                   disabled={isUpdatingRole}
-                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-neutral-300 hover:text-white hover:bg-white/5 transition-colors font-medium group disabled:opacity-50"
+                  className="flex cursor-pointer items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-neutral-300 hover:text-white hover:bg-white/5 transition-colors font-medium group disabled:opacity-50"
                 >
                   <div className="w-8 h-8 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand group-hover:scale-110 transition-transform">
                     <Shield size={16} />
@@ -188,7 +190,7 @@ export const MemberOptionsDropdown = ({ member }: Props) => {
                   setIsOpen(false);
                 }}
                 disabled={isRemoving}
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-red-500 hover:bg-red-500/10 transition-colors font-medium group disabled:opacity-50"
+                className="flex items-center cursor-pointer gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-red-500 hover:bg-red-500/10 transition-colors font-medium group disabled:opacity-50"
               >
                 <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
                   <UserMinus size={16} />
