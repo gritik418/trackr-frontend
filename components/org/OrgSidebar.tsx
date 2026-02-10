@@ -14,15 +14,37 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { IoChevronBackOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
+import OwnerGuard from "../guards/OwnerGuard";
 import RoleBadgeIcon from "../ui/RoleBadgeIcon";
+import AdminOrOwnerGuard from "../guards/AdminOrOwnerGuard";
 
 const getNavigation = (slug: string) => [
-  { name: "Overview", href: `/org/${slug}`, icon: Layout },
-  { name: "Workspaces", href: `/org/${slug}/workspaces`, icon: Building2 },
-  { name: "Members", href: `/org/${slug}/members`, icon: Users },
-  { name: "Billing", href: `/org/${slug}/billing`, icon: CreditCard },
-  { name: "Audit Logs", href: `/org/${slug}/logs`, icon: ScrollText },
-  { name: "Settings", href: `/org/${slug}/settings`, icon: Settings },
+  { id: "overview", name: "Overview", href: `/org/${slug}`, icon: Layout },
+  {
+    id: "workspaces",
+    name: "Workspaces",
+    href: `/org/${slug}/workspaces`,
+    icon: Building2,
+  },
+  { id: "members", name: "Members", href: `/org/${slug}/members`, icon: Users },
+  {
+    id: "billing",
+    name: "Billing",
+    href: `/org/${slug}/billing`,
+    icon: CreditCard,
+  },
+  {
+    id: "audit-logs",
+    name: "Audit Logs",
+    href: `/org/${slug}/logs`,
+    icon: ScrollText,
+  },
+  {
+    id: "settings",
+    name: "Settings",
+    href: `/org/${slug}/settings`,
+    icon: Settings,
+  },
 ];
 
 export function OrgSidebar({ slug }: { slug: string }) {
@@ -68,6 +90,90 @@ export function OrgSidebar({ slug }: { slug: string }) {
         <nav className="flex-1 px-4 space-y-2">
           {navigation.map((item) => {
             const isActive = pathname === item.href;
+            if (item.id === "billing") {
+              return (
+                <OwnerGuard key={item.name} role={organization?.role || ""}>
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group ${
+                      isActive
+                        ? "bg-brand/10 text-brand border border-brand/20"
+                        : "text-org-item-text hover:text-white hover:bg-white/5 border border-transparent"
+                    }`}
+                  >
+                    <item.icon
+                      size={20}
+                      className={
+                        isActive
+                          ? "text-brand"
+                          : "group-hover:text-white transition-colors"
+                      }
+                    />
+                    {item.name}
+                  </Link>
+                </OwnerGuard>
+              );
+            }
+
+            if (item.id === "audit-logs") {
+              return (
+                <AdminOrOwnerGuard
+                  key={item.name}
+                  role={organization?.role || ""}
+                >
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group ${
+                      isActive
+                        ? "bg-brand/10 text-brand border border-brand/20"
+                        : "text-org-item-text hover:text-white hover:bg-white/5 border border-transparent"
+                    }`}
+                  >
+                    <item.icon
+                      size={20}
+                      className={
+                        isActive
+                          ? "text-brand"
+                          : "group-hover:text-white transition-colors"
+                      }
+                    />
+                    {item.name}
+                  </Link>
+                </AdminOrOwnerGuard>
+              );
+            }
+
+            if (item.id === "settings") {
+              return (
+                <AdminOrOwnerGuard
+                  key={item.name}
+                  role={organization?.role || ""}
+                >
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group ${
+                      isActive
+                        ? "bg-brand/10 text-brand border border-brand/20"
+                        : "text-org-item-text hover:text-white hover:bg-white/5 border border-transparent"
+                    }`}
+                  >
+                    <item.icon
+                      size={20}
+                      className={
+                        isActive
+                          ? "text-brand"
+                          : "group-hover:text-white transition-colors"
+                      }
+                    />
+                    {item.name}
+                  </Link>
+                </AdminOrOwnerGuard>
+              );
+            }
+
             return (
               <Link
                 key={item.name}
