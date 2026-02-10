@@ -1,14 +1,19 @@
 import { formatRelativeTime, getInitials } from "@/lib/utils";
+import { useUser } from "@/providers/AuthProvider";
 import { OrganizationMember } from "@/types/organization/organization.interface";
-import { MoreVertical, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 import Image from "next/image";
 import { MemberOptionsDropdown } from "./MemberOptionsDropdown";
+import AdminOrOwnerGuard from "@/components/guards/AdminOrOwnerGuard";
 
 type Props = {
   member: OrganizationMember;
+  orgUserRole: string;
 };
 
-const OrgMemberItem = ({ member }: Props) => {
+const OrgMemberItem = ({ member, orgUserRole }: Props) => {
+  const { user } = useUser();
+
   return (
     <tr key={member.id} className="group hover:bg-white/2 transition-colors">
       <td className="px-6 py-4">
@@ -27,8 +32,15 @@ const OrgMemberItem = ({ member }: Props) => {
             )}
           </div>
           <div>
-            <div className="text-sm font-medium text-white group-hover:text-brand transition-colors">
-              {member.user.name}
+            <div className="flex items-start gap-1">
+              <div className="text-sm font-medium text-white group-hover:text-brand transition-colors">
+                {member.user.name}
+              </div>
+              {user.id === member.user.id && (
+                <span className="text-xs text-blue-400 font-semibold">
+                  (You)
+                </span>
+              )}
             </div>
             <div className="text-xs text-neutral-500">{member.user.email}</div>
           </div>
@@ -60,7 +72,11 @@ const OrgMemberItem = ({ member }: Props) => {
         {formatRelativeTime(member.joinedAt)}
       </td>
       <td className="px-6 py-4 text-right">
-        {member.role !== "OWNER" && <MemberOptionsDropdown member={member} />}
+        <AdminOrOwnerGuard role={orgUserRole}>
+          {member.role !== "OWNER" && user.id !== member.user.id ? (
+            <MemberOptionsDropdown member={member} />
+          ) : null}
+        </AdminOrOwnerGuard>
       </td>
     </tr>
   );

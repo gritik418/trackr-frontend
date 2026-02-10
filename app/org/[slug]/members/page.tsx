@@ -256,7 +256,11 @@ export default function OrgMembersPage() {
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {filteredMembers?.map((member) => (
-                      <OrgMemberItem key={member.id} member={member} />
+                      <OrgMemberItem
+                        orgUserRole={organization.role}
+                        key={member.id}
+                        member={member}
+                      />
                     ))}
                   </tbody>
                 </table>

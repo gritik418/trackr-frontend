@@ -41,7 +41,7 @@ export const MemberOptionsDropdown = ({ member }: Props) => {
       const rect = triggerRef.current.getBoundingClientRect();
       setCoords({
         top: rect.bottom + 8,
-        left: rect.right - 224, // 224px is the width of the dropdown (w-56)
+        left: rect.right - 224,
       });
     }
   };
@@ -58,7 +58,6 @@ export const MemberOptionsDropdown = ({ member }: Props) => {
     };
   }, [isOpen]);
 
-  // Close when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
