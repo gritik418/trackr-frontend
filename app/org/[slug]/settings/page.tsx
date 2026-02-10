@@ -1,5 +1,6 @@
 "use client";
 
+import OwnerGuard from "@/components/guards/OwnerGuard";
 import ConfirmOrganizationDeletionModal from "@/components/org/ConfirmOrganizationDeletionModal";
 import { APP_DOMAIN } from "@/constants/index";
 import {
@@ -271,35 +272,40 @@ export default function OrgSettingsPage() {
                   )}
                 </div>
 
-                <div className="space-y-2 flex flex-col md:col-span-2">
-                  <label className="text-sm font-semibold text-org-item-text">
-                    Contact Email
-                  </label>
-                  <div className="input-field-wrapper">
-                    <div className="relative">
-                      <Mail
-                        size={16}
-                        className="absolute left-4 top-3.5 text-neutral-500"
-                      />
-                      <input
-                        {...register("contactEmail")}
-                        type="email"
-                        placeholder="contact@example.com"
-                        className="w-full pl-10 pr-4 py-2.5 bg-org-sidebar-bg rounded-xl text-white outline-none focus:ring-2 focus:ring-brand/20 transition-all placeholder:text-neutral-600"
-                      />
+                <OwnerGuard
+                  role={organization?.role}
+                  className="w-full md:col-span-2"
+                >
+                  <div className="space-y-2 w-full flex flex-col md:col-span-2">
+                    <label className="text-sm font-semibold text-org-item-text">
+                      Contact Email
+                    </label>
+                    <div className="input-field-wrapper">
+                      <div className="relative">
+                        <Mail
+                          size={16}
+                          className="absolute left-4 top-3.5 text-neutral-500"
+                        />
+                        <input
+                          {...register("contactEmail")}
+                          type="email"
+                          placeholder="contact@example.com"
+                          className="w-full pl-10 pr-4 py-2.5 bg-org-sidebar-bg rounded-xl text-white outline-none focus:ring-2 focus:ring-brand/20 transition-all placeholder:text-neutral-600"
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  {errors.contactEmail?.message && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.contactEmail.message}
+                    {errors.contactEmail?.message && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.contactEmail.message}
+                      </p>
+                    )}
+
+                    <p className="text-xs text-neutral-500">
+                      We'll use this for billing and security alerts.
                     </p>
-                  )}
-
-                  <p className="text-xs text-neutral-500">
-                    We'll use this for billing and security alerts.
-                  </p>
-                </div>
+                  </div>
+                </OwnerGuard>
               </div>
 
               <div className="flex justify-end pt-4 border-t border-white/5">
@@ -315,34 +321,36 @@ export default function OrgSettingsPage() {
           </section>
 
           {/* Danger Zone */}
-          <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2">
-              <ShieldAlert size={20} className="text-red-500" />
-              <h3 className="text-lg font-semibold text-red-500">
-                Danger Zone
-              </h3>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-red-500/2 border border-red-500/10 space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <h4 className="text-white font-medium">
-                    Delete Organization
-                  </h4>
-                  <p className="text-sm text-red-200/60">
-                    Permanently remove this organization and all its data. This
-                    action is irreversible.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowDeleteModal(true)}
-                  className="px-4 cursor-pointer py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded-lg text-sm font-bold transition-colors"
-                >
-                  Delete Organization
-                </button>
+          <OwnerGuard role={organization?.role}>
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 pb-2">
+                <ShieldAlert size={20} className="text-red-500" />
+                <h3 className="text-lg font-semibold text-red-500">
+                  Danger Zone
+                </h3>
               </div>
-            </div>
-          </section>
+
+              <div className="p-6 rounded-2xl bg-red-500/2 border border-red-500/10 space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <h4 className="text-white font-medium">
+                      Delete Organization
+                    </h4>
+                    <p className="text-sm text-red-200/60">
+                      Permanently remove this organization and all its data.
+                      This action is irreversible.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowDeleteModal(true)}
+                    className="px-4 cursor-pointer py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded-lg text-sm font-bold transition-colors"
+                  >
+                    Delete Organization
+                  </button>
+                </div>
+              </div>
+            </section>
+          </OwnerGuard>
         </div>
       </div>
       {showDeleteModal && (
