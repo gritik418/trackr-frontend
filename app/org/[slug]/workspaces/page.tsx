@@ -77,16 +77,18 @@ export default function OrgWorkspacesPage() {
               className="w-full pl-11 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand/50 transition-all duration-300 group-hover:bg-white/10"
             />
           </div>
-          <Link
-            href={`/org/${organization?.slug}/workspaces/new`}
-            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand/90 hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95 group"
-          >
-            <Plus
-              size={20}
-              className="group-hover:rotate-90 transition-transform duration-300"
-            />
-            New Workspace
-          </Link>
+          <AdminOrOwnerGuard role={organization?.role}>
+            <Link
+              href={`/org/${organization?.slug}/workspaces/new`}
+              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand/90 hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95 group"
+            >
+              <Plus
+                size={20}
+                className="group-hover:rotate-90 transition-transform duration-300"
+              />
+              New Workspace
+            </Link>
+          </AdminOrOwnerGuard>
         </div>
       </div>
 
@@ -106,14 +108,18 @@ export default function OrgWorkspacesPage() {
                 className="animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <WorkspaceItem ws={ws} formatDate={formatDate} />
+                <WorkspaceItem
+                  userOrgRole={organization.role}
+                  ws={ws}
+                  formatDate={formatDate}
+                />
               </div>
             ))}
 
             {/* New Workspace Placeholder Card */}
-            <AdminOrOwnerGuard role={organization?.role}>
+            <AdminOrOwnerGuard role={organization?.role} className="h-full">
               <div
-                className="animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+                className="animate-in fade-in h-full slide-in-from-bottom-4 duration-700 fill-mode-both"
                 style={{
                   animationDelay: `${filteredWorkspaces.length * 100}ms`,
                 }}

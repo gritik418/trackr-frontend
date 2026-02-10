@@ -23,6 +23,7 @@ const OrgProvider = ({
   const adminOrOwnerOnlyOrgRoutes = [
     `/org/${slug}/settings`,
     `/org/${slug}/logs`,
+    `/org/${slug}/workspaces/new`,
   ];
 
   useEffect(() => {

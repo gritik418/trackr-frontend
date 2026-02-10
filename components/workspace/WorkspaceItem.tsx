@@ -3,13 +3,15 @@ import { Boxes, Briefcase, Clock, Users } from "lucide-react";
 import Link from "next/link";
 import RoleBadgeIcon from "../ui/RoleBadgeIcon";
 import Image from "next/image";
+import AdminOrOwnerGuard from "../guards/AdminOrOwnerGuard";
 
 type Props = {
   ws: Workspace;
   formatDate: (dateString: string) => string;
+  userOrgRole: string;
 };
 
-const WorkspaceItem = ({ ws, formatDate }: Props) => {
+const WorkspaceItem = ({ ws, formatDate, userOrgRole }: Props) => {
   return (
     <div
       key={ws.id}
@@ -68,22 +70,24 @@ const WorkspaceItem = ({ ws, formatDate }: Props) => {
         {ws.description || "No description provided."}
       </p>
 
-      <div className="relative z-10 flex items-center gap-4 text-xs font-bold text-neutral-500 border-t border-white/10 pt-5 mt-auto group-hover:border-white/20 transition-colors duration-500">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 group-hover:bg-brand/10 group-hover:text-brand transition-all duration-500 border border-transparent group-hover:border-brand/20">
-          <Users
-            size={14}
-            className="group-hover:scale-110 transition-transform"
-          />
-          <span>{ws?.members?.length || 0} Members</span>
+      <AdminOrOwnerGuard role={userOrgRole}>
+        <div className="relative z-10 flex items-center gap-4 text-xs font-bold text-neutral-500 border-t border-white/10 pt-5 mt-auto group-hover:border-white/20 transition-colors duration-500">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 group-hover:bg-brand/10 group-hover:text-brand transition-all duration-500 border border-transparent group-hover:border-brand/20">
+            <Users
+              size={14}
+              className="group-hover:scale-110 transition-transform"
+            />
+            <span>{ws?.members?.length || 0} Members</span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 group-hover:bg-brand/10 group-hover:text-brand transition-all duration-500 border border-transparent group-hover:border-brand/20">
+            <Boxes
+              size={14}
+              className="group-hover:scale-110 transition-transform"
+            />
+            <span>{ws?.projects?.length || 0} Projects</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 group-hover:bg-brand/10 group-hover:text-brand transition-all duration-500 border border-transparent group-hover:border-brand/20">
-          <Boxes
-            size={14}
-            className="group-hover:scale-110 transition-transform"
-          />
-          <span>{ws?.projects?.length || 0} Projects</span>
-        </div>
-      </div>
+      </AdminOrOwnerGuard>
 
       <Link
         href={`/dashboard/${ws.slug}`}
