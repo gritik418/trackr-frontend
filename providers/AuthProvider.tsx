@@ -1,5 +1,7 @@
 "use client";
 
+import AuthContextError from "@/components/auth/AuthContextError";
+import AuthContextLoading from "@/components/auth/AuthContextLoading";
 import { useAuth } from "@/features/auth/auth.hooks";
 import { User } from "@/types/user/user.interface";
 import { usePathname, useRouter } from "next/navigation";
@@ -14,7 +16,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { data, isLoading } = useAuth();
+  const { data, isError, isLoading, error } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -36,13 +38,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     pathname === "/";
 
   useEffect(() => {
-    if (!isLoading && !user && !isPublicPath) {
+    if (isLoading) return;
+
+    if (isError && !isPublicPath) {
       router.push("/login");
+      return;
     }
-    if (!isLoading && user && isPublicPath) {
+
+    if (user && isPublicPath) {
       router.push("/");
+      return;
     }
-  }, [user, isLoading, isPublicPath, router]);
+
+    if (!user && !isPublicPath) {
+      router.push("/login");
+      return;
+    }
+  }, [user, isLoading, isError, isPublicPath, router]);
+
+  if (isLoading && !isPublicPath) return <AuthContextLoading />;
+
+  if (isError && !isPublicPath) return <AuthContextError />;
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
