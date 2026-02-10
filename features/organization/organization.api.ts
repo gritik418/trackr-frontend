@@ -123,6 +123,24 @@ const organizationApi = createApi({
       }),
       invalidatesTags: ["invites"],
     }),
+    removeMember: build.mutation<void, { orgId: string; memberId: string }>({
+      query: ({ orgId, memberId }) => ({
+        url: `/${orgId}/members/${memberId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["organizations"],
+    }),
+    updateMemberRole: build.mutation<
+      void,
+      { orgId: string; memberId: string; role: string }
+    >({
+      query: ({ orgId, memberId, role }) => ({
+        url: `/${orgId}/members/${memberId}`,
+        method: "PATCH",
+        body: { role },
+      }),
+      invalidatesTags: ["organizations"],
+    }),
   }),
 });
 
@@ -140,5 +158,7 @@ export const {
   useDeclineOrgInviteMutation,
   useRevokeInviteMutation,
   useResendInviteMutation,
+  useRemoveMemberMutation,
+  useUpdateMemberRoleMutation,
 } = organizationApi;
 export default organizationApi;

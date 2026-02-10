@@ -1,5 +1,6 @@
 "use client";
 
+import AdminOrOwnerGuard from "@/components/guards/AdminOrOwnerGuard";
 import WorkspaceItem from "@/components/workspace/WorkspaceItem";
 import WorkspaceSkeleton from "@/components/workspace/WorkspaceSkeleton";
 import { selectOrganization } from "@/features/organization/organization.slice";
@@ -110,30 +111,34 @@ export default function OrgWorkspacesPage() {
             ))}
 
             {/* New Workspace Placeholder Card */}
-            <div
-              className="animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
-              style={{ animationDelay: `${filteredWorkspaces.length * 100}ms` }}
-            >
-              <Link
-                href={`/org/${organization?.slug}/workspaces/new`}
-                className="group h-full relative cursor-pointer p-6 rounded-3xl border border-dashed border-white/10 hover:border-brand/40 hover:bg-brand/5 transition-all duration-300 flex flex-col items-center justify-center text-center gap-4 min-h-[240px]"
+            <AdminOrOwnerGuard role={organization?.role}>
+              <div
+                className="animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+                style={{
+                  animationDelay: `${filteredWorkspaces.length * 100}ms`,
+                }}
               >
-                <div className="w-16 h-16 rounded-full bg-white/5 group-hover:bg-brand/10 flex items-center justify-center transition-colors duration-300">
-                  <Plus
-                    size={32}
-                    className="text-neutral-500 group-hover:text-brand transition-colors duration-300"
-                  />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white mb-1 group-hover:text-brand transition-colors">
-                    Create New Workspace
-                  </h3>
-                  <p className="text-sm text-neutral-500 max-w-[200px]">
-                    Add a new workspace to organize your next big project.
-                  </p>
-                </div>
-              </Link>
-            </div>
+                <Link
+                  href={`/org/${organization?.slug}/workspaces/new`}
+                  className="group h-full relative cursor-pointer p-6 rounded-3xl border border-dashed border-white/10 hover:border-brand/40 hover:bg-brand/5 transition-all duration-300 flex flex-col items-center justify-center text-center gap-4 min-h-[240px]"
+                >
+                  <div className="w-16 h-16 rounded-full bg-white/5 group-hover:bg-brand/10 flex items-center justify-center transition-colors duration-300">
+                    <Plus
+                      size={32}
+                      className="text-neutral-500 group-hover:text-brand transition-colors duration-300"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1 group-hover:text-brand transition-colors">
+                      Create New Workspace
+                    </h3>
+                    <p className="text-sm text-neutral-500 max-w-[200px]">
+                      Add a new workspace to organize your next big project.
+                    </p>
+                  </div>
+                </Link>
+              </div>
+            </AdminOrOwnerGuard>
           </div>
         ) : workspaces.length > 0 && filteredWorkspaces.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 px-6 rounded-3xl border border-dashed border-white/10 bg-white/2 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-500">
