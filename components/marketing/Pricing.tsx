@@ -1,7 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Sparkles, Zap, Shield, ArrowRight, Globe } from "lucide-react";
+import {
+  Check,
+  Sparkles,
+  Zap,
+  Shield,
+  ArrowRight,
+  Globe,
+  Gift,
+  Star,
+} from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -68,6 +77,29 @@ const mainTiers = [
   },
 ];
 
+const earlyAccessTier = {
+  name: "Early Access",
+  id: "tier-early-access",
+  href: "/signup",
+  price: { monthly: "$0", yearly: "$0" },
+  description:
+    "Full power for early believers. High-octave productivity for free.",
+  features: [
+    "1 Business Organization",
+    "Up to 5 Workspaces (Beta)",
+    "15 Active Projects (Beta)",
+    "Unlimited Tasks (Beta)",
+    "Up to 15 Team Members (Beta)",
+    "90-day Activity Logs (Beta)",
+    "Role-based Access Control",
+    "Org & Workspace Audit Logs",
+  ],
+  mostPopular: false,
+  gradient: "from-amber-400/20 via-brand/10 to-transparent",
+  icon: <Gift size={24} className="text-amber-400" />,
+  note: "Free during Beta until stable release • No credit card required",
+};
+
 const enterpriseTier = {
   name: "Enterprise",
   id: "tier-enterprise",
@@ -114,15 +146,28 @@ export function Pricing() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className={`relative group h-full flex flex-col p-10 rounded-[3rem] bg-bg-dark-1 border transition-all duration-500 hover:scale-[1.01] ${
+      className={`relative group h-full flex flex-col p-10 rounded-[3rem] bg-bg-dark-1 border transition-all duration-500 hover:scale-[1.01] hover:-translate-y-2 ${
         tier.mostPopular
           ? "border-brand/40 shadow-2xl shadow-brand/5 scale-105 z-20 bg-linear-to-b from-brand/5 to-transparent"
           : "border-white/5 hover:border-white/10"
-      } ${isWide ? "md:flex-row md:items-center md:gap-12 md:p-12" : ""}`}
+      } ${isWide ? "md:flex-row md:items-center md:gap-12 md:p-12 mb-12" : ""}`}
     >
       {tier.mostPopular && (
-        <div className="absolute -top-5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-brand text-bg-dark-0 text-xs font-black uppercase tracking-widest shadow-lg shadow-brand/20 z-30">
-          Most Popular
+        <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-30">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand text-bg-dark-0 text-[10px] font-black uppercase tracking-widest shadow-[0_0_20px_rgba(0,216,230,0.4)] overflow-hidden"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+            >
+              <Star size={12} fill="currentColor" />
+            </motion.div>
+            Most Popular
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+          </motion.div>
         </div>
       )}
 
@@ -178,9 +223,14 @@ export function Pricing() {
           >
             {tier.features.map((feature: string) => (
               <li key={feature} className="flex items-center gap-3">
-                <div className="w-5 h-5 rounded-full bg-brand/10 flex items-center justify-center shrink-0">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  transition={{ delay: index * 0.1 + 0.3 }}
+                  className="w-5 h-5 rounded-full bg-brand/10 flex items-center justify-center shrink-0"
+                >
                   <Check size={12} className="text-brand" />
-                </div>
+                </motion.div>
                 <span className="text-neutral-300 font-medium text-sm">
                   {feature}
                 </span>
@@ -271,17 +321,42 @@ export function Pricing() {
           </div>
         </div>
 
+        {/* Early Access Highlight Tier */}
+        <div className="mb-12">
+          {renderTierCard(earlyAccessTier as PricingTier, 0, true)}
+        </div>
+
         {/* Main Tiers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.15,
+              },
+            },
+          }}
+          className="grid mt-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12"
+        >
           {mainTiers.map((tier, index) =>
             renderTierCard(tier as PricingTier, index),
           )}
-        </div>
+        </motion.div>
 
         {/* Enterprise Tier Row */}
-        <div className="mt-8">
-          {renderTierCard(enterpriseTier as PricingTier, 3, true)}
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="mt-8"
+        >
+          {renderTierCard(enterpriseTier as PricingTier, 4, true)}
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0 }}
