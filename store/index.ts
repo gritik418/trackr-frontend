@@ -4,6 +4,7 @@ import workspaceApi from "@/features/workspace/workspace.api";
 import workspacesSlice from "@/features/workspace/workspace.slice";
 import projectApi from "@/features/project/project.api";
 import projectsSlice from "@/features/project/project.slice";
+import auditLogsApi from "@/features/audit-logs/audit-logs.api";
 import taskApi from "@/features/task/task.api";
 import commentApi from "@/features/comment/comment.api";
 import { configureStore } from "@reduxjs/toolkit";
@@ -16,6 +17,7 @@ const store = configureStore({
     [organizationApi.reducerPath]: organizationApi.reducer,
     [workspaceApi.reducerPath]: workspaceApi.reducer,
     [projectApi.reducerPath]: projectApi.reducer,
+    [auditLogsApi.reducerPath]: auditLogsApi.reducer,
     [taskApi.reducerPath]: taskApi.reducer,
     [commentApi.reducerPath]: commentApi.reducer,
   },
@@ -24,6 +26,7 @@ const store = configureStore({
       .concat(organizationApi.middleware)
       .concat(workspaceApi.middleware)
       .concat(projectApi.middleware)
+      .concat(auditLogsApi.middleware)
       .concat(taskApi.middleware)
       .concat(commentApi.middleware),
 });

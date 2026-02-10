@@ -10,7 +10,6 @@ import {
   UpdateOrgDto,
   PreviewOrgInviteResponse,
   AcceptOrgInviteResponse,
-  GetAuditLogsResponse,
 } from "./organization.interface";
 
 const organizationApi = createApi({
@@ -19,21 +18,11 @@ const organizationApi = createApi({
     baseUrl: `${API_BASE_URL}/organizations`,
     credentials: "include",
   }),
-  tagTypes: ["organizations", "invites", "audit-logs"],
+  tagTypes: ["organizations", "invites"],
   endpoints: (build) => ({
     getOrganizations: build.query<GetOrganizationsResponse, void>({
       query: () => "/",
       providesTags: ["organizations"],
-    }),
-    getAuditLogs: build.query<
-      GetAuditLogsResponse,
-      { orgId: string; page?: number; limit?: number; search?: string }
-    >({
-      query: ({ orgId, ...params }) => ({
-        url: `/${orgId}/audit-logs`,
-        params,
-      }),
-      providesTags: ["audit-logs"],
     }),
     getOrganizationDetails: build.query<GetOrganizationDetailsResponse, string>(
       {
@@ -171,6 +160,5 @@ export const {
   useResendInviteMutation,
   useRemoveMemberMutation,
   useUpdateMemberRoleMutation,
-  useGetAuditLogsQuery,
 } = organizationApi;
 export default organizationApi;

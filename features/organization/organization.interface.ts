@@ -94,28 +94,3 @@ export interface AcceptOrgInviteResponse {
   success: boolean;
   message: string;
 }
-
-export interface AuditLogUser {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl?: string;
-}
-
-export interface AuditLog {
-  id: string;
-  action: string;
-  resource: string;
-  ipAddress: string;
-  createdAt: string;
-  user: AuditLogUser;
-}
-
-export interface GetAuditLogsResponse {
-  success: boolean;
-  message: string;
-  logs: AuditLog[];
-  total: number;
-  page: number;
-  limit: number;
-}

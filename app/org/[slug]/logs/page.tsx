@@ -12,17 +12,15 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import {
-  useGetAuditLogsQuery,
-  useGetOrganizationDetailsQuery,
-} from "@/features/organization/organization.api";
+import { useGetOrganizationDetailsQuery } from "@/features/organization/organization.api";
+import { useGetOrgAuditLogsQuery } from "@/features/audit-logs/audit-logs.api";
 import { format } from "date-fns";
 
 export default function OrgLogsPage() {
   const { slug } = useParams() as { slug: string };
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const limit = 10;
+  const limit = 50; // Aligned with backend default
 
   const { data: orgData, isLoading: isOrgLoading } =
     useGetOrganizationDetailsQuery(slug);
@@ -33,8 +31,13 @@ export default function OrgLogsPage() {
     isLoading: isLogsLoading,
     isFetching,
     isError,
-  } = useGetAuditLogsQuery(
-    { orgId: orgId!, page, limit, search },
+  } = useGetOrgAuditLogsQuery(
+    {
+      orgId: orgId!,
+      limit,
+      page,
+      search,
+    },
     { skip: !orgId },
   );
 
@@ -191,25 +194,25 @@ export default function OrgLogsPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-neutral-400 text-xs font-bold overflow-hidden shrink-0">
-                            {log.user.avatarUrl ? (
+                            {log.user?.avatarUrl ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
                                 src={log.user.avatarUrl}
                                 alt={log.user.name}
                                 className="w-full h-full object-cover"
                               />
-                            ) : log.user.name === "System" ? (
+                            ) : log.user?.name === "System" ? (
                               <ShieldAlert size={14} />
                             ) : (
-                              getInitials(log.user.name)
+                              getInitials(log.user?.name || "System")
                             )}
                           </div>
                           <div className="flex flex-col">
                             <span className="text-sm font-medium text-white">
-                              {log.user.name}
+                              {log.user?.name || "System"}
                             </span>
                             <span className="text-[10px] text-neutral-500">
-                              {log.user.email}
+                              {log.user?.email}
                             </span>
                           </div>
                         </div>
@@ -221,7 +224,7 @@ export default function OrgLogsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <code className="px-2 py-1 rounded-md bg-white/5 border border-white/5 text-xs font-mono text-brand/80">
-                          {log.resource}
+                          {log.entityType}: {log.entityId}
                         </code>
                       </td>
                       <td className="px-6 py-4 text-right text-sm text-neutral-500 font-mono">
