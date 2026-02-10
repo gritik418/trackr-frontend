@@ -34,6 +34,7 @@ export default function CreateWorkspacePage() {
     register,
     handleSubmit,
     setValue,
+    setError,
     watch,
     formState: { errors, isSubmitting },
   } = useForm<CreateWorkspaceDto>({
@@ -78,6 +79,14 @@ export default function CreateWorkspacePage() {
         router.push(`/org/${organization.slug}/workspaces`);
       }
     } catch (error: any) {
+      if (error.data?.errors) {
+        Object.entries(error.data.errors).forEach(([key, value]) => {
+          setError(key as keyof CreateWorkspaceDto, {
+            type: "manual",
+            message: value as string,
+          });
+        });
+      }
       toast.error(error?.data?.message || "Failed to create workspace");
     }
   };
