@@ -11,6 +11,7 @@ import {
   LogIn,
   LogOut,
   Mail,
+  MessageSquare,
   Plus,
   Search,
   Settings,
@@ -147,6 +148,13 @@ export const getEntityTypeUi = (entityType: AuditEntityType) => {
           Workspace Invite
         </div>
       );
+    case AuditEntityType.COMMENT:
+      return (
+        <div className={containerClass}>
+          <MessageSquare className={iconClass} />
+          Comment
+        </div>
+      );
     default:
       return "Unknown";
   }
@@ -157,6 +165,7 @@ export const getEntityIcon = (type: string) => {
   if (t.includes("MEMBER")) return Users;
   if (t.includes("ORG")) return Settings;
   if (t.includes("WORKSPACE")) return Globe;
+  if (t.includes("COMMENT")) return MessageSquare;
   return Search;
 };
 
@@ -187,6 +196,8 @@ export const getHumanDescription = (log: AuditLog) => {
       return <>Created the organization {bold(d.name || "New Organization")}</>;
     case AuditAction.ORGANIZATION_UPDATE:
       return <>Updated organization settings</>;
+    case AuditAction.ORGANIZATION_DELETE:
+      return <>Deleted the organization {bold(d.name || "Organization")}</>;
     case AuditAction.ORGANIZATION_MEMBER_REMOVE:
       return (
         <>
@@ -209,12 +220,49 @@ export const getHumanDescription = (log: AuditLog) => {
     case AuditAction.WORKSPACE_DELETE:
       return <>Deleted workspace {bold(d.name || "Workspace")}</>;
 
+    case AuditAction.WORKSPACE_MEMBER_ADD:
+      return (
+        <>
+          Added {bold(d.targetUserName || d.targetUserEmail || "a member")} to
+          the workspace
+        </>
+      );
+    case AuditAction.WORKSPACE_MEMBER_ROLE_UPDATE:
+      return (
+        <>
+          Updated {bold(d.targetUserName || "member")}'s role to{" "}
+          {mono(d.newRole)} in the workspace
+        </>
+      );
+    case AuditAction.WORKSPACE_MEMBER_REMOVE:
+      return (
+        <>
+          Removed {bold(d.targetUserName || d.targetUserEmail || "a member")}{" "}
+          from the workspace
+        </>
+      );
+
     case AuditAction.PROJECT_CREATE:
       return <>Created project {bold(d.name || "New Project")}</>;
     case AuditAction.PROJECT_UPDATE:
       return <>Updated project {bold(d.name || "settings")}</>;
     case AuditAction.PROJECT_DELETE:
       return <>Deleted project {bold(d.name || "Project")}</>;
+
+    case AuditAction.PROJECT_MEMBER_ADD:
+      return (
+        <>
+          Added {bold(d.targetUserName || d.targetUserEmail || "a member")} to
+          the project {bold(d.projectName || "")}
+        </>
+      );
+    case AuditAction.PROJECT_MEMBER_REMOVE:
+      return (
+        <>
+          Removed {bold(d.targetUserName || d.targetUserEmail || "a member")}{" "}
+          from the project {bold(d.projectName || "")}
+        </>
+      );
 
     case AuditAction.TASK_CREATE:
       return <>Created task {bold(d.title || "New Task")}</>;
@@ -227,6 +275,38 @@ export const getHumanDescription = (log: AuditLog) => {
           {bold(d.assigneeName || "user")}
         </>
       );
+
+    case AuditAction.ORGANIZATION_INVITE_SEND:
+      return <>Sent an organization invite to {bold(d.email)}</>;
+    case AuditAction.ORGANIZATION_INVITE_REVOKE:
+      return <>Revoked organization invite for {bold(d.email)}</>;
+    case AuditAction.ORGANIZATION_INVITE_ACCEPT:
+      return <>Accepted organization invite</>;
+    case AuditAction.ORGANIZATION_INVITE_REJECT:
+      return <>Rejected organization invite</>;
+
+    case AuditAction.WORKSPACE_INVITE_SEND:
+      return <>Sent a workspace invite to {bold(d.email)}</>;
+    case AuditAction.WORKSPACE_INVITE_REVOKE:
+      return <>Revoked workspace invite for {bold(d.email)}</>;
+    case AuditAction.WORKSPACE_INVITE_ACCEPT:
+      return <>Accepted workspace invite</>;
+    case AuditAction.WORKSPACE_INVITE_REJECT:
+      return <>Rejected workspace invite</>;
+
+    case AuditAction.TASK_COMMENT_CREATE:
+      return (
+        <>
+          Commented on task {bold(d.taskTitle || "Task")}:{" "}
+          {mono(
+            d.content?.slice(0, 30) + (d.content?.length > 30 ? "..." : ""),
+          )}
+        </>
+      );
+    case AuditAction.TASK_COMMENT_UPDATE:
+      return <>Updated a comment on task {bold(d.taskTitle || "Task")}</>;
+    case AuditAction.TASK_COMMENT_DELETE:
+      return <>Deleted a comment from task {bold(d.taskTitle || "Task")}</>;
 
     default:
       return (
