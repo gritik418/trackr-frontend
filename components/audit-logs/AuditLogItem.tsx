@@ -1,25 +1,30 @@
-import React from "react";
-import {
-  Users,
-  ShieldAlert,
-  Settings,
-  LogOut,
-  LogIn,
-  Plus,
-  Trash2,
-  Edit,
-  Mail,
-  CheckCircle2,
-  ChevronRight,
-  Search,
-  Laptop,
-  Globe,
-  Activity,
-} from "lucide-react";
 import { format } from "date-fns";
 import {
-  AuditLog,
+  Activity,
+  Building,
+  CheckCircle2,
+  ChevronRight,
+  Edit,
+  Globe,
+  Laptop,
+  Layers,
+  LogIn,
+  LogOut,
+  Mail,
+  Plus,
+  Search,
+  Settings,
+  ShieldAlert,
+  Trash2,
+  Users,
+} from "lucide-react";
+import React from "react";
+import { FaSuitcase, FaTasks, FaUsersCog } from "react-icons/fa";
+import { FaUsers } from "react-icons/fa6";
+import {
   AuditAction,
+  AuditEntityType,
+  AuditLog,
 } from "../../features/audit-logs/audit-logs.interface";
 
 interface AuditLogItemProps {
@@ -70,6 +75,81 @@ export const getActionUI = (action: string) => {
     color: "text-neutral-400 bg-neutral-400/10 border-neutral-400/20",
     icon: Activity,
   };
+};
+
+export const getEntityTypeUi = (entityType: AuditEntityType) => {
+  const containerClass =
+    "flex items-center font-semibold text-white/70 text-[10px] gap-1";
+
+  const iconClass = "text-brand/80 text-xs h-3 w-3";
+
+  switch (entityType) {
+    case AuditEntityType.ORGANIZATION:
+      return (
+        <div className={containerClass}>
+          <Building className={iconClass} />
+          Organization
+        </div>
+      );
+    case AuditEntityType.ORGANIZATION_MEMBER:
+      return (
+        <div className={containerClass}>
+          <Users className={iconClass} />
+          Organization Member
+        </div>
+      );
+    case AuditEntityType.WORKSPACE:
+      return (
+        <div className={containerClass}>
+          <Layers className={iconClass} />
+          Workspace
+        </div>
+      );
+    case AuditEntityType.WORKSPACE_MEMBER:
+      return (
+        <div className={containerClass}>
+          <FaUsers className={iconClass} />
+          Workspace Member
+        </div>
+      );
+    case AuditEntityType.PROJECT:
+      return (
+        <div className={containerClass}>
+          <FaSuitcase className={iconClass} />
+          Project
+        </div>
+      );
+    case AuditEntityType.PROJECT_MEMBER:
+      return (
+        <div className={containerClass}>
+          <FaUsersCog className={iconClass} />
+          Project Member
+        </div>
+      );
+    case AuditEntityType.TASK:
+      return (
+        <div className={containerClass}>
+          <FaTasks className={iconClass} />
+          Task
+        </div>
+      );
+    case AuditEntityType.ORGANIZATION_INVITE:
+      return (
+        <div className={containerClass}>
+          <Mail className={iconClass} />
+          Organization Invite
+        </div>
+      );
+    case AuditEntityType.WORKSPACE_INVITE:
+      return (
+        <div className={containerClass}>
+          <Mail className={iconClass} />
+          Workspace Invite
+        </div>
+      );
+    default:
+      return "Unknown";
+  }
 };
 
 export const getEntityIcon = (type: string) => {
@@ -169,6 +249,7 @@ export const AuditLogItem: React.FC<AuditLogItemProps> = ({
   const userInitials = getInitials(log.user?.name || "System");
   const description = getHumanDescription(log);
 
+  console.log(log.entityType);
   if (view === "table") {
     return (
       <>
@@ -213,17 +294,17 @@ export const AuditLogItem: React.FC<AuditLogItemProps> = ({
                   <ActionIcon size={8} />
                   {log.action.split("_").pop()}
                 </div>
-                <div className="flex items-center gap-1 text-[9px] text-neutral-600 font-bold uppercase tracking-widest">
+                {/* <div className="flex items-center gap-1 text-[9px] text-neutral-600 font-bold uppercase tracking-widest">
                   <EntityIcon size={10} />
                   {log.entityType.replace(/_/g, " ")}
-                </div>
+                </div> */}
               </div>
             </div>
           </td>
           <td className="px-6 py-5">
             <div className="flex flex-col gap-1">
               <div className="text-sm text-neutral-300 leading-relaxed">
-                {log.entityType}
+                {getEntityTypeUi(log.entityType as AuditEntityType)}
               </div>
             </div>
           </td>
