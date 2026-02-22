@@ -44,7 +44,7 @@ export default function WorkspaceActivityPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-5xl mx-auto py-8 animate-pulse">
+      <div className="mx-auto py-8 animate-pulse">
         <div className="h-10 w-48 bg-white/5 rounded-lg mb-4" />
         <div className="h-6 w-96 bg-white/5 rounded-lg mb-10" />
         <div className="space-y-8">
@@ -60,7 +60,7 @@ export default function WorkspaceActivityPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-8 animate-in fade-in duration-700">
+    <div className="mx-auto py-8 animate-in fade-in duration-700">
       {/* Page Header */}
       <div className="flex items-center justify-between mb-10">
         <div>

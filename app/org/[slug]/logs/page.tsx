@@ -15,14 +15,19 @@ import { useState, useMemo } from "react";
 import { format } from "date-fns";
 import { useParams } from "next/navigation";
 import { useGetOrganizationDetailsQuery } from "@/features/organization/organization.api";
-import { useGetOrgAuditLogsQuery } from "@/features/audit-logs/audit-logs.api";
+import {
+  useGetOrgAuditLogsQuery,
+  useExportAuditLogsMutation,
+} from "@/features/audit-logs/audit-logs.api";
 import { AuditLogTable } from "@/components/audit-logs/AuditLogTable";
 import { AuditLogList } from "@/components/audit-logs/AuditLogList";
+import { toast } from "react-hot-toast";
 
 export default function OrgLogsPage() {
   const { slug } = useParams() as { slug: string };
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [dateRange, setDateRange] = useState<string>("all-time");
   const [view, setView] = useState<"table" | "list">("table");
   const limit = 50;
 
@@ -44,9 +49,31 @@ export default function OrgLogsPage() {
       limit,
       page,
       search,
+      dateRange,
     },
     { skip: !orgId },
   );
+
+  const [exportAuditLogs, { isLoading: isExporting }] =
+    useExportAuditLogsMutation();
+
+  const handleExport = async () => {
+    if (!orgId) return;
+    try {
+      const result = await exportAuditLogs({
+        orgId,
+        dateRange,
+        search,
+      }).unwrap();
+
+      if (result?.url) {
+        window.open(result.url, "_blank");
+        toast.success("Audit logs exported successfully");
+      }
+    } catch (err) {
+      toast.error("Failed to export audit logs");
+    }
+  };
 
   const isLoading = isOrgLoading || isLogsLoading;
   const logs = logsData?.logs || [];
@@ -155,18 +182,39 @@ export default function OrgLogsPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <button className="px-4 py-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all">
-              <Calendar size={14} className="text-brand" />
-              <span>History</span>
-              <ChevronDown size={14} className="opacity-30" />
-            </button>
+            <select
+              value={dateRange}
+              onChange={(e) => setDateRange(e.target.value)}
+              className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white transition-all focus:outline-none appearance-none cursor-pointer"
+            >
+              <option value="all-time" className="bg-neutral-900">
+                All Time
+              </option>
+              <option value="last-7-days" className="bg-neutral-900">
+                Last 7 Days
+              </option>
+              <option value="last-30-days" className="bg-neutral-900">
+                Last 30 Days
+              </option>
+              <option value="last-90-days" className="bg-neutral-900">
+                Last 90 Days
+              </option>
+            </select>
             <div className="w-px h-8 bg-white/10 mx-1 hidden lg:block" />
             <button className="p-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all">
               <Filter size={16} />
             </button>
-            <button className="px-4 py-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white bg-brand/10 hover:bg-brand/20 border border-brand/20 rounded-xl transition-all ml-auto">
-              <Download size={16} className="text-brand" />
-              <span>Export</span>
+            <button
+              onClick={handleExport}
+              disabled={isExporting}
+              className="px-4 py-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white bg-brand/10 hover:bg-brand/20 border border-brand/20 rounded-xl transition-all ml-auto disabled:opacity-50"
+            >
+              {isExporting ? (
+                <Loader2 size={16} className="animate-spin text-brand" />
+              ) : (
+                <Download size={16} className="text-brand" />
+              )}
+              <span>{isExporting ? "Exporting..." : "Export"}</span>
             </button>
           </div>
         </div>
