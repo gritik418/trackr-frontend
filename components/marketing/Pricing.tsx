@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import { BetaPlanModal } from "@/components/billing/BetaPlanModal";
 
 const mainTiers = [
   {
@@ -98,6 +99,7 @@ const earlyAccessTier = {
   gradient: "from-amber-400/20 via-brand/10 to-transparent",
   icon: <Gift size={24} className="text-amber-400" />,
   note: "Free during Beta until stable release • No credit card required",
+  earlyAccess: true,
 };
 
 const enterpriseTier = {
@@ -132,12 +134,21 @@ interface PricingTier {
   gradient: string;
   icon: React.ReactNode;
   note?: string;
+  earlyAccess?: boolean;
 }
 
 export function Pricing() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
     "monthly",
   );
+  const [isBetaModalOpen, setIsBetaModalOpen] = useState(false);
+
+  const handlePlanClick = (e: React.MouseEvent, tier: PricingTier) => {
+    if (!tier.earlyAccess) {
+      e.preventDefault();
+      setIsBetaModalOpen(true);
+    }
+  };
 
   const renderTierCard = (tier: PricingTier, index: number, isWide = false) => (
     <motion.div
@@ -240,6 +251,7 @@ export function Pricing() {
 
           <Link
             href={tier.href}
+            onClick={(e) => handlePlanClick(e, tier)}
             className={`relative w-full py-5 rounded-2xl font-bold text-base flex items-center justify-center gap-2 transition-all group/btn active:scale-95 overflow-hidden ${
               tier.mostPopular
                 ? "bg-white text-bg-dark-0 shadow-xl shadow-white/5 hover:bg-brand hover:shadow-brand/20"
@@ -262,6 +274,10 @@ export function Pricing() {
 
   return (
     <section id="pricing" className="py-32 relative overflow-hidden">
+      <BetaPlanModal
+        isOpen={isBetaModalOpen}
+        onClose={() => setIsBetaModalOpen(false)}
+      />
       {/* Background Glows */}
       <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 bg-brand/10 blur-[120px] rounded-full" />
       <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-purple-500/5 blur-[150px] rounded-full" />

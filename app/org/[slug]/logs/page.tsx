@@ -1,33 +1,31 @@
 "use client";
 
+import { AuditLogList } from "@/components/audit-logs/AuditLogList";
+import { AuditLogTable } from "@/components/audit-logs/AuditLogTable";
+import { API_BASE_URL } from "@/constants";
+import { useGetOrgAuditLogsQuery } from "@/features/audit-logs/audit-logs.api";
+import { useGetOrganizationDetailsQuery } from "@/features/organization/organization.api";
+import axios from "axios";
+import { format } from "date-fns";
 import {
+  AlertCircle,
   Calendar,
   ChevronDown,
   Download,
   Filter,
-  Search,
   LayoutGrid,
   List as ListIcon,
   Loader2,
-  AlertCircle,
+  Search,
 } from "lucide-react";
-import { useState, useMemo } from "react";
-import { format } from "date-fns";
 import { useParams } from "next/navigation";
-import { useGetOrganizationDetailsQuery } from "@/features/organization/organization.api";
-import {
-  useGetOrgAuditLogsQuery,
-  useExportAuditLogsMutation,
-} from "@/features/audit-logs/audit-logs.api";
-import { AuditLogTable } from "@/components/audit-logs/AuditLogTable";
-import { AuditLogList } from "@/components/audit-logs/AuditLogList";
-import { toast } from "react-hot-toast";
+import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function OrgLogsPage() {
   const { slug } = useParams() as { slug: string };
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [dateRange, setDateRange] = useState<string>("all-time");
   const [view, setView] = useState<"table" | "list">("table");
   const limit = 50;
 
@@ -49,31 +47,9 @@ export default function OrgLogsPage() {
       limit,
       page,
       search,
-      dateRange,
     },
     { skip: !orgId },
   );
-
-  const [exportAuditLogs, { isLoading: isExporting }] =
-    useExportAuditLogsMutation();
-
-  const handleExport = async () => {
-    if (!orgId) return;
-    try {
-      const result = await exportAuditLogs({
-        orgId,
-        dateRange,
-        search,
-      }).unwrap();
-
-      if (result?.url) {
-        window.open(result.url, "_blank");
-        toast.success("Audit logs exported successfully");
-      }
-    } catch (err) {
-      toast.error("Failed to export audit logs");
-    }
-  };
 
   const isLoading = isOrgLoading || isLogsLoading;
   const logs = logsData?.logs || [];
@@ -101,6 +77,42 @@ export default function OrgLogsPage() {
     });
     return groups;
   }, [logs]);
+
+  const exportAuditLogs = async () => {
+    if (!orgId) return;
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/audit-logs/export/${orgId}`,
+        {
+          withCredentials: true,
+          responseType: "blob",
+        },
+      );
+
+      if (response.status === 200) {
+        const blob = new Blob([response.data], {
+          type: "application/pdf",
+        });
+
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "audit-logs.pdf";
+        document.body.appendChild(link);
+        link.click();
+
+        link.remove();
+        window.URL.revokeObjectURL(url);
+
+        toast.success("Audit logs exported successfully");
+      } else {
+        toast.error("Failed to export audit logs");
+      }
+    } catch (err) {
+      toast.error("Failed to export audit logs");
+    }
+  };
 
   if (isError) {
     return (
@@ -182,39 +194,21 @@ export default function OrgLogsPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <select
-              value={dateRange}
-              onChange={(e) => setDateRange(e.target.value)}
-              className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white transition-all focus:outline-none appearance-none cursor-pointer"
-            >
-              <option value="all-time" className="bg-neutral-900">
-                All Time
-              </option>
-              <option value="last-7-days" className="bg-neutral-900">
-                Last 7 Days
-              </option>
-              <option value="last-30-days" className="bg-neutral-900">
-                Last 30 Days
-              </option>
-              <option value="last-90-days" className="bg-neutral-900">
-                Last 90 Days
-              </option>
-            </select>
+            <button className="px-4 py-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all">
+              <Calendar size={14} className="text-brand" />
+              <span>History</span>
+              <ChevronDown size={14} className="opacity-30" />
+            </button>
             <div className="w-px h-8 bg-white/10 mx-1 hidden lg:block" />
             <button className="p-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all">
               <Filter size={16} />
             </button>
             <button
-              onClick={handleExport}
-              disabled={isExporting}
-              className="px-4 py-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white bg-brand/10 hover:bg-brand/20 border border-brand/20 rounded-xl transition-all ml-auto disabled:opacity-50"
+              onClick={exportAuditLogs}
+              className="px-4 py-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white bg-brand/10 hover:bg-brand/20 border border-brand/20 rounded-xl transition-all ml-auto"
             >
-              {isExporting ? (
-                <Loader2 size={16} className="animate-spin text-brand" />
-              ) : (
-                <Download size={16} className="text-brand" />
-              )}
-              <span>{isExporting ? "Exporting..." : "Export"}</span>
+              <Download size={16} className="text-brand" />
+              <span>Export</span>
             </button>
           </div>
         </div>

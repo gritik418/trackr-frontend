@@ -49,26 +49,9 @@ export const auditLogsApi = createApi({
       }),
       providesTags: ["audit-logs"],
     }),
-    exportAuditLogs: build.mutation<
-      { url: string },
-      {
-        orgId: string;
-        dateRange?: string;
-        search?: string;
-      }
-    >({
-      query: ({ orgId, ...params }) => ({
-        url: `/organization/${orgId}/export`,
-        method: "GET",
-        params,
-      }),
-    }),
   }),
 });
 
-export const {
-  useGetOrgAuditLogsQuery,
-  useGetWorkspaceAuditLogsQuery,
-  useExportAuditLogsMutation,
-} = auditLogsApi;
+export const { useGetOrgAuditLogsQuery, useGetWorkspaceAuditLogsQuery } =
+  auditLogsApi;
 export default auditLogsApi;
