@@ -35,6 +35,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     pathname === "/verify-email" ||
     pathname === "/forgot-password" ||
     pathname === "/reset-password" ||
+    pathname === "/upgrade/early-access" ||
+    pathname === "/pricing" ||
     pathname === "/";
 
   useEffect(() => {

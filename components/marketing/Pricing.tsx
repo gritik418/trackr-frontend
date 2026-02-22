@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { BetaPlanModal } from "@/components/billing/BetaPlanModal";
 
 const mainTiers = [
@@ -142,11 +143,17 @@ export function Pricing() {
     "monthly",
   );
   const [isBetaModalOpen, setIsBetaModalOpen] = useState(false);
+  const params = useParams();
+  const router = useRouter();
+  const slug = params?.slug as string;
 
   const handlePlanClick = (e: React.MouseEvent, tier: PricingTier) => {
     if (!tier.earlyAccess) {
       e.preventDefault();
       setIsBetaModalOpen(true);
+    } else {
+      e.preventDefault();
+      router.push(`/upgrade/early-access`);
     }
   };
 
@@ -250,7 +257,7 @@ export function Pricing() {
           </ul>
 
           <Link
-            href={tier.href}
+            href={tier.earlyAccess ? "/upgrade/early-access" : tier.href}
             onClick={(e) => handlePlanClick(e, tier)}
             className={`relative w-full py-5 rounded-2xl font-bold text-base flex items-center justify-center gap-2 transition-all group/btn active:scale-95 overflow-hidden ${
               tier.mostPopular

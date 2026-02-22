@@ -1,8 +1,10 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
+import { ShieldCheck, Sparkles, X, Zap } from "lucide-react";
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles, Zap, ShieldCheck } from "lucide-react";
+
+import { useRouter } from "next/navigation";
 
 interface BetaPlanModalProps {
   isOpen: boolean;
@@ -13,6 +15,12 @@ export const BetaPlanModal: React.FC<BetaPlanModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const router = useRouter();
+
+  const handleExplore = () => {
+    router.push(`/upgrade/early-access`);
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -107,7 +115,7 @@ export const BetaPlanModal: React.FC<BetaPlanModalProps> = ({
 
                 {/* Action Button */}
                 <button
-                  onClick={onClose}
+                  onClick={handleExplore}
                   className="w-full cursor-pointer py-4 bg-brand hover:bg-brand-hover text-black font-bold rounded-2xl transition-all shadow-xl shadow-brand/20 active:scale-[0.98]"
                 >
                   Explore Early Access
