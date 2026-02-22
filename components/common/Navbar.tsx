@@ -4,14 +4,21 @@ import { Logo } from "@/components/ui/Logo";
 import { useUser } from "@/providers/AuthProvider";
 import { ArrowRight, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
+interface NavItem {
+  id: string;
+  label: string;
+  href: string;
+}
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isLoading, isAuthenticated, user } = useUser();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleRedirect = () => {
     if (user) {
@@ -29,8 +36,12 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navItems = ["Product", "Features", "Network", "Pricing"];
-
+  const navItems: NavItem[] = [
+    { id: "home", label: "Home", href: "/" },
+    { id: "features", label: "Features", href: "/features" },
+    { id: "network", label: "Network", href: "/network" },
+    { id: "pricing", label: "Pricing", href: "/pricing" },
+  ];
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -52,13 +63,19 @@ export function Navbar() {
         >
           {navItems.map((item) => (
             <Link
-              key={item}
-              href={`#${item.toLowerCase()}`}
-              className="relative font-semibold px-4 py-2 text-sm text-neutral-400 hover:text-white transition-colors group"
+              key={item.id}
+              href={item.href}
+              className={`cursor-pointer relative font-semibold px-4 py-2 text-sm text-neutral-400 hover:text-white transition-colors group ${
+                pathname === item.href ? "text-white" : ""
+              }`}
             >
-              {item}
+              {item.label}
               {/* Animated underline */}
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-brand to-purple-500 group-hover:w-full transition-all duration-300 rounded-full" />
+              <span
+                className={`absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-brand to-purple-500 group-hover:w-full transition-all duration-300 rounded-full ${
+                  pathname === item.href ? "w-full" : ""
+                }`}
+              />
             </Link>
           ))}
         </div>
@@ -113,12 +130,12 @@ export function Navbar() {
           <div className="flex flex-col gap-3">
             {navItems.map((item) => (
               <Link
-                key={item}
-                href={`#${item.toLowerCase()}`}
+                key={item.id}
+                href={item.href}
                 className="text-lg font-medium text-neutral-400 hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-white/5"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                {item}
+                {item.label}
               </Link>
             ))}
             <div className="h-px bg-linear-to-r from-transparent via-white/10 to-transparent my-2" />

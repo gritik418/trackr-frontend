@@ -1,18 +1,18 @@
 "use client";
 
+import { Footer } from "@/components/common/Footer";
+import { Navbar } from "@/components/common/Navbar";
 import { motion } from "framer-motion";
 import {
-  Sparkles,
-  Check,
-  Zap,
   ArrowRight,
-  Shield,
-  Star,
+  Check,
   Lock,
   Rocket,
-  ArrowLeft,
+  Shield,
+  Sparkles,
+  Star,
+  Zap,
 } from "lucide-react";
-import { Navbar } from "@/components/common/Navbar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -57,22 +57,6 @@ export default function EarlyAccessPage() {
       </div>
 
       <main className="relative z-10 max-w-7xl mx-auto px-6 py-32 font-sans">
-        {/* Back Button */}
-        <motion.button
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          onClick={() => router.back()}
-          className="group cursor-pointer flex items-center gap-2 text-neutral-500 hover:text-white transition-colors mb-12"
-        >
-          <ArrowLeft
-            size={18}
-            className="group-hover:-translate-x-1 transition-transform"
-          />
-          <span className="font-bold uppercase tracking-widest text-[10px]">
-            Back to Pricing
-          </span>
-        </motion.button>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
           {/* Left Column: Content */}
           <motion.div
@@ -176,7 +160,7 @@ export default function EarlyAccessPage() {
                   </span>
                 </div>
                 <p className="text-amber-400 text-xs font-bold mt-3 animate-pulse">
-                  Limited slots available for the first 1,000 users.
+                  Available for a limited time only.
                 </p>
               </div>
 
@@ -283,6 +267,8 @@ export default function EarlyAccessPage() {
           </div>
         </motion.div>
       </main>
+
+      <Footer />
     </div>
   );
 }

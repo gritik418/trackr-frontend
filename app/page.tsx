@@ -121,8 +121,6 @@ export default function HomePage() {
 
         <Features />
 
-        <Pricing />
-
         {/* CTA Section */}
         <section className="py-32 relative animate-fade-in [animation-delay:400ms]">
           <div className="absolute inset-0 bg-brand/3 skew-y-3 pointer-events-none"></div>
