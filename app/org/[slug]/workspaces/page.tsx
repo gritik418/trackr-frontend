@@ -59,7 +59,9 @@ export default function OrgWorkspacesPage() {
             Workspaces
           </h1>
           <p className="text-neutral-400 font-light tracking-wide">
-            Manage and organize your projects in this organization.
+            {organization.role === "OWNER" || organization.role === "ADMIN"
+              ? "Manage and organize your workspaces in this organization."
+              : "View and manage your workspaces in this organization."}
           </p>
         </div>
 

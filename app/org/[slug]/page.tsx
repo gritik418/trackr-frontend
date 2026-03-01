@@ -26,6 +26,7 @@ export default function OrgDashboardPage() {
       bg: "bg-blue-400/10",
       border: "border-blue-400/20",
       progress: 75,
+      isPublic: true,
     },
     {
       label: "Active Workspaces",
@@ -37,6 +38,7 @@ export default function OrgDashboardPage() {
       bg: "bg-emerald-400/10",
       border: "border-emerald-400/20",
       progress: 40,
+      isPublic: false,
     },
     {
       label: "Storage Used",
@@ -48,6 +50,7 @@ export default function OrgDashboardPage() {
       bg: "bg-amber-400/10",
       border: "border-amber-400/20",
       progress: 85,
+      isPublic: false,
     },
   ];
 
@@ -89,65 +92,79 @@ export default function OrgDashboardPage() {
             Organization Overview
           </h1>
           <p className="text-neutral-400">
-            Manage your organization's global configuration and state.
+            {organization.role === "OWNER" || organization.role === "ADMIN"
+              ? "Manage your organization's global configuration and state."
+              : "View your organization's global configuration and state."}
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href={`/org/${organization.slug}/workspaces/new`}
-            className="px-4 py-2 bg-brand text-bg-dark-0 rounded-xl text-sm font-bold hover:bg-brand-hover transition-colors flex items-center gap-2"
-          >
-            <Plus size={16} />
-            New Workspace
-          </Link>
-        </div>
+        {organization.role === "OWNER" ||
+          (organization.role === "ADMIN" && (
+            <div className="flex items-center gap-3">
+              <Link
+                href={`/org/${organization.slug}/workspaces/new`}
+                className="px-4 py-2 bg-brand text-bg-dark-0 rounded-xl text-sm font-bold hover:bg-brand-hover transition-colors flex items-center gap-2"
+              >
+                <Plus size={16} />
+                New Workspace
+              </Link>
+            </div>
+          ))}
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {stats.map((stat, i) => (
-          <div
-            key={i}
-            className={`p-6 rounded-2xl bg-bg-dark-1 border ${stat.border} relative overflow-hidden group hover:border-brand/30 transition-all duration-300`}
-          >
+        {stats.map((stat, i) => {
+          if (
+            !stat.isPublic &&
+            organization.role !== "OWNER" &&
+            organization.role !== "ADMIN"
+          ) {
+            return null;
+          }
+          return (
             <div
-              className={`absolute top-0 right-0 p-24 ${stat.bg} filter blur-[60px] opacity-10 rounded-full translate-x-10 -translate-y-10 group-hover:opacity-20 transition-opacity`}
-            ></div>
+              key={i}
+              className={`p-6 rounded-2xl bg-bg-dark-1 border ${stat.border} relative overflow-hidden group hover:border-brand/30 transition-all duration-300`}
+            >
+              <div
+                className={`absolute top-0 right-0 p-24 ${stat.bg} filter blur-[60px] opacity-10 rounded-full translate-x-10 -translate-y-10 group-hover:opacity-20 transition-opacity`}
+              ></div>
 
-            <div className="relative z-10 flex flex-col h-full justify-between">
-              <div className="flex items-start justify-between mb-4">
-                <div
-                  className={`w-12 h-12 rounded-xl ${stat.bg} ${stat.border} border flex items-center justify-center`}
-                >
-                  <stat.icon size={24} className={stat.color} />
-                </div>
-                <div
-                  className={`text-xs font-semibold px-2 py-1 rounded-lg ${stat.bg} ${stat.color} border ${stat.border} flex items-center gap-1`}
-                >
-                  {stat.trend === "up" && <ArrowUpRight size={12} />}
-                  {stat.change}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-4xl font-bold text-white mb-2 tracking-tight">
-                  {stat.value}
-                </h3>
-                <p className="text-neutral-400 text-sm font-medium mb-4">
-                  {stat.label}
-                </p>
-
-                {/* Progress bar visual */}
-                <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+              <div className="relative z-10 flex flex-col h-full justify-between">
+                <div className="flex items-start justify-between mb-4">
                   <div
-                    className={`h-full rounded-full ${stat.bg.replace("/10", "")} opacity-80`}
-                    style={{ width: `${stat.progress}%` }}
-                  ></div>
+                    className={`w-12 h-12 rounded-xl ${stat.bg} ${stat.border} border flex items-center justify-center`}
+                  >
+                    <stat.icon size={24} className={stat.color} />
+                  </div>
+                  <div
+                    className={`text-xs font-semibold px-2 py-1 rounded-lg ${stat.bg} ${stat.color} border ${stat.border} flex items-center gap-1`}
+                  >
+                    {stat.trend === "up" && <ArrowUpRight size={12} />}
+                    {stat.change}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-4xl font-bold text-white mb-2 tracking-tight">
+                    {stat.value}
+                  </h3>
+                  <p className="text-neutral-400 text-sm font-medium mb-4">
+                    {stat.label}
+                  </p>
+
+                  {/* Progress bar visual */}
+                  <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${stat.bg.replace("/10", "")} opacity-80`}
+                      style={{ width: `${stat.progress}%` }}
+                    ></div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

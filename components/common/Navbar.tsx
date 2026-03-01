@@ -2,6 +2,7 @@
 
 import { Logo } from "@/components/ui/Logo";
 import { useUser } from "@/providers/AuthProvider";
+import { motion } from "framer-motion";
 import { ArrowRight, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -19,6 +20,7 @@ export function Navbar() {
   const { isLoading, isAuthenticated, user } = useUser();
   const router = useRouter();
   const pathname = usePathname();
+  const [hoveredPath, setHoveredPath] = useState<string | null>(null);
 
   const handleRedirect = () => {
     if (user) {
@@ -55,27 +57,41 @@ export function Navbar() {
 
         {/* Desktop Nav */}
         <div
-          className={`hidden md:flex items-center gap-1 px-3 py-1.5 rounded-full transition-all duration-300 ${
+          className={`hidden md:flex items-center gap-1 px-1.5 py-1.5 rounded-full transition-all duration-500 ${
             isScrolled
-              ? "bg-white/5 backdrop-blur-md border border-white/10"
-              : "bg-transparent"
+              ? "bg-white/10 backdrop-blur-2xl border border-white/20 shadow-xl shadow-black/20"
+              : "bg-white/5 backdrop-blur-xl border border-white/10"
           }`}
+          onMouseLeave={() => setHoveredPath(null)}
         >
           {navItems.map((item) => (
             <Link
               key={item.id}
               href={item.href}
-              className={`cursor-pointer relative font-semibold px-4 py-2 text-sm text-neutral-400 hover:text-white transition-colors group ${
-                pathname === item.href ? "text-white" : ""
+              onMouseEnter={() => setHoveredPath(item.href)}
+              className={`cursor-pointer relative font-bold px-5 py-2 text-sm transition-all duration-300 rounded-full flex items-center justify-center ${
+                pathname === item.href
+                  ? "text-white"
+                  : "text-neutral-400 hover:text-neutral-200"
               }`}
             >
-              {item.label}
-              {/* Animated underline */}
-              <span
-                className={`absolute bottom-0 left-0 w-0 h-0.5 bg-linear-to-r from-brand to-purple-500 group-hover:w-full transition-all duration-300 rounded-full ${
-                  pathname === item.href ? "w-full" : ""
-                }`}
-              />
+              <span className="relative z-10">{item.label}</span>
+              {(item.href === hoveredPath ||
+                (pathname === item.href && !hoveredPath)) && (
+                <motion.div
+                  layoutId="navbar-active-pill"
+                  className={`absolute inset-0 rounded-full z-0 ${
+                    pathname === item.href
+                      ? "bg-white/10 border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]"
+                      : "bg-white/5"
+                  }`}
+                  transition={{
+                    type: "spring",
+                    bounce: 0.25,
+                    duration: 0.5,
+                  }}
+                />
+              )}
             </Link>
           ))}
         </div>

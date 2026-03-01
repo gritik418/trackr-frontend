@@ -61,7 +61,9 @@ export default function OrgMembersPage() {
             Members
           </h2>
           <p className="text-org-item-text mt-2 text-lg font-light">
-            Manage access and roles for your organization.
+            {organization.role === "OWNER" || organization.role === "ADMIN"
+              ? "Manage access and roles for your organization's members."
+              : "View members of your organization.s"}
           </p>
         </div>
         <AdminOrOwnerGuard role={organization?.role}>
