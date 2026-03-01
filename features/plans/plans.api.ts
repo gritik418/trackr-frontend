@@ -1,6 +1,9 @@
 import { API_BASE_URL } from "@/constants";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { GetPlansResponse } from "./plans.interface";
+import {
+  GetEarlyAccessPlanResponse,
+  GetPlansResponse,
+} from "./plans.interface";
 
 const plansApi = createApi({
   baseQuery: fetchBaseQuery({
@@ -13,9 +16,15 @@ const plansApi = createApi({
         method: "GET",
       }),
     }),
+    getEarlyAccessPlan: builder.query<GetEarlyAccessPlanResponse, void>({
+      query: () => ({
+        url: "/early-access",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useGetPlansQuery } = plansApi;
+export const { useGetPlansQuery, useGetEarlyAccessPlanQuery } = plansApi;
 
 export default plansApi;

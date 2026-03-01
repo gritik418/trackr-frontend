@@ -9,6 +9,7 @@ import taskApi from "@/features/task/task.api";
 import commentApi from "@/features/comment/comment.api";
 import { configureStore } from "@reduxjs/toolkit";
 import plansApi from "@/features/plans/plans.api";
+import subscriptionApi from "@/features/subscription/subscription.api";
 
 const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ const store = configureStore({
     [taskApi.reducerPath]: taskApi.reducer,
     [commentApi.reducerPath]: commentApi.reducer,
     [plansApi.reducerPath]: plansApi.reducer,
+    [subscriptionApi.reducerPath]: subscriptionApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -31,7 +33,8 @@ const store = configureStore({
       .concat(auditLogsApi.middleware)
       .concat(taskApi.middleware)
       .concat(commentApi.middleware)
-      .concat(plansApi.middleware),
+      .concat(plansApi.middleware)
+      .concat(subscriptionApi.middleware),
 });
 
 export default store;

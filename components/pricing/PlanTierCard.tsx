@@ -38,7 +38,6 @@ const PlanTierCard = ({
           : "border-white/10 hover:border-white/20 shadow-xl shadow-black/40"
       } ${isWide ? "md:flex-row md:items-center md:gap-12 md:p-12 mb-12" : ""}`}
     >
-      {/* Tier-specific border glow */}
       <div
         className={`absolute inset-0 rounded-[2.5rem] bg-linear-to-b ${getTierGradient(tier.type)} opacity-0 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none -m-px -z-10`}
       />
@@ -92,7 +91,9 @@ const PlanTierCard = ({
                 {tier.price}
               </span>
               {tier.name !== "Free" && tier.name !== "Enterprise" && (
-                <span className="text-neutral-500 font-bold mb-1">/month</span>
+                <span className="text-neutral-500 lowercase font-bold mb-1">
+                  /{tier.interval}
+                </span>
               )}
             </div>
             <p className="text-neutral-400 font-medium mt-4 text-sm leading-relaxed">
@@ -153,7 +154,6 @@ const PlanTierCard = ({
           </ul>
 
           <Link
-            // href={tier.href}
             href={"/"}
             onClick={(e) => handlePlanClick(e, tier.type)}
             className={`relative w-full py-5 rounded-2xl font-bold text-base flex items-center justify-center gap-2 transition-all group/btn active:scale-95 overflow-hidden ${

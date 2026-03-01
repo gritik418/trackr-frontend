@@ -13,7 +13,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import EnterpriseTierCard, { PricingTier } from "../pricing/EnterpriseTierCard";
 import PlanTierCard from "../pricing/PlanTierCard";
 
@@ -96,10 +96,15 @@ export function Pricing() {
     }
   };
 
+  const filteredPlans = useMemo(() => {
+    return plans.filter(
+      (plan) => plan.interval === billingCycle || plan.type === PlanType.FREE,
+    );
+  }, [plans, billingCycle]);
+
   useEffect(() => {
     if (data?.plans) {
-      const plans = data.plans.filter((plan) => plan.interval === billingCycle);
-      setPlans(plans);
+      setPlans(data.plans);
     }
     if (data?.plans) {
       const earlyAccessPlan = data.plans.find(
@@ -173,7 +178,7 @@ export function Pricing() {
           </motion.div>
 
           {/* Billing Toggle */}
-          <div className="mt-12 flex justify-center items-center gap-4">
+          <div className="mt-12 cursor-pointer flex justify-center items-center gap-4">
             <span
               className={`text-sm font-bold transition-colors ${billingCycle === PlanInterval.MONTH ? "text-white" : "text-neutral-500"}`}
             >
@@ -187,7 +192,7 @@ export function Pricing() {
                     : PlanInterval.MONTH,
                 )
               }
-              className="relative w-16 h-8 rounded-full bg-white/5 border border-white/10 p-1 flex items-center transition-all"
+              className="relative cursor-pointer w-16 h-8 rounded-full bg-white/5 border border-white/10 p-1 flex items-center transition-all"
             >
               <div
                 className={`w-6 h-6 rounded-full bg-brand shadow-[0_0_15px_rgba(0,216,230,0.4)] transition-all duration-300 ${
@@ -204,7 +209,7 @@ export function Pricing() {
                 Yearly
               </span>
               <span className="px-2 py-0.5 rounded-full bg-brand/10 border border-brand/20 text-brand text-[10px] font-black uppercase tracking-wider">
-                20% OFF
+                Upto 12% OFF
               </span>
             </div>
           </div>
@@ -240,7 +245,7 @@ export function Pricing() {
           }}
           className="grid mt-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12"
         >
-          {plans?.map((tier: Plan, index: number) => (
+          {filteredPlans?.map((tier: Plan, index: number) => (
             <PlanTierCard
               key={index}
               tier={tier}

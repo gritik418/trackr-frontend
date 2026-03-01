@@ -2,6 +2,9 @@
 
 import { Footer } from "@/components/common/Footer";
 import { Navbar } from "@/components/common/Navbar";
+import { useGetEarlyAccessPlanQuery } from "@/features/plans/plans.api";
+import { Plan } from "@/features/plans/plans.interface";
+import { useClaimEarlyAccessMutation } from "@/features/subscription/subscription.api";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -11,26 +14,18 @@ import {
   Shield,
   Sparkles,
   Star,
+  X,
   Zap,
 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-const earlyAccessFeatures = [
-  "1 Business Organization",
-  "Up to 5 Workspaces (Beta)",
-  "15 Active Projects (Beta)",
-  "Unlimited Tasks (Beta)",
-  "Up to 15 Team Members (Beta)",
-  "90-day Activity Logs (Beta)",
-  "Role-based Access Control",
-  "Org & Workspace Audit Logs",
-  "Priority Community Support",
-  "Shape the Product Roadmap",
-];
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function EarlyAccessPage() {
   const router = useRouter();
+  const { data } = useGetEarlyAccessPlanQuery();
+  const [claimEarlyAccess, { isLoading }] = useClaimEarlyAccessMutation();
+  const [earlyAccessPlan, setEarlyAccessPlan] = useState<Plan | null>(null);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -46,6 +41,26 @@ export default function EarlyAccessPage() {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 },
   };
+
+  const handleClaimEarlyAccess = async () => {
+    if (!earlyAccessPlan) {
+      toast.error("Early access plan not found");
+      return;
+    }
+    try {
+      await claimEarlyAccess({ planId: earlyAccessPlan.id }).unwrap();
+      toast.success("Early access claimed successfully!");
+      router.push("/org");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to claim early access");
+    }
+  };
+
+  useEffect(() => {
+    if (data?.plan) {
+      setEarlyAccessPlan(data.plan);
+    }
+  }, [data]);
 
   return (
     <div className="min-h-screen bg-bg-dark-0 text-white selection:bg-brand/30">
@@ -78,7 +93,7 @@ export default function EarlyAccessPage() {
               className="text-5xl md:text-7xl font-bold tracking-tighter leading-none mb-6"
             >
               Full power for <br />
-              <span className="text-linear-to-r from-brand to-purple-400 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-brand to-purple-400 bg-clip-text text-transparent">
                 early believers.
               </span>
             </motion.h1>
@@ -155,12 +170,9 @@ export default function EarlyAccessPage() {
                   <span className="text-6xl font-black tracking-tighter">
                     $0
                   </span>
-                  <span className="text-neutral-500 font-bold">
-                    forever during beta
-                  </span>
                 </div>
                 <p className="text-amber-400 text-xs font-bold mt-3 animate-pulse">
-                  Available for a limited time only.
+                  {earlyAccessPlan?.note}
                 </p>
               </div>
 
@@ -169,8 +181,8 @@ export default function EarlyAccessPage() {
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500">
                   What's included:
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                  {earlyAccessFeatures.map((feature, idx) => (
+                <div className="grid grid-cols-1 gap-x-8 gap-y-4">
+                  {earlyAccessPlan?.features?.map((feature, idx) => (
                     <motion.div
                       key={idx}
                       initial={{ opacity: 0, x: -10 }}
@@ -179,10 +191,14 @@ export default function EarlyAccessPage() {
                       className="flex items-center gap-3"
                     >
                       <div className="shrink-0 w-4 h-4 rounded-full bg-brand/10 flex items-center justify-center">
-                        <Check size={10} className="text-brand" />
+                        {feature.included ? (
+                          <Check size={10} className="text-brand" />
+                        ) : (
+                          <X size={10} className="text-brand" />
+                        )}
                       </div>
                       <span className="text-sm text-neutral-300 font-medium">
-                        {feature}
+                        {feature.text}
                       </span>
                     </motion.div>
                   ))}
@@ -190,17 +206,18 @@ export default function EarlyAccessPage() {
               </div>
 
               {/* CTA */}
-              <Link
-                href="/signup"
-                className="group relative w-full h-16 rounded-2xl bg-white text-bg-dark-0 font-black text-lg flex items-center justify-center gap-3 transition-all active:scale-[0.98] overflow-hidden"
+              <button
+                onClick={handleClaimEarlyAccess}
+                disabled={isLoading}
+                className="group relative cursor-pointer w-full h-16 rounded-2xl bg-white text-bg-dark-0 font-black text-lg flex items-center justify-center gap-3 transition-all active:scale-[0.98] overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <div className="absolute inset-0 bg-linear-to-r from-transparent via-brand/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
-                Claim My Early Access
+                {isLoading ? "Claiming..." : "Claim My Early Access"}
                 <ArrowRight
                   size={20}
                   className="transition-transform group-hover:translate-x-1"
                 />
-              </Link>
+              </button>
 
               <div className="mt-6 flex items-center justify-center gap-2 text-neutral-500">
                 <Lock size={14} />

@@ -23,6 +23,12 @@ export interface Plan {
   updatedAt: string;
 }
 
+export interface GetEarlyAccessPlanResponse {
+  plan: Plan;
+  success: boolean;
+  message: string;
+}
+
 export enum PlanType {
   FREE = "FREE",
   PRO = "PRO",
