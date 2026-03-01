@@ -8,6 +8,7 @@ import auditLogsApi from "@/features/audit-logs/audit-logs.api";
 import taskApi from "@/features/task/task.api";
 import commentApi from "@/features/comment/comment.api";
 import { configureStore } from "@reduxjs/toolkit";
+import plansApi from "@/features/plans/plans.api";
 
 const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ const store = configureStore({
     [auditLogsApi.reducerPath]: auditLogsApi.reducer,
     [taskApi.reducerPath]: taskApi.reducer,
     [commentApi.reducerPath]: commentApi.reducer,
+    [plansApi.reducerPath]: plansApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -28,7 +30,8 @@ const store = configureStore({
       .concat(projectApi.middleware)
       .concat(auditLogsApi.middleware)
       .concat(taskApi.middleware)
-      .concat(commentApi.middleware),
+      .concat(commentApi.middleware)
+      .concat(plansApi.middleware),
 });
 
 export default store;
