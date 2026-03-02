@@ -1,4 +1,4 @@
-import { PlanInterval, PlanType } from "../plans/plans.interface";
+import { Plan, PlanInterval, PlanType } from "../plans/plans.interface";
 
 export interface ClaimEarlyAccessDto {
   planId: string;
@@ -18,7 +18,7 @@ enum SubscriptionStatus {
   PAST_DUE = "PAST_DUE",
 }
 
-interface Subscription {
+export interface Subscription {
   id: string;
   userId: string;
   planId: string;
@@ -35,6 +35,8 @@ interface Subscription {
   limits: any;
   createdAt: Date;
   updatedAt: Date;
+  plan: Plan;
+  expiresAt: string | null;
 }
 
 export interface GetActiveSubscriptionDto {

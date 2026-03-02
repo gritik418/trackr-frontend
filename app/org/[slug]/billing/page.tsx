@@ -1,27 +1,27 @@
 "use client";
 
-import { Check, Download, ExternalLink, Zap } from "lucide-react";
+import { selectOrganization } from "@/features/organization/organization.slice";
+import { PlanType } from "@/features/plans/plans.interface";
+import { useGetActiveSubscriptionQuery } from "@/features/subscription/subscription.api";
+import { Subscription } from "@/features/subscription/subscription.interface";
+import { Check, Download, ExternalLink, X, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 export default function OrgBillingPage() {
-  const currentPlan = {
-    name: "Business Plan",
-    price: "$49",
-    period: "mo",
-    status: "Active",
-    nextBilling: "March 1, 2026",
-    features: [
-      "Unlimited projects",
-      "Advanced analytics",
-      "Priority support",
-      "Audit logs",
-      "SSO Authentication",
-    ],
-  };
+  const organization = useSelector(selectOrganization);
 
-  const usage = {
-    seats: { used: 12, total: 20 },
-    storage: { used: 45, total: 100, unit: "GB" },
-    projects: { used: 8, total: "Unlimited", unit: "" },
+  const [activePlan, setActivePlan] = useState<Subscription | null>(null);
+  const { data } = useGetActiveSubscriptionQuery(organization?.id as string, {
+    skip: !organization?.id,
+  });
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   const invoices = [
@@ -29,6 +29,12 @@ export default function OrgBillingPage() {
     { id: "inv_002", date: "Jan 1, 2026", amount: "$49.00", status: "Paid" },
     { id: "inv_003", date: "Dec 1, 2025", amount: "$49.00", status: "Paid" },
   ];
+
+  useEffect(() => {
+    if (data?.subscription) {
+      setActivePlan(data.subscription);
+    }
+  }, [data]);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700 pb-10 relative overflow-hidden">
@@ -60,27 +66,38 @@ export default function OrgBillingPage() {
                     <Zap size={20} fill="currentColor" />
                   </div>
                   <h3 className="text-2xl font-bold text-white">
-                    {currentPlan.name}
+                    {activePlan?.plan.name}
                   </h3>
                   <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">
-                    {currentPlan.status}
+                    {activePlan?.status}
                   </span>
                 </div>
-                <p className="text-org-item-text text-sm">
-                  Renews on{" "}
-                  <span className="text-white font-medium">
-                    {currentPlan.nextBilling}
-                  </span>
-                </p>
+                {activePlan?.expiresAt && (
+                  <p className="text-org-item-text text-sm">
+                    Renews on{" "}
+                    <span className="text-white font-medium">
+                      {activePlan?.expiresAt}
+                    </span>
+                  </p>
+                )}
+
+                {activePlan?.plan.type &&
+                  activePlan?.plan.type === PlanType.EARLY_ACCESS && (
+                    <p className="text-[10px] text-brand hover:text-brand-hover font-medium underline-offset-4 hover:underline mt-1">
+                      Early access plan is valid during the beta phase
+                    </p>
+                  )}
               </div>
               <div className="text-right">
                 <div className="flex items-baseline gap-1 justify-end">
                   <span className="text-4xl font-bold text-white">
-                    {currentPlan.price}
+                    {activePlan?.price}
                   </span>
-                  <span className="text-neutral-500">
-                    /{currentPlan.period}
-                  </span>
+                  {activePlan?.plan.interval && (
+                    <span className="text-neutral-500">
+                      /{activePlan?.plan.interval}
+                    </span>
+                  )}
                 </div>
                 <button className="text-sm text-brand hover:text-brand-hover font-medium underline-offset-4 hover:underline mt-1">
                   Change Plan
@@ -89,66 +106,30 @@ export default function OrgBillingPage() {
             </div>
 
             <div className="mt-8 pt-8 border-t border-white/5 grid sm:grid-cols-2 gap-4">
-              {currentPlan.features.map((feature) => (
+              {activePlan?.plan.features.map((feature, index: number) => (
                 <div
-                  key={feature}
+                  key={feature.text + index}
                   className="flex items-center gap-2 text-sm text-neutral-400"
                 >
-                  <Check size={16} className="text-brand" />
-                  {feature}
+                  {feature.included ? (
+                    <Check size={16} className="text-brand" />
+                  ) : (
+                    <X size={16} className="text-brand" />
+                  )}
+                  {feature.text}
                 </div>
               ))}
             </div>
-          </section>
 
-          {/* Usage Stats */}
-          <section className="space-y-4">
-            <h3 className="text-lg font-semibold text-white px-2">
-              Current Usage
-            </h3>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="p-6 rounded-2xl bg-org-card-bg/40 border border-white/5">
-                <div className="flex justify-between items-end mb-2">
-                  <span className="text-sm font-medium text-neutral-400">
-                    Seats Used
+            <div className="mt-8 pt-8 border-t border-white/5 grid sm:grid-cols-2 gap-4">
+              {activePlan?.startDate && (
+                <p className="text-sm text-neutral-400">
+                  Start date:{" "}
+                  <span className="text-white font-medium">
+                    {formatDate(new Date(activePlan?.startDate))}
                   </span>
-                  <span className="text-xl font-bold text-white">
-                    {usage.seats.used}{" "}
-                    <span className="text-sm text-neutral-600 font-normal">
-                      / {usage.seats.total}
-                    </span>
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-brand rounded-full"
-                    style={{
-                      width: `${(usage.seats.used / usage.seats.total) * 100}%`,
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="p-6 rounded-2xl bg-org-card-bg/40 border border-white/5">
-                <div className="flex justify-between items-end mb-2">
-                  <span className="text-sm font-medium text-neutral-400">
-                    Storage
-                  </span>
-                  <span className="text-xl font-bold text-white">
-                    {usage.storage.used}GB{" "}
-                    <span className="text-sm text-neutral-600 font-normal">
-                      / {usage.storage.total}GB
-                    </span>
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-purple-500 rounded-full"
-                    style={{
-                      width: `${(usage.storage.used / usage.storage.total) * 100}%`,
-                    }}
-                  />
-                </div>
-              </div>
+                </p>
+              )}
             </div>
           </section>
         </div>
