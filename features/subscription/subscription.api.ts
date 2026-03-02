@@ -1,24 +1,43 @@
 import { API_BASE_URL } from "@/constants";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { ClaimEarlyAccessDto } from "./subscription.interface";
+import {
+  ClaimEarlyAccessDto,
+  GetActiveSubscriptionDto,
+} from "./subscription.interface";
 
 const subscriptionApi = createApi({
   reducerPath: "subscriptionApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `${API_BASE_URL}/subscriptions`,
+    baseUrl: `${API_BASE_URL}/organizations`,
     credentials: "include",
   }),
   endpoints: (builder) => ({
-    claimEarlyAccess: builder.mutation<void, ClaimEarlyAccessDto>({
-      query: (data) => ({
-        url: "/early-access",
+    claimEarlyAccess: builder.mutation<
+      void,
+      { orgId: string; data: ClaimEarlyAccessDto }
+    >({
+      query: ({
+        orgId,
+        data,
+      }: {
+        orgId: string;
+        data: ClaimEarlyAccessDto;
+      }) => ({
+        url: `/${orgId}/subscription/early-access`,
         method: "POST",
         body: data,
+      }),
+    }),
+    getActiveSubscription: builder.query<GetActiveSubscriptionDto, string>({
+      query: (orgId: string) => ({
+        url: `/${orgId}/subscription`,
+        method: "GET",
       }),
     }),
   }),
 });
 
-export const { useClaimEarlyAccessMutation } = subscriptionApi;
+export const { useClaimEarlyAccessMutation, useGetActiveSubscriptionQuery } =
+  subscriptionApi;
 
 export default subscriptionApi;

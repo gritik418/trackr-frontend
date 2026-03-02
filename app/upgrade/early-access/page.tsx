@@ -2,13 +2,17 @@
 
 import { Footer } from "@/components/common/Footer";
 import { Navbar } from "@/components/common/Navbar";
+import { OrganizationSelectorModal } from "@/components/org/OrganizationSelectorModal";
+import { useGetOrganizationsQuery } from "@/features/organization/organization.api";
 import { useGetEarlyAccessPlanQuery } from "@/features/plans/plans.api";
 import { Plan } from "@/features/plans/plans.interface";
 import { useClaimEarlyAccessMutation } from "@/features/subscription/subscription.api";
-import { motion } from "framer-motion";
+import { useUser } from "@/providers/AuthProvider";
+import { motion, Variants } from "framer-motion";
 import {
   ArrowRight,
   Check,
+  Info,
   Lock,
   Rocket,
   Shield,
@@ -23,9 +27,14 @@ import toast from "react-hot-toast";
 
 export default function EarlyAccessPage() {
   const router = useRouter();
-  const { data } = useGetEarlyAccessPlanQuery();
-  const [claimEarlyAccess, { isLoading }] = useClaimEarlyAccessMutation();
+  const { user } = useUser();
+  const { data: planData } = useGetEarlyAccessPlanQuery();
+  const { data: orgData, isLoading: isLoadingOrgs } =
+    useGetOrganizationsQuery();
+  const [claimEarlyAccess, { isLoading: isClaiming }] =
+    useClaimEarlyAccessMutation();
   const [earlyAccessPlan, setEarlyAccessPlan] = useState<Plan | null>(null);
+  const [showOrgSelector, setShowOrgSelector] = useState(false);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -33,34 +42,55 @@ export default function EarlyAccessPage() {
       opacity: 1,
       transition: {
         staggerChildren: 0.1,
+        delayChildren: 0.2,
       },
     },
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 },
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 30 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
   };
 
-  const handleClaimEarlyAccess = async () => {
+  const handleClaimEarlyAccess = async (orgId: string) => {
     if (!earlyAccessPlan) {
       toast.error("Early access plan not found");
       return;
     }
     try {
-      await claimEarlyAccess({ planId: earlyAccessPlan.id }).unwrap();
+      await claimEarlyAccess({
+        orgId,
+        data: { planId: earlyAccessPlan.id, orgId },
+      }).unwrap();
       toast.success("Early access claimed successfully!");
+      setShowOrgSelector(false);
       router.push("/org");
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to claim early access");
     }
   };
 
-  useEffect(() => {
-    if (data?.plan) {
-      setEarlyAccessPlan(data.plan);
+  const onMainButtonClick = () => {
+    if (!user) {
+      router.push("/login?callbackUrl=/upgrade/early-access");
+      return;
     }
-  }, [data]);
+    setShowOrgSelector(true);
+  };
+
+  useEffect(() => {
+    if (planData?.plan) {
+      setEarlyAccessPlan(planData.plan);
+    }
+  }, [planData]);
 
   return (
     <div className="min-h-screen bg-bg-dark-0 text-white selection:bg-brand/30">
@@ -100,12 +130,29 @@ export default function EarlyAccessPage() {
 
             <motion.p
               variants={itemVariants}
-              className="text-xl text-neutral-400 font-medium mb-12 max-w-lg leading-relaxed"
+              className="text-xl text-neutral-400 font-medium mb-8 max-w-lg leading-relaxed"
             >
               We're building Trackr to be the most performant workspace for
               teams. Join our early access program to unlock premium features
-              for free while we're in beta.
+              for free.
             </motion.p>
+
+            <motion.div
+              variants={itemVariants}
+              className="flex items-center gap-4 p-5 rounded-3xl bg-white/5 border border-white/10 mb-12 group hover:border-brand/30 transition-colors"
+            >
+              <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center text-brand shrink-0 group-hover:scale-110 transition-transform">
+                <Info size={18} />
+              </div>
+              <p className="text-xs text-neutral-400 font-medium leading-relaxed">
+                <span className="text-white font-bold">Important:</span> Early
+                access benefits are bound to{" "}
+                <span className="text-brand font-bold underline underline-offset-4">
+                  one organization
+                </span>{" "}
+                per account. This selection is final.
+              </p>
+            </motion.div>
 
             <motion.div variants={itemVariants} className="space-y-6">
               <div className="flex items-start gap-4 p-6 rounded-3xl bg-white/5 border border-white/10 hover:border-brand/30 transition-colors group">
@@ -207,12 +254,12 @@ export default function EarlyAccessPage() {
 
               {/* CTA */}
               <button
-                onClick={handleClaimEarlyAccess}
-                disabled={isLoading}
+                onClick={onMainButtonClick}
+                disabled={isClaiming}
                 className="group relative cursor-pointer w-full h-16 rounded-2xl bg-white text-bg-dark-0 font-black text-lg flex items-center justify-center gap-3 transition-all active:scale-[0.98] overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <div className="absolute inset-0 bg-linear-to-r from-transparent via-brand/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
-                {isLoading ? "Claiming..." : "Claim My Early Access"}
+                {isClaiming ? "Claiming..." : "Claim My Early Access"}
                 <ArrowRight
                   size={20}
                   className="transition-transform group-hover:translate-x-1"
@@ -232,6 +279,24 @@ export default function EarlyAccessPage() {
             <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-purple-500/20 blur-[100px] rounded-full z-10" />
           </motion.div>
         </div>
+
+        {/* Organization Selection Modal */}
+        {showOrgSelector && (
+          <OrganizationSelectorModal
+            isOpen={showOrgSelector}
+            onClose={() => setShowOrgSelector(false)}
+            organizations={
+              orgData?.organizations?.filter((org) => org.role === "OWNER") ||
+              []
+            }
+            onSelect={handleClaimEarlyAccess}
+            onCreateNew={() =>
+              router.push("/org/create?callbackUrl=/upgrade/early-access")
+            }
+            isLoading={isLoadingOrgs}
+            isClaiming={isClaiming}
+          />
+        )}
 
         {/* FAQ / Info Section */}
         <motion.div

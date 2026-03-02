@@ -20,7 +20,7 @@ import {
   Type,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -28,6 +28,8 @@ import toast from "react-hot-toast";
 export default function CreateOrgPage() {
   const router = useRouter();
   const [createOrganization] = useCreateOrganizationMutation();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
 
   const {
     register,
@@ -64,7 +66,11 @@ export default function CreateOrgPage() {
     try {
       await createOrganization(data);
       toast.success("Organization created!");
-      router.push("/org");
+      if (callbackUrl) {
+        router.push(callbackUrl);
+      } else {
+        router.push("/org");
+      }
     } catch (error: any) {
       const message =
         error.response?.data?.message ||

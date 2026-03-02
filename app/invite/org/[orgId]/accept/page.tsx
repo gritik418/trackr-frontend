@@ -40,7 +40,14 @@ export default function OrgAcceptInvitePage() {
     data: previewData,
     isLoading,
     error,
-  } = usePreviewOrgInviteQuery({ orgId, token }, { skip: !token || !orgId });
+  } = usePreviewOrgInviteQuery(
+    { orgId, token },
+    {
+      skip: !token || !orgId,
+      refetchOnMountOrArgChange: true,
+      refetchOnReconnect: true,
+    },
+  );
 
   const [acceptOrgInvite] = useAcceptOrgInviteMutation();
   const [declineOrgInvite] = useDeclineOrgInviteMutation();
@@ -162,8 +169,6 @@ export default function OrgAcceptInvitePage() {
       day: "numeric",
     },
   );
-
-  console.log(invite);
 
   return (
     <div className="min-h-screen w-full bg-[#020202] text-white flex flex-col p-6 lg:p-12 relative overflow-x-hidden font-sans selection:bg-brand/30">
