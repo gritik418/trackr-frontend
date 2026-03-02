@@ -21,7 +21,8 @@ export const auditLogsApi = createApi({
         entityId?: string;
         userId?: string;
         search?: string;
-        dateRange?: string;
+        startDate?: string;
+        endDate?: string;
       }
     >({
       query: ({ orgId, ...params }) => {
@@ -33,7 +34,8 @@ export const auditLogsApi = createApi({
         if (params.entityId) queryParams.set("entityId", params.entityId);
         if (params.userId) queryParams.set("userId", params.userId);
         if (params.search) queryParams.set("search", params.search);
-        if (params.dateRange) queryParams.set("dateRange", params.dateRange);
+        if (params.startDate) queryParams.set("startDate", params.startDate);
+        if (params.endDate) queryParams.set("endDate", params.endDate);
 
         return {
           url: `/organization/${orgId}`,
@@ -53,12 +55,26 @@ export const auditLogsApi = createApi({
         entityType?: string;
         entityId?: string;
         userId?: string;
+        startDate?: string;
+        endDate?: string;
       }
     >({
-      query: ({ orgId, workspaceId, ...params }) => ({
-        url: `/workspace/${orgId}/${workspaceId}`,
-        params,
-      }),
+      query: ({ orgId, workspaceId, ...params }) => {
+        const queryParams = new URLSearchParams();
+        if (params.limit) queryParams.set("limit", params.limit.toString());
+        if (params.page) queryParams.set("page", params.page.toString());
+        if (params.action) queryParams.set("action", params.action);
+        if (params.entityType) queryParams.set("entityType", params.entityType);
+        if (params.entityId) queryParams.set("entityId", params.entityId);
+        if (params.userId) queryParams.set("userId", params.userId);
+        if (params.startDate) queryParams.set("startDate", params.startDate);
+        if (params.endDate) queryParams.set("endDate", params.endDate);
+
+        return {
+          url: `/workspace/${orgId}/${workspaceId}`,
+          params: queryParams,
+        };
+      },
       providesTags: ["audit-logs"],
     }),
   }),

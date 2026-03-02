@@ -2,6 +2,7 @@
 
 import { AuditLogList } from "@/components/audit-logs/AuditLogList";
 import { AuditLogTable } from "@/components/audit-logs/AuditLogTable";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { API_BASE_URL } from "@/constants";
 import { useGetOrgAuditLogsQuery } from "@/features/audit-logs/audit-logs.api";
 import { AuditEntityType } from "@/features/audit-logs/audit-logs.interface";
@@ -10,10 +11,7 @@ import axios from "axios";
 import { format } from "date-fns";
 import {
   AlertCircle,
-  Calendar,
-  ChevronDown,
   Download,
-  Filter,
   LayoutGrid,
   List as ListIcon,
   Loader2,
@@ -30,6 +28,8 @@ export default function OrgLogsPage() {
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"table" | "list">("table");
   const [entityType, setEntityType] = useState<AuditEntityType | null>(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const { data: orgData, isLoading: isOrgLoading } =
     useGetOrganizationDetailsQuery(slug, {
@@ -50,6 +50,8 @@ export default function OrgLogsPage() {
       page,
       search,
       entityType: entityType || undefined,
+      startDate: startDate || null,
+      endDate: endDate || null,
     },
     { skip: !orgId, refetchOnMountOrArgChange: true, refetchOnReconnect: true },
   );
@@ -187,32 +189,27 @@ export default function OrgLogsPage() {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-6 flex flex-col">
         {/* Advanced Toolbar */}
-        <div className="p-3 bg-white/5 border border-white/5 rounded-2xl flex flex-col lg:flex-row gap-4 backdrop-blur-xl">
-          <div className="relative flex-1 group">
-            <Search
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-brand transition-colors"
-              size={18}
-            />
-            <input
-              type="text"
-              placeholder="Search by action, user, or details..."
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-              className="w-full pl-11 pr-4 py-3 bg-black/20 rounded-xl text-sm text-white border border-transparent focus:border-brand/30 focus:outline-none transition-all placeholder:text-neutral-600"
-            />
-          </div>
+        <div className="p-3 bg-white/5 border border-white/5 rounded-2xl flex flex-col gap-4 backdrop-blur-xl">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1 group">
+              <Search
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-brand transition-colors"
+                size={18}
+              />
+              <input
+                type="text"
+                placeholder="Search by action, user, or details..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full pl-11 pr-4 py-3 bg-black/20 rounded-xl text-sm text-white border border-transparent focus:border-brand/30 focus:outline-none transition-all placeholder:text-neutral-600"
+              />
+            </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <button className="px-4 py-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all">
-              <Calendar size={14} className="text-brand" />
-              <span>History</span>
-              <ChevronDown size={14} className="opacity-30" />
-            </button>
             <div className="w-px h-8 bg-white/10 mx-1 hidden lg:block" />
             <select
               value={entityType || ""}
@@ -244,6 +241,7 @@ export default function OrgLogsPage() {
               </option>
               <option value={AuditEntityType.COMMENT}>Comment</option>
             </select>
+
             <button
               onClick={exportAuditLogs}
               className="px-4 cursor-pointer py-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white bg-brand/10 hover:bg-brand/20 border border-brand/20 rounded-xl transition-all ml-auto"
@@ -251,6 +249,28 @@ export default function OrgLogsPage() {
               <Download size={16} className="text-brand" />
               <span>Export</span>
             </button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <DatePicker
+              label="Start Date"
+              value={startDate}
+              onChange={(val) => {
+                setStartDate(val);
+                setPage(1);
+              }}
+              placeholder="Select start date"
+            />
+
+            <DatePicker
+              label="End Date"
+              value={endDate}
+              onChange={(val) => {
+                setEndDate(val);
+                setPage(1);
+              }}
+              placeholder="Select end date"
+            />
           </div>
         </div>
 
