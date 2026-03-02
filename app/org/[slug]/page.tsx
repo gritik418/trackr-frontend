@@ -83,82 +83,97 @@ export default function OrgDashboardPage() {
 
   if (!organization) return null;
 
+  const isOwnerOrAdmin =
+    organization.role === "OWNER" || organization.role === "ADMIN";
+
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-10 animate-fade-in pb-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight mb-2">
-            Organization Overview
-          </h1>
-          <p className="text-neutral-400">
-            {organization.role === "OWNER" || organization.role === "ADMIN"
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-white to-white/60 tracking-tight">
+              Dashboard
+            </h1>
+            <span
+              className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-sm ${
+                organization.role === "OWNER"
+                  ? "bg-brand/10 text-brand border-brand/20 shadow-brand/5"
+                  : organization.role === "ADMIN"
+                    ? "bg-purple-500/10 text-purple-400 border-purple-500/20 shadow-purple-500/5"
+                    : "bg-neutral-500/10 text-neutral-400 border-neutral-500/20"
+              }`}
+            >
+              {organization.role}
+            </span>
+          </div>
+          <p className="text-org-item-text text-lg font-light">
+            {isOwnerOrAdmin
               ? "Manage your organization's global configuration and state."
               : "View your organization's global configuration and state."}
           </p>
         </div>
-        {organization.role === "OWNER" ||
-          (organization.role === "ADMIN" && (
-            <div className="flex items-center gap-3">
-              <Link
-                href={`/org/${organization.slug}/workspaces/new`}
-                className="px-4 py-2 bg-brand text-bg-dark-0 rounded-xl text-sm font-bold hover:bg-brand-hover transition-colors flex items-center gap-2"
-              >
-                <Plus size={16} />
-                New Workspace
-              </Link>
-            </div>
-          ))}
+        {isOwnerOrAdmin && (
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/org/${organization.slug}/workspaces/new`}
+              className="px-6 py-2.5 bg-brand text-bg-dark-0 rounded-2xl text-sm font-bold hover:bg-brand-hover transition-all duration-300 shadow-lg shadow-brand/20 hover:shadow-brand/40 hover:-translate-y-0.5 flex items-center gap-2"
+            >
+              <Plus size={18} />
+              New Workspace
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat, i) => {
-          if (
-            !stat.isPublic &&
-            organization.role !== "OWNER" &&
-            organization.role !== "ADMIN"
-          ) {
+          if (!stat.isPublic && !isOwnerOrAdmin) {
             return null;
           }
           return (
             <div
               key={i}
-              className={`p-6 rounded-2xl bg-bg-dark-1 border ${stat.border} relative overflow-hidden group hover:border-brand/30 transition-all duration-300`}
+              className={`p-7 rounded-4xl bg-org-card-bg/60 backdrop-blur-xl border border-white/5 relative overflow-hidden group hover:border-brand/30 transition-all duration-500 shadow-2xl shadow-black/20`}
             >
               <div
-                className={`absolute top-0 right-0 p-24 ${stat.bg} filter blur-[60px] opacity-10 rounded-full translate-x-10 -translate-y-10 group-hover:opacity-20 transition-opacity`}
+                className={`absolute -top-24 -right-24 p-48 ${stat.bg} filter blur-[100px] opacity-0 group-hover:opacity-20 rounded-full transition-opacity duration-700 pointer-events-none`}
               ></div>
 
               <div className="relative z-10 flex flex-col h-full justify-between">
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start justify-between mb-6">
                   <div
-                    className={`w-12 h-12 rounded-xl ${stat.bg} ${stat.border} border flex items-center justify-center`}
+                    className={`w-14 h-14 rounded-2xl ${stat.bg} ${stat.border} border flex items-center justify-center shadow-inner`}
                   >
-                    <stat.icon size={24} className={stat.color} />
+                    <stat.icon size={28} className={stat.color} />
                   </div>
                   <div
-                    className={`text-xs font-semibold px-2 py-1 rounded-lg ${stat.bg} ${stat.color} border ${stat.border} flex items-center gap-1`}
+                    className={`text-xs font-bold px-2.5 py-1 rounded-full ${stat.bg} ${stat.color} border ${stat.border} flex items-center gap-1.5 shadow-sm`}
                   >
-                    {stat.trend === "up" && <ArrowUpRight size={12} />}
+                    {stat.trend === "up" && (
+                      <ArrowUpRight size={12} strokeWidth={3} />
+                    )}
                     {stat.change}
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-4xl font-bold text-white mb-2 tracking-tight">
+                  <h3 className="text-5xl font-black text-white mb-2 tracking-tighter">
                     {stat.value}
                   </h3>
-                  <p className="text-neutral-400 text-sm font-medium mb-4">
+                  <p className="text-org-item-text text-sm font-semibold uppercase tracking-widest mb-6">
                     {stat.label}
                   </p>
 
                   {/* Progress bar visual */}
-                  <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/5">
                     <div
-                      className={`h-full rounded-full ${stat.bg.replace("/10", "")} opacity-80`}
+                      className={`h-full rounded-full ${stat.bg.replace("/10", "")} opacity-90 relative overflow-hidden`}
                       style={{ width: `${stat.progress}%` }}
-                    ></div>
+                    >
+                      <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -167,103 +182,191 @@ export default function OrgDashboardPage() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Recent Activity */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Activity size={20} className="text-neutral-400" />
-              Audit Log
-            </h2>
-            <Link
-              href={`/org/${organization.slug}/settings`}
-              className="text-xs text-brand hover:text-brand-hover font-medium"
-            >
-              View All
-            </Link>
-          </div>
-
-          <div className="bg-bg-dark-1 border border-white/5 rounded-2xl overflow-hidden">
-            {activities.map((item, i) => (
-              <div
-                key={i}
-                className="p-4 border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors flex items-center justify-between group"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-linear-to-tr from-neutral-700 to-neutral-600 border border-white/10 flex items-center justify-center text-xs font-bold text-white">
-                    {item.user.charAt(0)}
-                  </div>
-                  <div className="text-sm">
-                    <span className="text-white font-medium hover:text-brand transition-colors cursor-pointer">
-                      {item.user}
-                    </span>
-                    <span className="text-neutral-500 mx-1">{item.action}</span>
-                    <span className="text-white font-medium">
-                      {item.target}
-                    </span>
-                  </div>
-                </div>
-                <span className="text-xs text-neutral-500 font-mono group-hover:text-neutral-400 transition-colors">
-                  {item.time}
-                </span>
+      {!isOwnerOrAdmin && (
+        <section className="p-8 rounded-[2.5rem] bg-org-card-bg/60 backdrop-blur-xl border border-white/5 shadow-2xl shadow-black/20 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-linear-to-br from-brand/5 to-transparent opacity-50" />
+          <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start md:items-center">
+            {organization.logoUrl ? (
+              <img
+                src={organization.logoUrl}
+                alt={organization.name}
+                className="w-24 h-24 rounded-3xl object-cover border border-white/10 shadow-lg"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-3xl bg-brand/10 border border-brand/20 flex items-center justify-center text-brand text-4xl font-bold shadow-lg">
+                {organization.name.charAt(0)}
               </div>
-            ))}
+            )}
+            <div className="flex-1 space-y-3">
+              <div>
+                <h2 className="text-3xl font-extrabold text-white tracking-tight">
+                  {organization.name}
+                </h2>
+                <p className="text-org-item-text text-lg font-medium">
+                  {organization.description || "No description available."}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-4">
+                <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 flex items-center gap-2">
+                  <Users size={16} className="text-brand" />
+                  <span className="text-sm font-bold text-white">
+                    {organization.owner?.name || "Unknown Owner"}
+                  </span>
+                  <span className="text-[10px] text-org-item-text font-black uppercase tracking-wider">
+                    Owner
+                  </span>
+                </div>
+                {organization.websiteUrl && (
+                  <Link
+                    href={organization.websiteUrl}
+                    target="_blank"
+                    className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 flex items-center gap-2 hover:bg-white/10 transition-colors"
+                  >
+                    <ArrowUpRight size={16} className="text-brand" />
+                    <span className="text-sm font-bold text-white">
+                      Website
+                    </span>
+                  </Link>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
+      )}
 
-        {/* Quick Actions */}
-        <div className="space-y-6">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <ShieldCheck size={20} className="text-neutral-400" />
-            Quick Actions
-          </h2>
-
-          <div className="bg-bg-dark-1 border border-white/5 rounded-2xl p-2 space-y-1">
-            {[
-              {
-                label: "Invite Member",
-                icon: UserPlus,
-                desc: "Add new user to org",
-              },
-              {
-                label: "Manage Roles",
-                icon: ShieldCheck,
-                desc: "Update permissions",
-              },
-              {
-                label: "Update Billing",
-                icon: CreditCard,
-                desc: "Change subscription",
-              },
-            ].map((action, i) => (
-              <button
-                key={i}
-                className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors text-left group"
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Recent Activity / Audit Log (Restricted) */}
+        {isOwnerOrAdmin && (
+          <div className="lg:col-span-2 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <Activity size={20} className="text-neutral-400" />
+                Audit Log
+              </h2>
+              <Link
+                href={`/org/${organization.slug}/settings`}
+                className="text-xs text-brand hover:text-brand-hover font-medium"
               >
-                <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-neutral-400 group-hover:text-white group-hover:border-white/10 transition-all">
-                  <action.icon size={20} />
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-medium text-white group-hover:text-brand transition-colors">
-                    {action.label}
-                  </h4>
-                  <p className="text-xs text-neutral-500">{action.desc}</p>
-                </div>
-                <ArrowUpRight
-                  size={16}
-                  className="text-neutral-600 group-hover:text-white transition-colors opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0"
-                />
-              </button>
-            ))}
-          </div>
+                View All
+              </Link>
+            </div>
 
-          <div className="p-4 rounded-2xl bg-linear-to-br from-brand/10 to-brand-secondary/5 border border-brand/10">
-            <h3 className="text-brand font-bold mb-2 text-sm">Pro Tip</h3>
-            <p className="text-xs text-brand/80 leading-relaxed">
-              You can configure SSO for your organization in Settings to
-              automate member access control.
-            </p>
+            <div className="bg-org-card-bg/60 backdrop-blur-xl border border-white/5 rounded-3xl overflow-hidden shadow-2xl shadow-black/20">
+              {activities.map((item, i) => (
+                <div
+                  key={i}
+                  className="p-5 border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-linear-to-tr from-neutral-800 to-neutral-700 border border-white/10 flex items-center justify-center text-sm font-bold text-white shadow-inner">
+                      {item.user.charAt(0)}
+                    </div>
+                    <div className="text-sm">
+                      <span className="text-white font-bold hover:text-brand transition-colors cursor-pointer">
+                        {item.user}
+                      </span>
+                      <span className="text-org-item-text mx-1.5 font-medium">
+                        {item.action}
+                      </span>
+                      <span className="text-white font-bold">
+                        {item.target}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-neutral-500 font-black uppercase tracking-widest group-hover:text-neutral-400 transition-colors">
+                    {item.time}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
+        )}
+
+        {/* Role Specific Actions/Info */}
+        <div className="space-y-8">
+          {isOwnerOrAdmin ? (
+            <>
+              <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                <ShieldCheck size={22} className="text-brand" />
+                Quick Actions
+              </h2>
+
+              <div className="bg-org-card-bg/60 backdrop-blur-xl border border-white/5 rounded-3xl p-3 space-y-1.5 shadow-2xl shadow-black/20">
+                {[
+                  {
+                    label: "Invite Member",
+                    icon: UserPlus,
+                    desc: "Add new user to org",
+                    href: `/org/${organization.slug}/members`,
+                  },
+                  {
+                    label: "Manage Roles",
+                    icon: ShieldCheck,
+                    desc: "Update permissions",
+                    href: `/org/${organization.slug}/members`,
+                  },
+                  {
+                    label: "Update Billing",
+                    icon: CreditCard,
+                    desc: "Change subscription",
+                    href: `/org/${organization.slug}/billing`,
+                  },
+                ].map((action, i) => (
+                  <Link
+                    key={i}
+                    href={action.href}
+                    className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition-all duration-300 group"
+                  >
+                    <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-neutral-400 group-hover:text-brand-hover group-hover:border-brand/20 group-hover:bg-brand/5 transition-all shadow-inner">
+                      <action.icon size={22} />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-bold text-white group-hover:text-brand transition-colors">
+                        {action.label}
+                      </h4>
+                      <p className="text-xs text-org-item-text font-medium mt-0.5">
+                        {action.desc}
+                      </p>
+                    </div>
+                    <ArrowUpRight
+                      size={18}
+                      className="text-neutral-600 group-hover:text-white transition-all opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0"
+                    />
+                  </Link>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="space-y-6">
+              <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                <Users size={22} className="text-brand" />
+                Your Role
+              </h2>
+              <div className="p-6 rounded-3xl bg-org-card-bg/60 backdrop-blur-xl border border-white/5 shadow-2xl shadow-black/20 relative overflow-hidden group">
+                <div className="absolute inset-0 bg-linear-to-br from-brand/5 to-transparent opacity-50" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-brand/10 border border-brand/20 flex items-center justify-center text-brand">
+                      <Users size={24} />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold text-white capitalize">
+                        {organization.role.toLowerCase()}
+                      </h4>
+                      <p className="text-xs text-org-item-text font-medium uppercase tracking-wider">
+                        Standard Access
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-org-item-text leading-relaxed font-medium">
+                    You have access to contribute to assigned tasks and view
+                    project's activity. For additional permissions, please
+                    contact your administrator.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
