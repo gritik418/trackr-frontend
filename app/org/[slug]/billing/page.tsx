@@ -1,10 +1,12 @@
 "use client";
 
+import NoActivePlan from "@/components/billing/NoActivePlan";
 import { selectOrganization } from "@/features/organization/organization.slice";
 import { PlanType } from "@/features/plans/plans.interface";
 import { useGetActiveSubscriptionQuery } from "@/features/subscription/subscription.api";
 import { Subscription } from "@/features/subscription/subscription.interface";
 import { Check, Download, ExternalLink, X, Zap } from "lucide-react";
+import { notFound } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -36,6 +38,10 @@ export default function OrgBillingPage() {
     }
   }, [data]);
 
+  if (!organization) {
+    return notFound();
+  }
+
   return (
     <div className="space-y-8 animate-in fade-in duration-700 pb-10 relative overflow-hidden">
       {/* Background Ambience */}
@@ -56,82 +62,86 @@ export default function OrgBillingPage() {
         {/* Left Column - Plan & Usage */}
         <div className="lg:col-span-2 space-y-8">
           {/* Current Plan Card */}
-          <section className="p-8 rounded-3xl bg-org-card-bg/60 backdrop-blur-xl border border-white/5 shadow-2xl shadow-black/20 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-linear-to-br from-brand/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          {activePlan && activePlan.id ? (
+            <section className="p-8 rounded-3xl bg-org-card-bg/60 backdrop-blur-xl border border-white/5 shadow-2xl shadow-black/20 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-linear-to-br from-brand/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center text-brand">
-                    <Zap size={20} fill="currentColor" />
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center text-brand">
+                      <Zap size={20} fill="currentColor" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white">
+                      {activePlan?.plan.name}
+                    </h3>
+                    <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">
+                      {activePlan?.status}
+                    </span>
                   </div>
-                  <h3 className="text-2xl font-bold text-white">
-                    {activePlan?.plan.name}
-                  </h3>
-                  <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">
-                    {activePlan?.status}
-                  </span>
+                  {activePlan?.expiresAt && (
+                    <p className="text-org-item-text text-sm">
+                      Renews on{" "}
+                      <span className="text-white font-medium">
+                        {activePlan?.expiresAt}
+                      </span>
+                    </p>
+                  )}
+
+                  {activePlan?.plan.type &&
+                    activePlan?.plan.type === PlanType.EARLY_ACCESS && (
+                      <p className="text-[10px] text-brand hover:text-brand-hover font-medium underline-offset-4 hover:underline mt-1">
+                        Early access plan is valid during the beta phase
+                      </p>
+                    )}
                 </div>
-                {activePlan?.expiresAt && (
-                  <p className="text-org-item-text text-sm">
-                    Renews on{" "}
+                <div className="text-right">
+                  <div className="flex items-baseline gap-1 justify-end">
+                    <span className="text-4xl font-bold text-white">
+                      {activePlan?.price}
+                    </span>
+                    {activePlan?.plan.interval && (
+                      <span className="text-neutral-500">
+                        /{activePlan?.plan.interval}
+                      </span>
+                    )}
+                  </div>
+                  <button className="text-sm text-brand hover:text-brand-hover font-medium underline-offset-4 hover:underline mt-1">
+                    Change Plan
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-8 pt-8 border-t border-white/5 grid sm:grid-cols-2 gap-4">
+                {activePlan?.plan.features.map((feature, index: number) => (
+                  <div
+                    key={feature.text + index}
+                    className="flex items-center gap-2 text-sm text-neutral-400"
+                  >
+                    {feature.included ? (
+                      <Check size={16} className="text-brand" />
+                    ) : (
+                      <X size={16} className="text-brand" />
+                    )}
+                    {feature.text}
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 pt-8 border-t border-white/5 grid sm:grid-cols-2 gap-4">
+                {activePlan?.startDate && (
+                  <p className="text-sm text-neutral-400">
+                    Start date:{" "}
                     <span className="text-white font-medium">
-                      {activePlan?.expiresAt}
+                      {formatDate(new Date(activePlan?.startDate))}
                     </span>
                   </p>
                 )}
-
-                {activePlan?.plan.type &&
-                  activePlan?.plan.type === PlanType.EARLY_ACCESS && (
-                    <p className="text-[10px] text-brand hover:text-brand-hover font-medium underline-offset-4 hover:underline mt-1">
-                      Early access plan is valid during the beta phase
-                    </p>
-                  )}
               </div>
-              <div className="text-right">
-                <div className="flex items-baseline gap-1 justify-end">
-                  <span className="text-4xl font-bold text-white">
-                    {activePlan?.price}
-                  </span>
-                  {activePlan?.plan.interval && (
-                    <span className="text-neutral-500">
-                      /{activePlan?.plan.interval}
-                    </span>
-                  )}
-                </div>
-                <button className="text-sm text-brand hover:text-brand-hover font-medium underline-offset-4 hover:underline mt-1">
-                  Change Plan
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-8 pt-8 border-t border-white/5 grid sm:grid-cols-2 gap-4">
-              {activePlan?.plan.features.map((feature, index: number) => (
-                <div
-                  key={feature.text + index}
-                  className="flex items-center gap-2 text-sm text-neutral-400"
-                >
-                  {feature.included ? (
-                    <Check size={16} className="text-brand" />
-                  ) : (
-                    <X size={16} className="text-brand" />
-                  )}
-                  {feature.text}
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 pt-8 border-t border-white/5 grid sm:grid-cols-2 gap-4">
-              {activePlan?.startDate && (
-                <p className="text-sm text-neutral-400">
-                  Start date:{" "}
-                  <span className="text-white font-medium">
-                    {formatDate(new Date(activePlan?.startDate))}
-                  </span>
-                </p>
-              )}
-            </div>
-          </section>
+            </section>
+          ) : (
+            <NoActivePlan onExplorePlans={() => {}} />
+          )}
         </div>
 
         {/* Right Column - Payment & History */}
