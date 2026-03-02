@@ -24,10 +24,22 @@ export const auditLogsApi = createApi({
         dateRange?: string;
       }
     >({
-      query: ({ orgId, ...params }) => ({
-        url: `/organization/${orgId}`,
-        params,
-      }),
+      query: ({ orgId, ...params }) => {
+        const queryParams = new URLSearchParams();
+        if (params.limit) queryParams.set("limit", params.limit.toString());
+        if (params.page) queryParams.set("page", params.page.toString());
+        if (params.action) queryParams.set("action", params.action);
+        if (params.entityType) queryParams.set("entityType", params.entityType);
+        if (params.entityId) queryParams.set("entityId", params.entityId);
+        if (params.userId) queryParams.set("userId", params.userId);
+        if (params.search) queryParams.set("search", params.search);
+        if (params.dateRange) queryParams.set("dateRange", params.dateRange);
+
+        return {
+          url: `/organization/${orgId}`,
+          params: queryParams,
+        };
+      },
       providesTags: ["audit-logs"],
     }),
     getWorkspaceAuditLogs: build.query<

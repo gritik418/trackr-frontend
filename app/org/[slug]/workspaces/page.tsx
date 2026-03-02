@@ -45,6 +45,9 @@ export default function OrgWorkspacesPage() {
     return null;
   }
 
+  const isOrgOwnerOrAdmin =
+    organization.role === "OWNER" || organization.role === "ADMIN";
+
   return (
     <div className="space-y-8 animate-in fade-in duration-700 pb-10 relative overflow-hidden h-full">
       {/* Complex Atmospheric Background Mesh - Synced with /org */}
@@ -167,7 +170,7 @@ export default function OrgWorkspacesPage() {
               Clear Search
             </button>
           </div>
-        ) : (
+        ) : isOrgOwnerOrAdmin ? (
           <div className="flex flex-col items-center justify-center py-20 px-6 rounded-3xl border border-dashed border-white/10 bg-white/2 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-500">
             <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
               <Boxes size={40} className="text-neutral-500" />
@@ -189,6 +192,20 @@ export default function OrgWorkspacesPage() {
               />
               Create Your First Workspace
             </Link>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20 px-6 rounded-3xl border border-dashed border-white/10 bg-white/2 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-500">
+            <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
+              <Boxes size={40} className="text-neutral-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-2">
+              No Workspaces Yet
+            </h3>
+            <p className="text-neutral-500 text-center max-w-md mb-8">
+              It looks like you don't have access to any workspaces in this
+              organization yet. Please contact your organization owner or admin
+              to get access to workspaces.
+            </p>
           </div>
         )}
       </div>

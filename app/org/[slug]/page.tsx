@@ -22,6 +22,8 @@ export default function OrgDashboardPage() {
   const [recentLogs, setRecentLogs] = useState<AuditLog[]>([]);
   const { data, isLoading } = useGetDashboardStatsQuery(organization?.id!, {
     skip: !organization?.id,
+    refetchOnMountOrArgChange: true,
+    refetchOnReconnect: true,
   });
 
   useEffect(() => {

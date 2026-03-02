@@ -4,6 +4,7 @@ import { AuditLogList } from "@/components/audit-logs/AuditLogList";
 import { AuditLogTable } from "@/components/audit-logs/AuditLogTable";
 import { API_BASE_URL } from "@/constants";
 import { useGetOrgAuditLogsQuery } from "@/features/audit-logs/audit-logs.api";
+import { AuditEntityType } from "@/features/audit-logs/audit-logs.interface";
 import { useGetOrganizationDetailsQuery } from "@/features/organization/organization.api";
 import axios from "axios";
 import { format } from "date-fns";
@@ -23,11 +24,12 @@ import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function OrgLogsPage() {
+  const limit = 50;
   const { slug } = useParams() as { slug: string };
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"table" | "list">("table");
-  const limit = 50;
+  const [entityType, setEntityType] = useState<AuditEntityType | null>(null);
 
   const { data: orgData, isLoading: isOrgLoading } =
     useGetOrganizationDetailsQuery(slug, {
@@ -47,8 +49,9 @@ export default function OrgLogsPage() {
       limit,
       page,
       search,
+      entityType: entityType || undefined,
     },
-    { skip: !orgId },
+    { skip: !orgId, refetchOnMountOrArgChange: true, refetchOnReconnect: true },
   );
 
   const isLoading = isOrgLoading || isLogsLoading;
@@ -109,8 +112,19 @@ export default function OrgLogsPage() {
       } else {
         toast.error("Failed to export audit logs");
       }
-    } catch (err) {
-      toast.error("Failed to export audit logs");
+    } catch (err: any) {
+      if (err.response?.data instanceof Blob) {
+        const errorText = await err.response.data.text();
+
+        try {
+          const errorJson = JSON.parse(errorText);
+          toast.error(errorJson.message || "Failed to export audit logs");
+        } catch {
+          toast.error("Failed to export audit logs");
+        }
+      } else {
+        toast.error("Failed to export audit logs");
+      }
     }
   };
 
@@ -200,12 +214,39 @@ export default function OrgLogsPage() {
               <ChevronDown size={14} className="opacity-30" />
             </button>
             <div className="w-px h-8 bg-white/10 mx-1 hidden lg:block" />
-            <button className="p-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all">
-              <Filter size={16} />
-            </button>
+            <select
+              value={entityType || ""}
+              onChange={(e) => {
+                setEntityType(e.target.value as AuditEntityType);
+                setPage(1);
+              }}
+              className="p-2.5 flex outline-none items-center gap-2 text-xs font-bold capitalize tracking-wider text-neutral-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all"
+            >
+              <option value="">All</option>
+              <option value={AuditEntityType.ORGANIZATION}>Organization</option>
+              <option value={AuditEntityType.WORKSPACE}>Workspace</option>
+              <option value={AuditEntityType.PROJECT}>Project</option>
+              <option value={AuditEntityType.TASK}>Task</option>
+              <option value={AuditEntityType.ORGANIZATION_MEMBER}>
+                Organization Member
+              </option>
+              <option value={AuditEntityType.WORKSPACE_MEMBER}>
+                Workspace Member
+              </option>
+              <option value={AuditEntityType.PROJECT_MEMBER}>
+                Project Member
+              </option>
+              <option value={AuditEntityType.ORGANIZATION_INVITE}>
+                Organization Invite
+              </option>
+              <option value={AuditEntityType.WORKSPACE_INVITE}>
+                Workspace Invite
+              </option>
+              <option value={AuditEntityType.COMMENT}>Comment</option>
+            </select>
             <button
               onClick={exportAuditLogs}
-              className="px-4 py-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white bg-brand/10 hover:bg-brand/20 border border-brand/20 rounded-xl transition-all ml-auto"
+              className="px-4 cursor-pointer py-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white bg-brand/10 hover:bg-brand/20 border border-brand/20 rounded-xl transition-all ml-auto"
             >
               <Download size={16} className="text-brand" />
               <span>Export</span>
