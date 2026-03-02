@@ -32,11 +32,20 @@ export interface Subscription {
   currency: string;
   interval: PlanInterval;
   features: any;
-  limits: any;
+  limits: PlanLimits;
   createdAt: Date;
   updatedAt: Date;
   plan: Plan;
   expiresAt: string | null;
+}
+
+export interface PlanLimits {
+  maxWorkspaces: number | null; // null = unlimited
+  maxProjectsPerWorkspace: number | null; // null = unlimited
+  maxTasksPerProject: number | null; // null = unlimited
+  maxMembersPerOrg: number | null; // null = unlimited
+  auditLogRetentionDays: number | null; // null = unlimited
+  isLogExportAvailable: boolean;
 }
 
 export interface GetActiveSubscriptionDto {

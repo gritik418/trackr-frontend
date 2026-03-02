@@ -1,4 +1,7 @@
 "use client";
+import { AuditLogList } from "@/components/audit-logs/AuditLogList";
+import { AuditLog } from "@/features/audit-logs/audit-logs.interface";
+import { useGetDashboardStatsQuery } from "@/features/dashboard/dashboard.api";
 import { selectOrganization } from "@/features/organization/organization.slice";
 import {
   Activity,
@@ -11,75 +14,63 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 export default function OrgDashboardPage() {
   const organization = useSelector(selectOrganization);
+  const [recentLogs, setRecentLogs] = useState<AuditLog[]>([]);
+  const { data, isLoading } = useGetDashboardStatsQuery(organization?.id!, {
+    skip: !organization?.id,
+  });
+
+  useEffect(() => {
+    if (data?.stats?.recentLogs) {
+      setRecentLogs(data.stats.recentLogs);
+    }
+  }, [data]);
+
   const stats = [
     {
       label: "Total Members",
-      value: "24",
-      change: "+12% this month",
-      trend: "up",
+      value: data?.stats?.membersCount || 0,
       icon: Users,
       color: "text-blue-400",
       bg: "bg-blue-400/10",
+      progressBg: "bg-blue-400",
       border: "border-blue-400/20",
-      progress: 75,
-      isPublic: true,
+      progress: data?.percentage?.members || 0,
+      isHidden: false,
     },
     {
       label: "Active Workspaces",
-      value: "8",
-      change: "2 new this week",
-      trend: "up",
+      value: data?.stats?.workspacesCount || 0,
       icon: Building2,
       color: "text-emerald-400",
       bg: "bg-emerald-400/10",
+      progressBg: "bg-emerald-400",
       border: "border-emerald-400/20",
-      progress: 40,
-      isPublic: false,
+      progress: data?.percentage?.workspaces || 0,
+      isHidden: organization?.role === "MEMBER" || !organization?.role,
     },
     {
-      label: "Storage Used",
-      value: "1.2 TB",
-      change: "85% of quota",
-      trend: "warning",
+      label: "Active Projects",
+      value: data?.stats?.projectsCount || 0,
       icon: Activity,
       color: "text-amber-400",
       bg: "bg-amber-400/10",
+      progressBg: "bg-amber-400",
       border: "border-amber-400/20",
-      progress: 85,
-      isPublic: false,
+      progress: data?.percentage?.projects || 0,
+      isHidden: organization?.role === "MEMBER" || !organization?.role,
     },
   ];
 
-  const activities = [
-    {
-      user: "Sarah Connor",
-      action: "invited",
-      target: "Kyle Reese",
-      time: "2 mins ago",
-    },
-    {
-      user: "John Doe",
-      action: "created workspace",
-      target: "Q4 Marketing",
-      time: "1 hour ago",
-    },
-    {
-      user: "Admin",
-      action: "updated settings",
-      target: "Billing Cycle",
-      time: "3 hours ago",
-    },
-    {
-      user: "System",
-      action: "generated invoice",
-      target: "#INV-2024-001",
-      time: "1 day ago",
-    },
-  ];
+  useEffect(() => {
+    if (data?.stats?.recentLogs) {
+      setRecentLogs(data.stats.recentLogs);
+    }
+  }, [data]);
 
   if (!organization) return null;
 
@@ -113,6 +104,7 @@ export default function OrgDashboardPage() {
               : "View your organization's global configuration and state."}
           </p>
         </div>
+
         {isOwnerOrAdmin && (
           <div className="flex items-center gap-3">
             <Link
@@ -124,62 +116,6 @@ export default function OrgDashboardPage() {
             </Link>
           </div>
         )}
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {stats.map((stat, i) => {
-          if (!stat.isPublic && !isOwnerOrAdmin) {
-            return null;
-          }
-          return (
-            <div
-              key={i}
-              className={`p-7 rounded-4xl bg-org-card-bg/60 backdrop-blur-xl border border-white/5 relative overflow-hidden group hover:border-brand/30 transition-all duration-500 shadow-2xl shadow-black/20`}
-            >
-              <div
-                className={`absolute -top-24 -right-24 p-48 ${stat.bg} filter blur-[100px] opacity-0 group-hover:opacity-20 rounded-full transition-opacity duration-700 pointer-events-none`}
-              ></div>
-
-              <div className="relative z-10 flex flex-col h-full justify-between">
-                <div className="flex items-start justify-between mb-6">
-                  <div
-                    className={`w-14 h-14 rounded-2xl ${stat.bg} ${stat.border} border flex items-center justify-center shadow-inner`}
-                  >
-                    <stat.icon size={28} className={stat.color} />
-                  </div>
-                  <div
-                    className={`text-xs font-bold px-2.5 py-1 rounded-full ${stat.bg} ${stat.color} border ${stat.border} flex items-center gap-1.5 shadow-sm`}
-                  >
-                    {stat.trend === "up" && (
-                      <ArrowUpRight size={12} strokeWidth={3} />
-                    )}
-                    {stat.change}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-5xl font-black text-white mb-2 tracking-tighter">
-                    {stat.value}
-                  </h3>
-                  <p className="text-org-item-text text-sm font-semibold uppercase tracking-widest mb-6">
-                    {stat.label}
-                  </p>
-
-                  {/* Progress bar visual */}
-                  <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/5">
-                    <div
-                      className={`h-full rounded-full ${stat.bg.replace("/10", "")} opacity-90 relative overflow-hidden`}
-                      style={{ width: `${stat.progress}%` }}
-                    >
-                      <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
       </div>
 
       {!isOwnerOrAdmin && (
@@ -234,6 +170,61 @@ export default function OrgDashboardPage() {
         </section>
       )}
 
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {stats.map((stat, i) => {
+          if (stat.isHidden) return null;
+          return (
+            <div
+              key={i}
+              className={`p-7 rounded-4xl bg-org-card-bg/60 backdrop-blur-xl border border-white/5 relative overflow-hidden group hover:border-brand/30 transition-all duration-500 shadow-2xl shadow-black/20`}
+            >
+              <div
+                className={`absolute -top-24 -right-24 p-48 ${stat.bg} filter blur-[100px] opacity-0 group-hover:opacity-20 rounded-full transition-opacity duration-700 pointer-events-none`}
+              ></div>
+
+              <div className="relative z-10 flex flex-col h-full justify-between">
+                <div className="flex items-start justify-between mb-6">
+                  <div
+                    className={`w-14 h-14 rounded-2xl ${stat.bg} ${stat.border} border flex items-center justify-center shadow-inner`}
+                  >
+                    <stat.icon size={28} className={stat.color} />
+                  </div>
+
+                  {organization.role !== "MEMBER" && (
+                    <div className="text-org-item-text bg-white/10 px-2 py-1 rounded-lg text-xs font-semibold uppercase tracking-wider">
+                      {stat.progress.toFixed(1)}%{" "}
+                      <span className="tracking-normal">Used</span>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <h3 className="text-5xl font-black text-white mb-2 tracking-tighter">
+                    {stat.value}
+                  </h3>
+                  <p className="text-org-item-text text-sm mb-6 font-semibold uppercase tracking-widest">
+                    {stat.label}
+                  </p>
+
+                  {/* Progress bar visual */}
+                  {organization.role !== "MEMBER" && (
+                    <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/5">
+                      <div
+                        className={`h-full rounded-full ${stat.progressBg} opacity-90 relative overflow-hidden`}
+                        style={{ width: `${Math.ceil(stat.progress)}%` }}
+                      >
+                        <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Activity / Audit Log (Restricted) */}
         {isOwnerOrAdmin && (
@@ -244,40 +235,15 @@ export default function OrgDashboardPage() {
                 Audit Log
               </h2>
               <Link
-                href={`/org/${organization.slug}/settings`}
+                href={`/org/${organization.slug}/logs`}
                 className="text-xs text-brand hover:text-brand-hover font-medium"
               >
                 View All
               </Link>
             </div>
 
-            <div className="bg-org-card-bg/60 backdrop-blur-xl border border-white/5 rounded-3xl overflow-hidden shadow-2xl shadow-black/20">
-              {activities.map((item, i) => (
-                <div
-                  key={i}
-                  className="p-5 border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors flex items-center justify-between group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-linear-to-tr from-neutral-800 to-neutral-700 border border-white/10 flex items-center justify-center text-sm font-bold text-white shadow-inner">
-                      {item.user.charAt(0)}
-                    </div>
-                    <div className="text-sm">
-                      <span className="text-white font-bold hover:text-brand transition-colors cursor-pointer">
-                        {item.user}
-                      </span>
-                      <span className="text-org-item-text mx-1.5 font-medium">
-                        {item.action}
-                      </span>
-                      <span className="text-white font-bold">
-                        {item.target}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-neutral-500 font-black uppercase tracking-widest group-hover:text-neutral-400 transition-colors">
-                    {item.time}
-                  </span>
-                </div>
-              ))}
+            <div className="bg-org-card-bg/60 backdrop-blur-xl border border-white/5 rounded-3xl overflow-hidden shadow-2xl shadow-black/20 p-2">
+              <AuditLogList logs={recentLogs} isLoading={isLoading} />
             </div>
           </div>
         )}

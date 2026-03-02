@@ -329,7 +329,6 @@ export const AuditLogItem: React.FC<AuditLogItemProps> = ({
   const userInitials = getInitials(log.user?.name || "System");
   const description = getHumanDescription(log);
 
-  console.log(log.entityType);
   if (view === "table") {
     return (
       <>
@@ -374,10 +373,6 @@ export const AuditLogItem: React.FC<AuditLogItemProps> = ({
                   <ActionIcon size={8} />
                   {log.action.split("_").pop()}
                 </div>
-                {/* <div className="flex items-center gap-1 text-[9px] text-neutral-600 font-bold uppercase tracking-widest">
-                  <EntityIcon size={10} />
-                  {log.entityType.replace(/_/g, " ")}
-                </div> */}
               </div>
             </div>
           </td>
@@ -560,7 +555,7 @@ export const AuditLogItem: React.FC<AuditLogItemProps> = ({
                 {log.userAgent}
               </p>
             </div>
-            <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex flex-col gap-4">
               <div className="flex-1 p-3 bg-black/20 rounded-xl border border-white/5">
                 <span className="text-[8px] font-bold text-neutral-600 uppercase tracking-widest block mb-1">
                   Entity Reference
