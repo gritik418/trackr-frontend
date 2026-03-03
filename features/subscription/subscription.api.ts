@@ -3,6 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
   ClaimEarlyAccessDto,
   GetActiveSubscriptionDto,
+  GetSubscriptionHistoryResponse,
 } from "./subscription.interface";
 
 const subscriptionApi = createApi({
@@ -34,10 +35,22 @@ const subscriptionApi = createApi({
         method: "GET",
       }),
     }),
+    getSubscriptionHistory: builder.query<
+      GetSubscriptionHistoryResponse,
+      string
+    >({
+      query: (orgId: string) => ({
+        url: `/${orgId}/subscription/history`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useClaimEarlyAccessMutation, useGetActiveSubscriptionQuery } =
-  subscriptionApi;
+export const {
+  useClaimEarlyAccessMutation,
+  useGetActiveSubscriptionQuery,
+  useGetSubscriptionHistoryQuery,
+} = subscriptionApi;
 
 export default subscriptionApi;

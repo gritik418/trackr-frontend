@@ -53,3 +53,9 @@ export interface GetActiveSubscriptionDto {
   success: boolean;
   subscription: Subscription;
 }
+
+export interface GetSubscriptionHistoryResponse {
+  message: string;
+  success: boolean;
+  history: Subscription[];
+}
