@@ -69,7 +69,10 @@ export interface AuditLog {
 export interface GetAuditLogsResponse {
   success: boolean;
   logs: AuditLog[];
-  total: number;
-  limit: number;
-  page: number;
+  pagination: {
+    total: number;
+    limit: number;
+    page: number;
+    totalPages: number;
+  };
 }

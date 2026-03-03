@@ -1,11 +1,15 @@
 "use client";
 
 import { AuditLogList } from "@/components/audit-logs/AuditLogList";
+import AuditLogsPagination from "@/components/audit-logs/AuditLogsPagination";
 import { AuditLogTable } from "@/components/audit-logs/AuditLogTable";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { API_BASE_URL } from "@/constants";
 import { useGetOrgAuditLogsQuery } from "@/features/audit-logs/audit-logs.api";
-import { AuditEntityType } from "@/features/audit-logs/audit-logs.interface";
+import {
+  AuditEntityType,
+  AuditLog,
+} from "@/features/audit-logs/audit-logs.interface";
 import { useGetOrganizationDetailsQuery } from "@/features/organization/organization.api";
 import axios from "axios";
 import { format } from "date-fns";
@@ -18,18 +22,21 @@ import {
   Search,
 } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function OrgLogsPage() {
-  const limit = 50;
+  const limit = 10;
   const { slug } = useParams() as { slug: string };
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalLogs, setTotalLogs] = useState<number>(0);
+  const [search, setSearch] = useState<string>("");
   const [view, setView] = useState<"table" | "list">("table");
   const [entityType, setEntityType] = useState<AuditEntityType | null>(null);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [logs, setLogs] = useState<AuditLog[]>([]);
 
   const { data: orgData, isLoading: isOrgLoading } =
     useGetOrganizationDetailsQuery(slug, {
@@ -57,7 +64,6 @@ export default function OrgLogsPage() {
   );
 
   const isLoading = isOrgLoading || isLogsLoading;
-  const logs = logsData?.logs || [];
 
   const groupedLogs = useMemo(() => {
     const groups: { [key: string]: typeof logs } = {};
@@ -130,6 +136,22 @@ export default function OrgLogsPage() {
     }
   };
 
+  useEffect(() => {
+    if (logsData?.logs) {
+      setLogs(logsData.logs);
+    }
+    if (logsData?.pagination?.totalPages) {
+      setTotalPages(logsData.pagination.totalPages);
+    }
+    if (logsData?.pagination?.total) {
+      setTotalLogs(logsData.pagination.total);
+    }
+  }, [logsData]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, entityType, startDate, endDate, orgId]);
+
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
@@ -146,9 +168,6 @@ export default function OrgLogsPage() {
       </div>
     );
   }
-
-  const totalLogs = logsData?.total || 0;
-  const totalPages = Math.ceil(totalLogs / limit);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700 pb-20 relative px-4 md:px-0">
@@ -327,34 +346,14 @@ export default function OrgLogsPage() {
 
           {/* Premium Pagination */}
           {!isLoading && logs.length > 0 && (
-            <div className="mt-8 flex flex-col md:flex-row justify-between items-center gap-4 bg-white/2 p-4 rounded-3xl border border-white/5">
-              <div className="flex items-center gap-4">
-                <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
-                  Page {page} of {totalPages}
-                </div>
-                <span className="text-[10px] text-neutral-600 font-medium uppercase tracking-tighter">
-                  Total {totalLogs} events found
-                </span>
-              </div>
-
-              <div className="flex items-center gap-1.5 p-1 bg-black/20 rounded-xl border border-white/5">
-                <button
-                  disabled={page === 1 || isFetching}
-                  onClick={() => setPage((p) => p - 1)}
-                  className="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest text-neutral-400 hover:text-white disabled:opacity-30 disabled:hover:text-neutral-400 transition-colors"
-                >
-                  Back
-                </button>
-                <div className="w-px h-4 bg-white/10" />
-                <button
-                  disabled={page >= totalPages || isFetching}
-                  onClick={() => setPage((p) => p + 1)}
-                  className="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest text-brand hover:text-brand-light disabled:opacity-30 disabled:text-neutral-400 transition-colors"
-                >
-                  Forward
-                </button>
-              </div>
-            </div>
+            <AuditLogsPagination
+              logs={logs}
+              totalLogs={totalLogs}
+              page={page}
+              setPage={setPage}
+              isFetching={isFetching}
+              totalPages={totalPages}
+            />
           )}
         </div>
       </div>
