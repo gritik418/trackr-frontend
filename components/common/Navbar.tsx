@@ -43,6 +43,7 @@ export function Navbar() {
     { id: "features", label: "Features", href: "/features" },
     { id: "docs", label: "Docs", href: "/docs" },
     { id: "pricing", label: "Pricing", href: "/pricing" },
+    { id: "contact", label: "Contact", href: "/contact" },
   ];
   return (
     <nav
