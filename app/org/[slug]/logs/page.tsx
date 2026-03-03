@@ -50,8 +50,8 @@ export default function OrgLogsPage() {
       page,
       search,
       entityType: entityType || undefined,
-      startDate: startDate || null,
-      endDate: endDate || null,
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
     },
     { skip: !orgId, refetchOnMountOrArgChange: true, refetchOnReconnect: true },
   );
