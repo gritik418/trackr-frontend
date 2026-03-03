@@ -2,49 +2,66 @@
 
 import AdminOrOwnerGuard from "@/components/guards/AdminOrOwnerGuard";
 import { InviteMemberModal } from "@/components/org/InviteMemberModal";
+import MembersPagination from "@/components/org/members/MembersPagination";
 import { MembersSkeleton } from "@/components/org/members/MembersSkeleton";
-import OrgMemberItem from "@/components/org/members/OrgMemberItem";
 import { OrgInvitesTab } from "@/components/org/members/OrgInvitesTab";
+import OrgMemberItem from "@/components/org/members/OrgMemberItem";
 import { useGetOrganizationMembersQuery } from "@/features/organization/organization.api";
-import {
-  selectInvites,
-  selectMembers,
-  selectOrganization,
-} from "@/features/organization/organization.slice";
-import { CheckCircle2, Clock, Search, UserPlus, Users, X } from "lucide-react";
-import { useState } from "react";
-import { useSelector } from "react-redux";
 import {
   OrganizationInvitation,
   OrgInviteStatus,
 } from "@/features/organization/organization.interface";
+import {
+  selectInvites,
+  selectOrganization,
+} from "@/features/organization/organization.slice";
+import { OrganizationMember } from "@/types/organization/organization.interface";
+import { CheckCircle2, Clock, Search, UserPlus, Users, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 export default function OrgMembersPage() {
+  const limit: number = 10;
+  const [page, setPage] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<"active" | "invitations">(
     "active",
   );
+  const [totalMembers, setTotalMembers] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [statusFilter, setStatusFilter] = useState<"ALL" | OrgInviteStatus>(
     "ALL",
   );
 
   const organization = useSelector(selectOrganization);
 
-  const { isLoading: isLoadingMembers } = useGetOrganizationMembersQuery(
-    organization?.id || "",
-    { skip: !organization?.id },
+  const { data, isLoading: isLoadingMembers } = useGetOrganizationMembersQuery(
+    {
+      orgId: organization?.id || "",
+      search: searchQuery,
+      page,
+      limit,
+    },
+    { skip: !organization?.id, refetchOnMountOrArgChange: true },
   );
 
-  const members = useSelector(selectMembers);
   const invites = useSelector(selectInvites);
 
-  const filteredMembers = members?.filter(
-    (member) =>
-      member.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.role.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (data?.members) {
+      setMembers(data.members);
+    }
+    if (data?.pagination?.totalPages) {
+      setTotalPages(data.pagination.totalPages);
+      setTotalMembers(data.pagination.total);
+    }
+  }, [data]);
 
   if (!organization) return null;
 
@@ -257,7 +274,7 @@ export default function OrgMembersPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {filteredMembers?.map((member) => (
+                    {members?.map((member) => (
                       <OrgMemberItem
                         orgUserRole={organization.role}
                         key={member.id}
@@ -281,7 +298,7 @@ export default function OrgMembersPage() {
                   </div>
                 )}
 
-                {filteredMembers?.length === 0 && searchQuery && (
+                {members?.length === 0 && searchQuery && (
                   <div className="flex flex-col items-center justify-center py-20 text-center">
                     <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
                       <Search size={24} className="text-neutral-500" />
@@ -312,23 +329,24 @@ export default function OrgMembersPage() {
           )}
         </div>
 
-        <div className="p-4 border-t border-white/5 bg-white/2 flex justify-between items-center text-xs text-neutral-500">
-          <span>
-            Showing{" "}
-            {activeTab === "active"
-              ? filteredMembers?.length || 0
-              : invites?.length || 0}{" "}
-            results
-          </span>
-          <div className="flex gap-2">
-            <button className="px-3 py-1.5 rounded-lg border border-white/5 hover:bg-white/5 disabled:opacity-50 transition-colors">
-              Previous
-            </button>
-            <button className="px-3 py-1.5 rounded-lg border border-white/5 hover:bg-white/5 disabled:opacity-50 transition-colors">
-              Next
-            </button>
-          </div>
-        </div>
+        {
+          activeTab === "active" ? (
+            <MembersPagination
+              members={members}
+              totalMembers={totalMembers}
+              setPage={setPage}
+              page={page}
+              totalPages={totalPages}
+            />
+          ) : null
+          // <InvitesPagination
+          //   invites={invites}
+          //   totalInvites={totalInvites}
+          //   setPage={setPage}
+          //   page={page}
+          //   totalPages={totalPages}
+          // />
+        }
       </div>
     </div>
   );

@@ -41,7 +41,7 @@ export function Navbar() {
   const navItems: NavItem[] = [
     { id: "home", label: "Home", href: "/" },
     { id: "features", label: "Features", href: "/features" },
-    { id: "network", label: "Network", href: "/network" },
+    { id: "docs", label: "Docs", href: "/docs" },
     { id: "pricing", label: "Pricing", href: "/pricing" },
   ];
   return (

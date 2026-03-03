@@ -41,7 +41,13 @@ export type InviteMemberDataDto = z.infer<typeof inviteMemberSchema>;
 export interface GetMembersResponse {
   success: boolean;
   message: string;
-  members: OrganizationMember[];
+  members?: OrganizationMember[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 export enum OrgInviteStatus {
   PENDING = "PENDING",
@@ -93,4 +99,11 @@ export interface PreviewOrgInviteResponse {
 export interface AcceptOrgInviteResponse {
   success: boolean;
   message: string;
+}
+
+export interface GetMembersParams {
+  orgId: string;
+  search?: string;
+  page?: number;
+  limit?: number;
 }

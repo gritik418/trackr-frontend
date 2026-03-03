@@ -10,6 +10,7 @@ import {
   UpdateOrgDto,
   PreviewOrgInviteResponse,
   AcceptOrgInviteResponse,
+  GetMembersParams,
 } from "./organization.interface";
 
 const organizationApi = createApi({
@@ -66,8 +67,18 @@ const organizationApi = createApi({
       }),
       invalidatesTags: ["invites"],
     }),
-    getOrganizationMembers: build.query<GetMembersResponse, string>({
-      query: (orgId) => `/${orgId}/members`,
+    getOrganizationMembers: build.query<GetMembersResponse, GetMembersParams>({
+      query: ({ orgId, search, page, limit }) => {
+        const searchParams = new URLSearchParams();
+        if (search) searchParams.set("search", search);
+        if (page) searchParams.set("page", page.toString());
+        if (limit) searchParams.set("limit", limit.toString());
+
+        return {
+          url: `/${orgId}/members`,
+          params: searchParams,
+        };
+      },
       providesTags: ["organizations"],
     }),
     getOrganizationInvites: build.query<
