@@ -7,17 +7,16 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   Briefcase,
-  Github,
   Globe,
   Info,
   LifeBuoy,
-  Linkedin,
   MessageSquare,
   Phone,
   ShieldCheck,
   X,
 } from "lucide-react";
 import React, { useState } from "react";
+import { FaGithub, FaLinkedin } from "react-icons/fa6";
 
 const ContactPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,9 +65,13 @@ const ContactPage = () => {
   ];
 
   const socialLinks = [
-    { icon: <Github size={20} />, href: APP_CONFIG.GITHUB_URL, name: "GitHub" },
     {
-      icon: <Linkedin size={20} />,
+      icon: <FaGithub size={20} />,
+      href: APP_CONFIG.GITHUB_URL,
+      name: "GitHub",
+    },
+    {
+      icon: <FaLinkedin size={20} />,
       href: APP_CONFIG.LINKEDIN_URL,
       name: "LinkedIn",
     },
