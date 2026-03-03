@@ -11,6 +11,7 @@ import {
   PreviewOrgInviteResponse,
   AcceptOrgInviteResponse,
   GetMembersParams,
+  GetInvitesParams,
 } from "./organization.interface";
 
 const organizationApi = createApi({
@@ -83,12 +84,20 @@ const organizationApi = createApi({
     }),
     getOrganizationInvites: build.query<
       GetInvitationsResponse,
-      { orgId: string; status?: string }
+      GetInvitesParams
     >({
-      query: ({ orgId, status }) => ({
-        url: `/${orgId}/invites`,
-        params: status && status !== "ALL" ? { status } : undefined,
-      }),
+      query: ({ orgId, status, search, page, limit }) => {
+        const searchParams = new URLSearchParams();
+        if (status && status !== "ALL") searchParams.set("status", status);
+        if (search) searchParams.set("search", search);
+        if (page) searchParams.set("page", page.toString());
+        if (limit) searchParams.set("limit", limit.toString());
+
+        return {
+          url: `/${orgId}/invites`,
+          params: searchParams,
+        };
+      },
       providesTags: ["invites"],
     }),
     previewOrgInvite: build.query<

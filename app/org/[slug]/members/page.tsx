@@ -2,11 +2,15 @@
 
 import AdminOrOwnerGuard from "@/components/guards/AdminOrOwnerGuard";
 import { InviteMemberModal } from "@/components/org/InviteMemberModal";
+import InvitesPagination from "@/components/org/invites/InvitesPagination";
 import MembersPagination from "@/components/org/members/MembersPagination";
 import { MembersSkeleton } from "@/components/org/members/MembersSkeleton";
 import { OrgInvitesTab } from "@/components/org/members/OrgInvitesTab";
 import OrgMemberItem from "@/components/org/members/OrgMemberItem";
-import { useGetOrganizationMembersQuery } from "@/features/organization/organization.api";
+import {
+  useGetOrganizationInvitesQuery,
+  useGetOrganizationMembersQuery,
+} from "@/features/organization/organization.api";
 import {
   OrganizationInvitation,
   OrgInviteStatus,
@@ -27,10 +31,12 @@ export default function OrgMembersPage() {
     "active",
   );
   const [totalMembers, setTotalMembers] = useState<number>(0);
+  const [totalInvites, setTotalInvites] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [members, setMembers] = useState<OrganizationMember[]>([]);
+  const [invites, setInvites] = useState<OrganizationInvitation[]>([]);
   const [statusFilter, setStatusFilter] = useState<"ALL" | OrgInviteStatus>(
     "ALL",
   );
@@ -47,11 +53,20 @@ export default function OrgMembersPage() {
     { skip: !organization?.id, refetchOnMountOrArgChange: true },
   );
 
-  const invites = useSelector(selectInvites);
+  const { data: invitesData, isLoading: isLoadingInvites } =
+    useGetOrganizationInvitesQuery(
+      {
+        orgId: organization?.id || "",
+        search: searchQuery,
+        page,
+        limit,
+      },
+      { skip: !organization?.id, refetchOnMountOrArgChange: true },
+    );
 
   useEffect(() => {
     setPage(1);
-  }, [searchQuery]);
+  }, [searchQuery, activeTab]);
 
   useEffect(() => {
     if (data?.members) {
@@ -62,6 +77,16 @@ export default function OrgMembersPage() {
       setTotalMembers(data.pagination.total);
     }
   }, [data]);
+
+  useEffect(() => {
+    if (invitesData?.invitations) {
+      setInvites(invitesData.invitations);
+    }
+    if (invitesData?.pagination?.totalPages) {
+      setTotalPages(invitesData.pagination.totalPages);
+      setTotalInvites(invitesData.pagination.total);
+    }
+  }, [invitesData]);
 
   if (!organization) return null;
 
@@ -329,24 +354,23 @@ export default function OrgMembersPage() {
           )}
         </div>
 
-        {
-          activeTab === "active" ? (
-            <MembersPagination
-              members={members}
-              totalMembers={totalMembers}
-              setPage={setPage}
-              page={page}
-              totalPages={totalPages}
-            />
-          ) : null
-          // <InvitesPagination
-          //   invites={invites}
-          //   totalInvites={totalInvites}
-          //   setPage={setPage}
-          //   page={page}
-          //   totalPages={totalPages}
-          // />
-        }
+        {activeTab === "active" ? (
+          <MembersPagination
+            members={members}
+            totalMembers={totalMembers}
+            setPage={setPage}
+            page={page}
+            totalPages={totalPages}
+          />
+        ) : (
+          <InvitesPagination
+            invites={invites}
+            totalInvites={totalInvites}
+            setPage={setPage}
+            page={page}
+            totalPages={totalPages}
+          />
+        )}
       </div>
     </div>
   );

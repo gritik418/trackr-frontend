@@ -69,7 +69,13 @@ export interface OrganizationInvitation {
 export interface GetInvitationsResponse {
   success: boolean;
   message: string;
-  invitations: OrganizationInvitation[];
+  invitations?: OrganizationInvitation[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export interface PreviewOrgInviteResponse {
@@ -106,4 +112,12 @@ export interface GetMembersParams {
   search?: string;
   page?: number;
   limit?: number;
+}
+
+export interface GetInvitesParams {
+  orgId: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+  status?: string;
 }
