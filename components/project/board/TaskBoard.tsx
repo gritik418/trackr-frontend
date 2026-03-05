@@ -1,5 +1,5 @@
 "use client";
-import { TaskStatus } from "@/features/task/task.interface";
+import { Task, TaskStatus } from "@/features/task/task.interface";
 import { Info } from "lucide-react";
 import { motion } from "framer-motion";
 import TaskBoardContainer from "./TaskBoardContainer";
@@ -38,7 +38,17 @@ const COLUMNS: Column[] = [
   },
 ];
 
-export default function TaskBoard({ projectId }: { projectId: string }) {
+type Props = {
+  onTaskClick: (task: Task) => void;
+  onAddTask: (status: TaskStatus) => void;
+  projectId: string;
+};
+
+export default function TaskBoard({
+  projectId,
+  onTaskClick,
+  onAddTask,
+}: Props) {
   const limit = 10;
   return (
     <div className="flex flex-col h-full">
@@ -68,6 +78,8 @@ export default function TaskBoard({ projectId }: { projectId: string }) {
               projectId={projectId}
               status={column.status}
               limit={limit}
+              onTaskClick={onTaskClick}
+              onAddTask={onAddTask}
             />
           );
         })}

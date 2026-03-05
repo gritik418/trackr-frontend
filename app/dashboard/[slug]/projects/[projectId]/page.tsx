@@ -6,19 +6,13 @@ import ProjectOverview from "@/components/project/ProjectOverview";
 import ProjectSettings from "@/components/project/ProjectSettings";
 import TaskListView from "@/components/project/TaskListView";
 import { selectProject } from "@/features/project/project.slice";
+import { Task, TaskStatus } from "@/features/task/task.interface";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
-import {
-  Layout,
-  List,
-  MoreHorizontal,
-  Plus,
-  Settings,
-  Share2,
-  Users,
-} from "lucide-react";
+import { Clipboard, Layout, List, Plus, Settings, Users } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 
 export default function ProjectDetailsPage() {
@@ -26,6 +20,7 @@ export default function ProjectDetailsPage() {
   const project = useSelector(selectProject);
   const params = useParams();
   const slug = params.slug as string;
+  const router = useRouter();
   const projectId = params.projectId as string;
 
   const [activeTab, setActiveTab] = useState("board");
@@ -37,6 +32,27 @@ export default function ProjectDetailsPage() {
     { id: "members", label: "Members", icon: Users },
     { id: "settings", label: "Settings", icon: Settings },
   ];
+
+  const onTaskClick = (task: Task) => {
+    router.push(`/dashboard/${slug}/projects/${projectId}/tasks/${task.id}`);
+  };
+
+  const onAddTask = (status: TaskStatus) => {
+    router.push(
+      `/dashboard/${slug}/projects/${projectId}/tasks/new?status=${status}`,
+    );
+  };
+
+  const handleCopyProjectLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success("Project link copied to clipboard");
+  };
+
+  const handleAddTask = (status: TaskStatus) => {
+    router.push(
+      `/dashboard/${slug}/projects/${projectId}/tasks/new?status=${status}`,
+    );
+  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-2rem)] animate-in fade-in duration-700">
@@ -67,19 +83,13 @@ export default function ProjectDetailsPage() {
                   {name}
                 </div>
               ))}
-              <button
-                // onClick={() => handleAddTask(TaskStatus.TODO)}
-                className="w-8 h-8 rounded-full border-2 border-bg-dark-0 bg-white/10 flex items-center justify-center text-xs text-white hover:bg-brand hover:text-bg-dark-0 transition-all active:scale-95"
-              >
-                <Plus size={14} />
-              </button>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white border border-white/5 rounded-xl text-sm font-bold transition-all active:scale-95">
-              <Share2 size={16} />
-              Share
-            </button>
-            <button className="p-2.5 text-neutral-500 hover:text-white hover:bg-white/5 rounded-xl transition-all">
-              <MoreHorizontal size={20} />
+            <button
+              onClick={handleCopyProjectLink}
+              className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white border border-white/5 rounded-xl text-sm font-bold transition-all active:scale-95"
+            >
+              <Clipboard size={14} />
+              Copy Project Link
             </button>
           </div>
         </div>
@@ -110,7 +120,7 @@ export default function ProjectDetailsPage() {
           {/* Actions */}
           <div className="flex items-center gap-3 mb-2 sm:mb-0">
             <button
-              // onClick={() => handleAddTask(TaskStatus.TODO)}
+              onClick={() => handleAddTask(TaskStatus.TODO)}
               className="ml-2 cursor-pointer px-4 py-2 bg-brand text-bg-dark-0 text-sm font-black rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all flex items-center gap-2 active:scale-95"
             >
               <Plus size={18} strokeWidth={3} />
@@ -127,7 +137,13 @@ export default function ProjectDetailsPage() {
             <ProjectOverview projectId={projectId} />
           )}
 
-          {activeTab === "board" && <TaskBoard projectId={projectId} />}
+          {activeTab === "board" && (
+            <TaskBoard
+              onTaskClick={onTaskClick}
+              projectId={projectId}
+              onAddTask={onAddTask}
+            />
+          )}
 
           {activeTab === "list" && <TaskListView projectId={projectId} />}
 

@@ -1,7 +1,7 @@
 import { useGetTasksQuery } from "@/features/task/task.api";
 import { Task, TaskStatus } from "@/features/task/task.interface";
 import { Plus } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import TaskCard from "./TaskCard";
 
 type Props = {
@@ -10,6 +10,8 @@ type Props = {
   limit?: number;
   columnColor: string;
   columnTitle: string;
+  onTaskClick: (task: Task) => void;
+  onAddTask: (status: TaskStatus) => void;
 };
 
 const TaskBoardContainer = ({
@@ -18,6 +20,8 @@ const TaskBoardContainer = ({
   limit,
   columnColor,
   columnTitle,
+  onTaskClick,
+  onAddTask,
 }: Props) => {
   const [page, setPage] = useState<number>(1);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -40,10 +44,6 @@ const TaskBoardContainer = ({
       refetchOnMountOrArgChange: true,
     },
   );
-
-  const onTaskClick = (task: Task) => {
-    console.log(task);
-  };
 
   useEffect(() => {
     if (data?.tasks) {
@@ -73,7 +73,7 @@ const TaskBoardContainer = ({
           </span>
         </div>
         <button
-          //   onClick={() => onAddTask?.(column.id)}
+          onClick={() => onAddTask(status)}
           className="text-neutral-600 hover:text-white transition-all hover:rotate-90 p-1"
         >
           <Plus size={16} />
@@ -87,7 +87,7 @@ const TaskBoardContainer = ({
         ))}
 
         <button
-          //   onClick={() => onAddTask?.(column.id)}
+          onClick={() => onAddTask(status)}
           className="w-full py-3 flex items-center justify-center gap-2 text-sm text-neutral-500 hover:text-white hover:bg-white/5 rounded-xl transition-all border border-dashed border-white/5 hover:border-white/20 group"
         >
           <Plus

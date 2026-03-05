@@ -10,10 +10,6 @@ interface TaskCardProps {
 }
 
 export default function TaskCard({ task, onClick }: TaskCardProps) {
-  // Mock subtasks for now as API doesn't return them yet
-  const subtasks = [];
-  const completedSubtasks = 0;
-
   const priorityColors = {
     LOW: "bg-blue-500/10 text-blue-400 border-blue-500/20",
     MEDIUM: "bg-amber-500/10 text-amber-400 border-amber-500/20",
