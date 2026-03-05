@@ -65,7 +65,7 @@ const taskApi = createApi({
     >({
       query: ({ taskId, projectId, body }) => ({
         url: `/projects/${projectId}/tasks/${taskId}`,
-        method: "PUT",
+        method: "PATCH",
         body,
       }),
       invalidatesTags: (result, error, { taskId }) => [
