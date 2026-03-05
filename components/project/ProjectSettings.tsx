@@ -137,14 +137,14 @@ export default function ProjectSettings({
             <div className="flex items-center gap-4 p-1.5 bg-black/20 rounded-2xl w-fit border border-white/5">
               <button
                 onClick={() => setNature("PRIVATE")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${nature === "PRIVATE" ? "bg-white/10 text-white shadow-lg" : "text-neutral-500 hover:text-neutral-300"}`}
+                className={`flex cursor-pointer items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${nature === "PRIVATE" ? "bg-white/10 text-white shadow-lg" : "text-neutral-500 hover:text-neutral-300"}`}
               >
                 <Lock size={14} />
                 Private
               </button>
               <button
                 onClick={() => setNature("PUBLIC")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${nature === "PUBLIC" ? "bg-white/10 text-white shadow-lg" : "text-neutral-500 hover:text-neutral-300"}`}
+                className={`flex cursor-pointer items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${nature === "PUBLIC" ? "bg-white/10 text-white shadow-lg" : "text-neutral-500 hover:text-neutral-300"}`}
               >
                 <Globe size={14} />
                 Public
@@ -153,7 +153,7 @@ export default function ProjectSettings({
             <button
               onClick={handleSave}
               disabled={isUpdating}
-              className="flex items-center gap-2 px-8 py-4 bg-brand text-bg-dark-0 font-black rounded-2xl hover:bg-brand-hover transition-all active:scale-95 shadow-xl shadow-brand/10 disabled:opacity-50"
+              className="flex cursor-pointer items-center gap-2 px-8 py-4 bg-brand text-bg-dark-0 font-black rounded-2xl hover:bg-brand-hover transition-all active:scale-95 shadow-xl shadow-brand/10 disabled:opacity-50"
             >
               <Save size={18} strokeWidth={3} />
               {isUpdating ? "Saving..." : "Save Changes"}
@@ -185,7 +185,7 @@ export default function ProjectSettings({
           </div>
           <button
             onClick={() => setIsDeleteModalOpen(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-all shadow-xl shadow-red-500/20 active:scale-95"
+            className="flex cursor-pointer items-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-all shadow-xl shadow-red-500/20 active:scale-95"
           >
             <Trash2 size={18} />
             Delete permanently

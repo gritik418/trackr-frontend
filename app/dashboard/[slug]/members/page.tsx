@@ -2,7 +2,6 @@
 
 import { InviteWorkspaceMemberModal } from "@/components/workspace/InviteWorkspaceMemberModal";
 import WorkspaceInviteItem from "@/components/workspace/WorkspaceInviteItem";
-import { selectOrganization } from "@/features/organization/organization.slice";
 import {
   useGetWorkspaceInvitesQuery,
   useGetWorkspaceMembersQuery,
@@ -31,7 +30,6 @@ export default function WorkspaceMembersPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const workspace = useSelector(selectWorkspace);
-  const organization = useSelector(selectOrganization);
 
   const { data: membersData, isLoading: isLoadingMembers } =
     useGetWorkspaceMembersQuery(workspace?.id || "", { skip: !workspace?.id });

@@ -5,7 +5,6 @@ import { Navbar } from "@/components/common/Navbar";
 import { motion } from "framer-motion";
 import { ArrowLeft, Home, Rocket } from "lucide-react";
 import Link from "next/link";
-import React from "react";
 
 export default function NotFound() {
   return (
@@ -91,10 +90,7 @@ export default function NotFound() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full -z-10 opacity-20 pointer-events-none">
               <div className="grid grid-cols-12 gap-4 w-full h-full">
                 {Array.from({ length: 48 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-1 h-1 bg-white/[0.1] rounded-full"
-                  />
+                  <div key={i} className="w-1 h-1 bg-white/1 rounded-full" />
                 ))}
               </div>
             </div>

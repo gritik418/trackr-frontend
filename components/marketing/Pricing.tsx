@@ -86,7 +86,7 @@ export function Pricing() {
     }
   };
 
-  const handlePlanClick = (e: React.MouseEvent, type: PlanType | "CUSTOM") => {
+  const handlePlanClick = (e: React.MouseEvent, type: PlanType) => {
     if (type !== PlanType.EARLY_ACCESS) {
       e.preventDefault();
       setIsBetaModalOpen(true);

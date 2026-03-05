@@ -115,7 +115,7 @@ export default function ProjectDetailsPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all relative ${
+                className={`flex cursor-pointer items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all relative ${
                   activeTab === tab.id
                     ? "text-white"
                     : "text-neutral-500 hover:text-neutral-300 hover:bg-white/5"
@@ -186,7 +186,7 @@ export default function ProjectDetailsPage() {
             )}
 
             {activeTab === "members" && project && (
-              <ProjectMembers project={project} />
+              <ProjectMembers project={project} setActiveTab={setActiveTab} />
             )}
           </>
         )}

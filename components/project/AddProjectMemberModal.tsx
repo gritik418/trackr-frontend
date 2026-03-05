@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  useAddMemberToProjectMutation,
-  useGetProjectMembersQuery,
-} from "@/features/project/project.api";
+import { useAddMemberToProjectMutation } from "@/features/project/project.api";
 import { useGetWorkspaceMembersQuery } from "@/features/workspace/workspace.api";
 import { Search, UserPlus, Users, X } from "lucide-react";
 import Image from "next/image";
@@ -97,7 +94,7 @@ export default function AddProjectMemberModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-xl transition-colors text-neutral-400 hover:text-white"
+            className="p-2 cursor-pointer hover:bg-white/10 rounded-xl transition-colors text-neutral-400 hover:text-white"
           >
             <X size={20} />
           </button>
@@ -123,7 +120,7 @@ export default function AddProjectMemberModal({
           <div className="flex items-center gap-2 p-1 bg-white/5 rounded-xl">
             <button
               onClick={() => setSelectedRole("MEMBER")}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+              className={`flex-1 cursor-pointer py-2 text-xs font-bold rounded-lg transition-all ${
                 selectedRole === "MEMBER"
                   ? "bg-brand text-bg-dark-0 shadow-lg"
                   : "text-neutral-500 hover:text-white"
@@ -133,7 +130,7 @@ export default function AddProjectMemberModal({
             </button>
             <button
               onClick={() => setSelectedRole("ADMIN")}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+              className={`flex-1 cursor-pointer py-2 text-xs font-bold rounded-lg transition-all ${
                 selectedRole === "ADMIN"
                   ? "bg-brand text-bg-dark-0 shadow-lg"
                   : "text-neutral-500 hover:text-white"
@@ -195,7 +192,7 @@ export default function AddProjectMemberModal({
                   </div>
                   <button
                     onClick={() => handleAdd(member)}
-                    className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-brand text-xs font-bold text-white rounded-xl border border-white/5 hover:border-brand/50 transition-all active:scale-95 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0"
+                    className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-white/5 hover:bg-brand text-xs font-bold text-white rounded-xl border border-white/5 hover:border-brand/50 transition-all active:scale-95 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0"
                   >
                     <UserPlus size={14} />
                     Add

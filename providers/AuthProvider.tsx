@@ -16,7 +16,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { data, isError, isLoading, error } = useAuth();
+  const { data, isError, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -36,7 +36,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     pathname === "/forgot-password" ||
     pathname === "/reset-password" ||
     pathname === "/pricing" ||
-    pathname === "/";
+    pathname === "/" ||
+    pathname === "/features" ||
+    pathname === "/contact";
 
   useEffect(() => {
     if (isLoading) return;

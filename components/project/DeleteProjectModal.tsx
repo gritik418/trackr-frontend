@@ -91,14 +91,14 @@ export default function DeleteProjectModal({
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               onClick={onClose}
-              className="flex-1 px-8 py-4 bg-white/5 hover:bg-white/10 text-white font-black rounded-2xl transition-all border border-white/5 active:scale-95"
+              className="flex-1 cursor-pointer px-8 py-4 bg-white/5 hover:bg-white/10 text-white font-black rounded-2xl transition-all border border-white/5 active:scale-95"
             >
               Cancel
             </button>
             <button
               onClick={handleDelete}
               disabled={isLoading || confirmName !== projectName}
-              className="flex-1 px-8 py-4 bg-red-500 hover:bg-red-600 disabled:bg-red-500/20 disabled:text-red-500/50 disabled:cursor-not-allowed text-white font-black rounded-2xl transition-all shadow-xl shadow-red-500/20 active:scale-95 flex items-center justify-center gap-2"
+              className="flex-1 cursor-pointer px-8 py-4 bg-red-500 hover:bg-red-600 disabled:bg-red-500/20 disabled:text-red-500/50 disabled:cursor-not-allowed text-white font-black rounded-2xl transition-all shadow-xl shadow-red-500/20 active:scale-95 flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

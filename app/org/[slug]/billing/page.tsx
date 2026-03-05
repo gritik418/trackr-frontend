@@ -9,6 +9,7 @@ import {
 } from "@/features/subscription/subscription.api";
 import { Subscription } from "@/features/subscription/subscription.interface";
 import { Check, Download, ExternalLink, X, Zap } from "lucide-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -217,13 +218,16 @@ export default function OrgBillingPage() {
                 Our support team is available 24/7 for any subscription or
                 invoice inquiries.
               </p>
-              <button className="flex items-center gap-2 text-sm font-bold text-brand hover:text-brand-light transition-all group/link relative z-10">
+              <Link
+                href={"/contact"}
+                className="flex items-center gap-2 text-sm font-bold text-brand hover:text-brand-light transition-all group/link relative z-10"
+              >
                 Contact Support{" "}
                 <ExternalLink
                   size={14}
                   className="group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform"
                 />
-              </button>
+              </Link>
             </section>
           </div>
         </div>
