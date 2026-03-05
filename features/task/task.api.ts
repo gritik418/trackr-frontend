@@ -22,10 +22,21 @@ const taskApi = createApi({
       GetTasksResponse,
       { projectId: string; query?: GetTasksQuery }
     >({
-      query: ({ projectId, query }) => ({
-        url: `/projects/${projectId}/tasks`,
-        params: query,
-      }),
+      query: ({ projectId, query }) => {
+        const searchParams = new URLSearchParams();
+        if (query?.status) searchParams.set("status", query.status);
+        if (query?.priority) searchParams.set("priority", query.priority);
+        if (query?.tag) searchParams.set("tag", query.tag);
+        if (query?.page) searchParams.set("page", query.page.toString());
+        if (query?.limit) searchParams.set("limit", query.limit.toString());
+        if (query?.search) searchParams.set("search", query.search);
+        if (query?.sortBy) searchParams.set("sortBy", query.sortBy);
+        if (query?.sortOrder) searchParams.set("sortOrder", query.sortOrder);
+        return {
+          url: `/projects/${projectId}/tasks`,
+          params: searchParams,
+        };
+      },
       providesTags: ["ProjectTasks"],
     }),
     getWorkspaceTasks: build.query<

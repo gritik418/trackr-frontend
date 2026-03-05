@@ -1,27 +1,48 @@
 "use client";
 
-import { Task } from "@/features/task/task.interface";
+import { useGetTasksQuery } from "@/features/task/task.api";
+import { SortBy, SortOrder, Task } from "@/features/task/task.interface";
 import {
   AlertCircle,
   CheckCircle2,
   Clock,
-  List as ListIcon,
+  MinusCircle,
   MoreHorizontal,
   Tag as TagIcon,
-  MinusCircle,
   X,
 } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 interface TaskListViewProps {
-  tasks: Task[];
-  onTaskClick?: (task: Task) => void;
+  projectId: string;
 }
 
-export default function TaskListView({
-  tasks,
-  onTaskClick,
-}: TaskListViewProps) {
+export default function TaskListView({ projectId }: TaskListViewProps) {
+  const limit: number = 20;
+  const [page, setPage] = useState<number>(1);
+  const [sort, setSort] = useState<SortBy>("createdAt");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const [search, setSearch] = useState<string>("");
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  const { data } = useGetTasksQuery(
+    {
+      projectId,
+      query: {
+        page,
+        limit,
+        sortBy: sort,
+        sortOrder,
+        search,
+      },
+    },
+    {
+      skip: !projectId,
+      refetchOnMountOrArgChange: true,
+    },
+  );
+
   const priorityColors = {
     LOW: "bg-blue-500/10 text-blue-400 border-blue-500/20",
     MEDIUM: "bg-amber-500/10 text-amber-400 border-amber-500/20",
@@ -38,6 +59,15 @@ export default function TaskListView({
     ON_HOLD: <Clock size={14} className="text-gray-400" />,
     CANCELED: <X size={14} className="text-red-500" />,
   };
+
+  const onTaskClick = (task: Task) => {
+    console.log(task);
+  };
+  useEffect(() => {
+    if (data?.tasks) {
+      setTasks(data.tasks);
+    }
+  }, [data]);
 
   return (
     <div className="bg-dashboard-card-bg/40 border border-white/5 rounded-2xl overflow-hidden animate-in fade-in duration-500 shadow-xl">
@@ -68,10 +98,6 @@ export default function TaskListView({
           </thead>
           <tbody className="divide-y divide-white/5">
             {tasks.map((task) => {
-              // Mock subtasks
-              const subtasks = [];
-              const completedSubtasks = 0;
-
               return (
                 <tr
                   key={task.id}
@@ -103,7 +129,6 @@ export default function TaskListView({
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-300">
-                      {/* Cast because API status might have values not in map yet, or verify map covers all */}
                       {statusIcons[task.status] || <AlertCircle size={14} />}
                       <span className="opacity-80 font-mono text-[10px]">
                         {task.status.replace("_", " ")}

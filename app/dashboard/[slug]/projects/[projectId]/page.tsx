@@ -1,36 +1,29 @@
 "use client";
 
-import ProjectOverview from "@/components/project/ProjectOverview";
-import TaskBoard from "@/components/project/TaskBoard";
-import TaskListView from "@/components/project/TaskListView";
-import ProjectSettings from "@/components/project/ProjectSettings";
+import TaskBoard from "@/components/project/board/TaskBoard";
 import ProjectMembers from "@/components/project/ProjectMembers";
-import { Task } from "@/features/task/task.interface";
-import { TaskStatus } from "@/features/task/task.interface";
-import { useGetTasksQuery } from "@/features/task/task.api";
+import ProjectOverview from "@/components/project/ProjectOverview";
+import ProjectSettings from "@/components/project/ProjectSettings";
+import TaskListView from "@/components/project/TaskListView";
 import { selectProject } from "@/features/project/project.slice";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import {
-  Calendar,
-  Filter,
   Layout,
   List,
   MoreHorizontal,
   Plus,
-  Search,
   Settings,
   Share2,
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { useRouter, useParams } from "next/navigation";
 
 export default function ProjectDetailsPage() {
   const workspace = useSelector(selectWorkspace);
   const project = useSelector(selectProject);
-  const router = useRouter();
   const params = useParams();
   const slug = params.slug as string;
   const projectId = params.projectId as string;
@@ -44,22 +37,6 @@ export default function ProjectDetailsPage() {
     { id: "members", label: "Members", icon: Users },
     { id: "settings", label: "Settings", icon: Settings },
   ];
-
-  const { data: tasksData, isLoading } = useGetTasksQuery(
-    { projectId: project?.id! },
-    { skip: !project?.id },
-  );
-  const tasks = tasksData?.tasks || [];
-
-  const handleTaskClick = (task: Task) => {
-    router.push(`/dashboard/${slug}/projects/${projectId}/tasks/${task.id}`);
-  };
-
-  const handleAddTask = (status: TaskStatus) => {
-    router.push(
-      `/dashboard/${workspace?.slug}/projects/${project?.id}/tasks/new?status=${status}`,
-    );
-  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-2rem)] animate-in fade-in duration-700">
@@ -91,7 +68,7 @@ export default function ProjectDetailsPage() {
                 </div>
               ))}
               <button
-                onClick={() => handleAddTask(TaskStatus.TODO)}
+                // onClick={() => handleAddTask(TaskStatus.TODO)}
                 className="w-8 h-8 rounded-full border-2 border-bg-dark-0 bg-white/10 flex items-center justify-center text-xs text-white hover:bg-brand hover:text-bg-dark-0 transition-all active:scale-95"
               >
                 <Plus size={14} />
@@ -133,7 +110,7 @@ export default function ProjectDetailsPage() {
           {/* Actions */}
           <div className="flex items-center gap-3 mb-2 sm:mb-0">
             <button
-              onClick={() => handleAddTask(TaskStatus.TODO)}
+              // onClick={() => handleAddTask(TaskStatus.TODO)}
               className="ml-2 cursor-pointer px-4 py-2 bg-brand text-bg-dark-0 text-sm font-black rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all flex items-center gap-2 active:scale-95"
             >
               <Plus size={18} strokeWidth={3} />
@@ -145,31 +122,19 @@ export default function ProjectDetailsPage() {
 
       {/* Main Content Area */}
       <div className="-mx-4 sm:mx-0 flex-1 overflow-x-auto">
-        {isLoading ? (
-          <div className="flex h-full items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand border-t-transparent" />
-          </div>
-        ) : (
-          <>
-            {activeTab === "overview" && <ProjectOverview tasks={tasks} />}
+        <>
+          {activeTab === "overview" && (
+            <ProjectOverview projectId={projectId} />
+          )}
 
-            {activeTab === "board" && (
-              <TaskBoard
-                tasks={tasks}
-                onTaskClick={handleTaskClick}
-                onAddTask={handleAddTask}
-              />
-            )}
+          {activeTab === "board" && <TaskBoard projectId={projectId} />}
 
-            {activeTab === "list" && (
-              <TaskListView tasks={tasks} onTaskClick={handleTaskClick} />
-            )}
+          {activeTab === "list" && <TaskListView projectId={projectId} />}
 
-            {activeTab === "members" && project && (
-              <ProjectMembers project={project} setActiveTab={setActiveTab} />
-            )}
-          </>
-        )}
+          {activeTab === "members" && project && (
+            <ProjectMembers project={project} setActiveTab={setActiveTab} />
+          )}
+        </>
 
         {activeTab === "settings" && project && (
           <ProjectSettings project={project} slug={slug} />

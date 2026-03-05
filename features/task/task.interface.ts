@@ -65,17 +65,43 @@ export interface CreateTaskResponse {
   task: Task;
 }
 
+enum ExtraTaskStatus {
+  ALL = "ALL",
+}
+
+export const TaskStatusWithAll = {
+  ...TaskStatus,
+  ...ExtraTaskStatus,
+};
+
+type TaskStatusWithAll =
+  (typeof TaskStatusWithAll)[keyof typeof TaskStatusWithAll];
+
+export type SortBy = "createdAt" | "updatedAt" | "deadline";
+
+export type SortOrder = "asc" | "desc";
+
 export interface GetTasksQuery {
-  status?: TaskStatus;
+  status?: TaskStatusWithAll;
   priority?: TaskPriority;
-  assignedToIds?: string[];
   tag?: string;
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: SortBy;
+  sortOrder?: SortOrder;
 }
 
 export interface GetTasksResponse {
   success: boolean;
   message: string;
-  tasks: Task[];
+  tasks?: Task[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export interface GetTaskByIdResponse {

@@ -1,37 +1,94 @@
 "use client";
 
+import { useGetTasksQuery } from "@/features/task/task.api";
 import { Task, TaskStatus } from "@/features/task/task.interface";
 import {
-  BarChart3,
+  AlertCircle,
   CheckCircle2,
   Clock,
-  Users,
+  Clock1,
+  Clock10Icon,
+  Eye,
+  List,
+  Pause,
   Target,
   TrendingUp,
-  AlertCircle,
+  Users,
+  Watch,
+  X,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface ProjectOverviewProps {
-  tasks: Task[];
+  projectId: string;
 }
 
-export default function ProjectOverview({ tasks }: ProjectOverviewProps) {
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(
-    (t) => t.status === TaskStatus.DONE,
-  ).length;
-  const inProgressTasks = tasks.filter(
-    (t) => t.status === TaskStatus.IN_PROGRESS,
-  ).length;
-  const overdueTasks = tasks.filter(
-    (t) =>
-      t.deadline &&
-      new Date(t.deadline) < new Date() &&
-      t.status !== TaskStatus.DONE,
-  ).length;
+export default function ProjectOverview({ projectId }: ProjectOverviewProps) {
+  const { data } = useGetTasksQuery({ projectId }, { skip: !projectId });
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [totalTasks, setTotalTasks] = useState<number>(0);
+  const [completedTasks, setCompletedTasks] = useState<number>(0);
+  const [inProgressTasks, setInProgressTasks] = useState<number>(0);
+  const [toDoTasks, setToDoTasks] = useState<number>(0);
+  const [inReviewTasks, setInReviewTasks] = useState<number>(0);
+  const [blockedTasks, setBlockedTasks] = useState<number>(0);
+  const [cancelledTasks, setCancelledTasks] = useState<number>(0);
+  const [holdTasks, setHoldTasks] = useState<number>(0);
+  const [completionRate, setCompletionRate] = useState<number>(0);
 
-  const completionRate =
-    totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  useEffect(() => {
+    if (data?.tasks) {
+      setTasks(data.tasks);
+    }
+    if (data?.pagination.total) {
+      setTotalTasks(data.pagination.total);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    const completedTasks = tasks.filter(
+      (t: Task) => t.status === TaskStatus.DONE,
+    ).length;
+
+    const inProgressTasks = tasks.filter(
+      (t: Task) => t.status === TaskStatus.TODO,
+    ).length;
+
+    const toDoTasks = tasks.filter(
+      (t: Task) => t.status === TaskStatus.TODO,
+    ).length;
+
+    const inReviewTasks = tasks.filter(
+      (t: Task) => t.status === TaskStatus.IN_REVIEW,
+    ).length;
+
+    const blockedTasks = tasks.filter(
+      (t: Task) => t.status === TaskStatus.BLOCKED,
+    ).length;
+
+    const cancelledTasks = tasks.filter(
+      (t: Task) => t.status === TaskStatus.CANCELED,
+    ).length;
+
+    const holdTasks = tasks.filter(
+      (t: Task) => t.status === TaskStatus.ON_HOLD,
+    ).length;
+
+    setCompletedTasks(completedTasks);
+    setInProgressTasks(inProgressTasks);
+    setInReviewTasks(inReviewTasks);
+    setToDoTasks(toDoTasks);
+    setBlockedTasks(blockedTasks);
+    setCancelledTasks(cancelledTasks);
+    setHoldTasks(holdTasks);
+  }, [tasks]);
+
+  useEffect(() => {
+    if (!totalTasks || !completedTasks) return;
+    if (totalTasks > 0) {
+      setCompletionRate(Math.round((completedTasks / totalTasks) * 100));
+    }
+  }, [totalTasks, completedTasks]);
 
   const stats = [
     {
@@ -41,21 +98,45 @@ export default function ProjectOverview({ tasks }: ProjectOverviewProps) {
       color: "text-brand",
     },
     {
+      label: "To Do",
+      value: toDoTasks,
+      icon: List,
+      color: "text-brand",
+    },
+    {
+      label: "In Progress",
+      value: inProgressTasks,
+      icon: Clock10Icon,
+      color: "text-brand",
+    },
+    {
+      label: "In Review",
+      value: inReviewTasks,
+      icon: Eye,
+      color: "text-blue-400",
+    },
+    {
       label: "Completed",
       value: completedTasks,
       icon: CheckCircle2,
       color: "text-emerald-400",
     },
     {
-      label: "In Progress",
-      value: inProgressTasks,
-      icon: Clock,
-      color: "text-blue-400",
+      label: "Blocked",
+      value: blockedTasks,
+      icon: AlertCircle,
+      color: "text-red-400",
     },
     {
-      label: "Overdue",
-      value: overdueTasks,
-      icon: AlertCircle,
+      label: "Cancelled",
+      value: cancelledTasks,
+      icon: X,
+      color: "text-red-400",
+    },
+    {
+      label: "Hold",
+      value: holdTasks,
+      icon: Pause,
       color: "text-red-400",
     },
   ];
