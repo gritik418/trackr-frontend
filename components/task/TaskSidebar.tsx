@@ -1,18 +1,18 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { Task, TaskPriority, TaskStatus } from "@/features/task/task.interface";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  Plus,
-  Check,
-  X,
-  User,
-  ChevronLeft,
   Calendar,
+  Check,
+  ChevronLeft,
+  Plus,
   Tag as TagIcon,
-  Zap,
+  User,
+  X,
 } from "lucide-react";
 import Image from "next/image";
-import { TaskStatus, TaskPriority, Task } from "@/features/task/task.interface";
+import { useRef } from "react";
 
 interface TaskSidebarProps {
   task: Task;
@@ -290,6 +290,24 @@ export function SidebarSchedule({
   task,
   handleUpdate,
 }: Pick<TaskSidebarProps, "task" | "handleUpdate">) {
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  const handleIconClick = () => {
+    if (dateInputRef.current) {
+      try {
+        if ("showPicker" in HTMLInputElement.prototype) {
+          dateInputRef.current.showPicker();
+        } else {
+          dateInputRef.current.focus();
+          dateInputRef.current.click();
+        }
+      } catch (err) {
+        dateInputRef.current.focus();
+        dateInputRef.current.click();
+      }
+    }
+  };
+
   return (
     <div className="space-y-4">
       <label className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] flex items-center gap-3 px-1">
@@ -302,6 +320,7 @@ export function SidebarSchedule({
             Task Deadline
           </p>
           <input
+            ref={dateInputRef}
             type="date"
             value={
               task.deadline
@@ -312,7 +331,10 @@ export function SidebarSchedule({
             className="bg-transparent text-[16px] text-brand font-black outline-none border-none cursor-pointer focus:text-white transition-colors"
           />
         </div>
-        <div className="p-3 bg-brand/5 rounded-xl group-hover/date:bg-brand/10 transition-colors">
+        <div
+          onClick={handleIconClick}
+          className="p-3 bg-brand/5 rounded-xl group-hover/date:bg-brand/10 cursor-pointer active:scale-90 transition-all"
+        >
           <Calendar
             size={22}
             className="text-brand/50 group-hover/date:text-brand transition-colors"
