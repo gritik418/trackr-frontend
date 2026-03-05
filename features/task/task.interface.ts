@@ -83,3 +83,10 @@ export interface GetTaskByIdResponse {
   message: string;
   task: Task;
 }
+export interface UpdateTaskRequest extends Partial<CreateTaskRequest> {}
+
+export interface UpdateTaskResponse {
+  success: boolean;
+  message: string;
+  task: Task;
+}

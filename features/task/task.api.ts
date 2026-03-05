@@ -6,6 +6,8 @@ import {
   GetTaskByIdResponse,
   GetTasksQuery,
   GetTasksResponse,
+  UpdateTaskRequest,
+  UpdateTaskResponse,
 } from "./task.interface";
 
 const taskApi = createApi({
@@ -57,6 +59,20 @@ const taskApi = createApi({
         { type: "Tasks", id: taskId },
       ],
     }),
+    updateTask: build.mutation<
+      UpdateTaskResponse,
+      { taskId: string; projectId: string; body: UpdateTaskRequest }
+    >({
+      query: ({ taskId, projectId, body }) => ({
+        url: `/projects/${projectId}/tasks/${taskId}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: (result, error, { taskId }) => [
+        { type: "Tasks", id: taskId },
+        "ProjectTasks",
+      ],
+    }),
   }),
 });
 
@@ -65,6 +81,7 @@ export const {
   useGetTasksQuery,
   useGetWorkspaceTasksQuery,
   useGetTaskByIdQuery,
+  useUpdateTaskMutation,
 } = taskApi;
 
 export default taskApi;

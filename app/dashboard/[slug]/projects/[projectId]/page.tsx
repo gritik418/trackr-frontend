@@ -132,26 +132,6 @@ export default function ProjectDetailsPage() {
 
           {/* Actions */}
           <div className="flex items-center gap-3 mb-2 sm:mb-0">
-            <div className="h-6 w-px bg-white/10 mx-2 hidden sm:block" />
-            <button className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-500 hover:text-white transition-colors">
-              <Filter size={16} />
-              Filter
-            </button>
-            <button className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-500 hover:text-white transition-colors">
-              <Calendar size={16} />
-              Date
-            </button>
-            <div className="relative">
-              <Search
-                className="absolute left-3 top-2.5 text-neutral-600"
-                size={14}
-              />
-              <input
-                type="text"
-                placeholder="Search tasks..."
-                className="pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-medium text-white focus:outline-none focus:border-brand/40 w-40 hover:w-56 focus:w-56 transition-all duration-300 placeholder:text-neutral-600"
-              />
-            </div>
             <button
               onClick={() => handleAddTask(TaskStatus.TODO)}
               className="ml-2 cursor-pointer px-4 py-2 bg-brand text-bg-dark-0 text-sm font-black rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all flex items-center gap-2 active:scale-95"
