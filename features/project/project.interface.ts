@@ -1,6 +1,5 @@
-import { Project } from "@/types/project/project.interface";
 import { CreateProjectDto } from "@/types/project/create-project.interface";
-import { WorkspaceMember } from "@/types/workspace/workspace.interface";
+import { Project } from "@/types/project/project.interface";
 
 export interface GetProjectsResponse {
   success: boolean;

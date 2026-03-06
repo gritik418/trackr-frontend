@@ -14,4 +14,11 @@ export interface Project {
   workspaceId: string;
   createdAt: string;
   updatedAt: string;
+  role?: ProjectRole;
+}
+
+export enum ProjectRole {
+  ADMIN = "ADMIN",
+  OWNER = "OWNER",
+  MEMBER = "MEMBER",
 }

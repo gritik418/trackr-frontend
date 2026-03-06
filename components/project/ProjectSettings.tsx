@@ -2,7 +2,7 @@
 
 import { useUpdateProjectMutation } from "@/features/project/project.api";
 import DeleteProjectModal from "@/components/project/DeleteProjectModal";
-import { Project } from "@/types/project/project.interface";
+import { Project, ProjectRole } from "@/types/project/project.interface";
 import {
   AlertTriangle,
   Archive,
@@ -15,6 +15,9 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
+import { selectWorkspace } from "@/features/workspace/workspace.slice";
+import { WorkspaceRole } from "@/types/workspace/workspace.interface";
 
 interface ProjectSettingsProps {
   project: Project;
@@ -26,7 +29,7 @@ export default function ProjectSettings({
   slug,
 }: ProjectSettingsProps) {
   const projectId = project.id;
-
+  const workspace = useSelector(selectWorkspace);
   const [updateProject, { isLoading: isUpdating }] = useUpdateProjectMutation();
 
   const [name, setName] = useState(project?.name || "");
@@ -34,6 +37,13 @@ export default function ProjectSettings({
   const [status, setStatus] = useState(project?.status || "ACTIVE");
   const [nature, setNature] = useState(project?.nature || "PRIVATE");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const isProjectAdminOrOwner =
+    project.role === ProjectRole.OWNER || project.role === ProjectRole.ADMIN;
+
+  const isWorkspaceAdminOrOwner =
+    workspace?.role === WorkspaceRole.OWNER ||
+    workspace?.role === WorkspaceRole.ADMIN;
 
   useEffect(() => {
     if (project) {
@@ -84,6 +94,7 @@ export default function ProjectSettings({
               <input
                 type="text"
                 value={name}
+                readOnly={!isProjectAdminOrOwner && !isWorkspaceAdminOrOwner}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-brand/40 transition-all font-medium"
               />
@@ -95,10 +106,11 @@ export default function ProjectSettings({
               <div className="relative group">
                 <select
                   value={status}
+                  disabled={!isProjectAdminOrOwner && !isWorkspaceAdminOrOwner}
                   onChange={(e) =>
                     setStatus(e.target.value as Project["status"])
                   }
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white appearance-none focus:outline-none focus:border-brand/40 cursor-pointer font-medium"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white appearance-none focus:outline-none focus:border-brand/40 cursor-pointer font-medium disabled:cursor-not-allowed"
                 >
                   <option value="ACTIVE" className="bg-neutral-900">
                     Active
@@ -127,6 +139,7 @@ export default function ProjectSettings({
             </label>
             <textarea
               value={description}
+              readOnly={!isProjectAdminOrOwner && !isWorkspaceAdminOrOwner}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe the goals and scope of this project..."
               className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-brand/40 transition-all min-h-[120px] resize-none"
@@ -136,62 +149,90 @@ export default function ProjectSettings({
           <div className="flex items-center justify-between pt-4">
             <div className="flex items-center gap-4 p-1.5 bg-black/20 rounded-2xl w-fit border border-white/5">
               <button
-                onClick={() => setNature("PRIVATE")}
-                className={`flex cursor-pointer items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${nature === "PRIVATE" ? "bg-white/10 text-white shadow-lg" : "text-neutral-500 hover:text-neutral-300"}`}
+                onClick={() =>
+                  (isProjectAdminOrOwner || isWorkspaceAdminOrOwner) &&
+                  setNature("PRIVATE")
+                }
+                disabled={!isProjectAdminOrOwner && !isWorkspaceAdminOrOwner}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  nature === "PRIVATE"
+                    ? "bg-white/10 text-white shadow-lg"
+                    : "text-neutral-500 hover:text-neutral-300"
+                } ${
+                  isProjectAdminOrOwner || isWorkspaceAdminOrOwner
+                    ? "cursor-pointer"
+                    : "cursor-not-allowed"
+                }`}
               >
                 <Lock size={14} />
                 Private
               </button>
               <button
-                onClick={() => setNature("PUBLIC")}
-                className={`flex cursor-pointer items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${nature === "PUBLIC" ? "bg-white/10 text-white shadow-lg" : "text-neutral-500 hover:text-neutral-300"}`}
+                onClick={() =>
+                  (isProjectAdminOrOwner || isWorkspaceAdminOrOwner) &&
+                  setNature("PUBLIC")
+                }
+                disabled={!isProjectAdminOrOwner && !isWorkspaceAdminOrOwner}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  nature === "PUBLIC"
+                    ? "bg-white/10 text-white shadow-lg"
+                    : "text-neutral-500 hover:text-neutral-300"
+                } ${
+                  isProjectAdminOrOwner || isWorkspaceAdminOrOwner
+                    ? "cursor-pointer"
+                    : "cursor-not-allowed"
+                }`}
               >
                 <Globe size={14} />
                 Public
               </button>
             </div>
-            <button
-              onClick={handleSave}
-              disabled={isUpdating}
-              className="flex cursor-pointer items-center gap-2 px-8 py-4 bg-brand text-bg-dark-0 font-black rounded-2xl hover:bg-brand-hover transition-all active:scale-95 shadow-xl shadow-brand/10 disabled:opacity-50"
-            >
-              <Save size={18} strokeWidth={3} />
-              {isUpdating ? "Saving..." : "Save Changes"}
-            </button>
+            {(isProjectAdminOrOwner || isWorkspaceAdminOrOwner) && (
+              <button
+                onClick={handleSave}
+                disabled={isUpdating}
+                className="flex cursor-pointer items-center gap-2 px-8 py-4 bg-brand text-bg-dark-0 font-black rounded-2xl hover:bg-brand-hover transition-all active:scale-95 shadow-xl shadow-brand/10 disabled:opacity-50"
+              >
+                <Save size={18} strokeWidth={3} />
+                {isUpdating ? "Saving..." : "Save Changes"}
+              </button>
+            )}
           </div>
         </div>
       </section>
 
       {/* Danger Zone */}
-      <section className="space-y-6 pt-10">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500">
-            <AlertTriangle size={20} />
+      {isWorkspaceAdminOrOwner || isProjectAdminOrOwner ? (
+        <section className="space-y-6 pt-10">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500">
+              <AlertTriangle size={20} />
+            </div>
+            <h3 className="text-xl font-bold text-red-500 tracking-tight">
+              Danger Zone
+            </h3>
           </div>
-          <h3 className="text-xl font-bold text-red-500 tracking-tight">
-            Danger Zone
-          </h3>
-        </div>
 
-        <div className="flex mt-6 items-center justify-between p-6 bg-red-500/10 rounded-2xl border border-red-500/20 hover:bg-red-500/20 transition-all group">
-          <div>
-            <h4 className="font-bold text-red-400 text-lg">
-              Delete this project
-            </h4>
-            <p className="text-red-500/50 text-sm">
-              Once deleted, all data including tasks and files will be
-              permanently lost.
-            </p>
+          <div className="flex mt-6 items-center justify-between p-6 bg-red-500/10 rounded-2xl border border-red-500/20 hover:bg-red-500/20 transition-all group">
+            <div>
+              <h4 className="font-bold text-red-400 text-lg">
+                Delete this project
+              </h4>
+              <p className="text-red-500/50 text-sm">
+                Once deleted, all data including tasks and files will be
+                permanently lost.
+              </p>
+            </div>
+            <button
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="flex cursor-pointer items-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-all shadow-xl shadow-red-500/20 active:scale-95"
+            >
+              <Trash2 size={18} />
+              Delete permanently
+            </button>
           </div>
-          <button
-            onClick={() => setIsDeleteModalOpen(true)}
-            className="flex cursor-pointer items-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-all shadow-xl shadow-red-500/20 active:scale-95"
-          >
-            <Trash2 size={18} />
-            Delete permanently
-          </button>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       <DeleteProjectModal
         isOpen={isDeleteModalOpen}
