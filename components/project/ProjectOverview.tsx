@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import ProjectInfo from "./ProjectInfo";
 
 interface ProjectOverviewProps {
   projectId: string;
@@ -179,91 +180,101 @@ export default function ProjectOverviewScreen({
         })}
       </div>
 
+      <ProjectInfo />
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Progress Chart Placeholder */}
-        <div className="lg:col-span-2 bg-dashboard-card-bg/40 border border-white/5 p-8 rounded-[40px] relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] pointer-events-none" />
+        {!overview?.velocity ||
+        (overview.velocity.last7Days &&
+          overview.velocity.last7Days.length === 0) ? null : (
+          <div className="lg:col-span-2 bg-dashboard-card-bg/40 border border-white/5 p-8 rounded-[40px] relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] pointer-events-none" />
 
-          <div className="flex items-center justify-between mb-10 relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                <TrendingUp size={20} />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-white tracking-tight">
-                  Project Velocity
-                </h3>
-                <p className="text-xs text-neutral-500">
-                  Tasks completed over the last 7 days
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-6">
-              <div className="text-right">
-                <p className="text-2xl font-black text-emerald-400">
-                  {overview?.velocity?.completionRate}%
-                </p>
-                <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
-                  Completion Rate
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-black text-emerald-400">
-                  {overview?.velocity?.weeklyCompleted}%
-                </p>
-                <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
-                  Weekly Completed
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Mock Chart Visualization */}
-          <div className="h-96 flex items-end gap-3 relative z-10">
-            {overview?.velocity?.last7Days.map((val, i) => {
-              const height = getHeightPercentage(val.completed);
-              return (
-                <div
-                  key={i}
-                  className="flex-1 flex h-full flex-col justify-end gap-2 group/bar relative"
-                >
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: `${height}%`, opacity: 1 }}
-                    transition={{
-                      duration: 1,
-                      delay: i * 0.1,
-                      ease: [0.33, 1, 0.68, 1],
-                    }}
-                    className="w-full bg-linear-to-t from-emerald-500/80 to-emerald-400 rounded-t-xl group-hover/bar:from-emerald-400 group-hover/bar:to-emerald-300 transition-all cursor-pointer relative"
-                  >
-                    {/* Glow effect on hover */}
-                    <div className="absolute inset-0 bg-emerald-400/20 blur-md opacity-0 group-hover/bar:opacity-100 transition-opacity rounded-t-xl" />
-
-                    {/* Tooltip */}
-                    <div className="absolute -top-14 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-all pointer-events-none z-50 transform group-hover/bar:-translate-y-1">
-                      <div className="bg-neutral-900 border border-white/10 px-3 py-1.5 rounded-xl shadow-2xl whitespace-nowrap">
-                        <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest leading-none mb-1">
-                          {val.date}
-                        </p>
-                        <p className="text-sm font-bold text-white">
-                          {val.completed} tasks
-                        </p>
-                      </div>
-                      <div className="w-2 h-2 bg-neutral-900 border-r border-b border-white/10 rotate-45 absolute -bottom-1 left-1/2 -translate-x-1/2" />
-                    </div>
-                  </motion.div>
-                  <span className="text-[10px] text-center font-bold font-mono text-neutral-600 uppercase tracking-tighter">
-                    {val.date.split("-").slice(1).join("/")}
-                  </span>
+            <div className="flex items-center justify-between mb-10 relative z-10">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                  <TrendingUp size={20} />
                 </div>
-              );
-            })}
+                <div>
+                  <h3 className="text-lg font-bold text-white tracking-tight">
+                    Project Velocity
+                  </h3>
+                  <p className="text-xs text-neutral-500">
+                    Tasks completed over the last 7 days
+                  </p>
+                </div>
+              </div>
+              {overview?.velocity && (
+                <div className="flex gap-6">
+                  <div className="text-right">
+                    <p className="text-2xl font-black text-emerald-400">
+                      {overview?.velocity?.completionRate}%
+                    </p>
+                    <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
+                      Completion Rate
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-black text-emerald-400">
+                      {overview?.velocity?.weeklyCompleted}%
+                    </p>
+                    <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
+                      Weekly Completed
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Visualization */}
+            <div className="relative z-10">
+              <div className="h-96 flex items-end gap-3">
+                {overview?.velocity?.last7Days?.map((val, i) => {
+                  const height = getHeightPercentage(val.completed);
+                  return (
+                    <div
+                      key={i}
+                      className="flex-1 flex h-full flex-col justify-end gap-2 group/bar relative"
+                    >
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: `${height}%`, opacity: 1 }}
+                        transition={{
+                          duration: 1,
+                          delay: i * 0.1,
+                          ease: [0.33, 1, 0.68, 1],
+                        }}
+                        className="w-full bg-linear-to-t from-emerald-500/80 to-emerald-400 rounded-t-xl group-hover/bar:from-emerald-400 group-hover/bar:to-emerald-300 transition-all cursor-pointer relative"
+                      >
+                        {/* Glow effect on hover */}
+                        <div className="absolute inset-0 bg-emerald-400/20 blur-md opacity-0 group-hover/bar:opacity-100 transition-opacity rounded-t-xl" />
+
+                        {/* Tooltip */}
+                        <div className="absolute -top-14 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-all pointer-events-none z-50 transform group-hover/bar:-translate-y-1">
+                          <div className="bg-neutral-900 border border-white/10 px-3 py-1.5 rounded-xl shadow-2xl whitespace-nowrap">
+                            <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest leading-none mb-1">
+                              {val.date}
+                            </p>
+                            <p className="text-sm font-bold text-white">
+                              {val.completed} tasks
+                            </p>
+                          </div>
+                          <div className="w-2 h-2 bg-neutral-900 border-r border-b border-white/10 rotate-45 absolute -bottom-1 left-1/2 -translate-x-1/2" />
+                        </div>
+                      </motion.div>
+                      <span className="text-[10px] text-center font-bold font-mono text-neutral-600 uppercase tracking-tighter">
+                        {val.date.split("-").slice(1).join("/")}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Team Activity */}
-        <div className="bg-dashboard-card-bg/40 border border-white/5 p-8 rounded-[40px] flex flex-col">
+        <div className="bg-dashboard-card-bg/40 w-full border border-white/5 p-8 rounded-[40px] flex flex-col">
           <div className="flex items-center gap-3 mb-8">
             <div className="p-2.5 rounded-2xl bg-brand/10 border border-brand/20 text-brand">
               <Users size={20} />

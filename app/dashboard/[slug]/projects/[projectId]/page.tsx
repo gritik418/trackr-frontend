@@ -36,7 +36,7 @@ export default function ProjectDetailsPage() {
     },
   );
 
-  const [activeTab, setActiveTab] = useState("board");
+  const [activeTab, setActiveTab] = useState("overview");
 
   const tabs = [
     { id: "overview", label: "Overview", icon: Layout },
