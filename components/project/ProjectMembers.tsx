@@ -5,7 +5,9 @@ import {
   useGetProjectMembersQuery,
   useRemoveMemberFromProjectMutation,
 } from "@/features/project/project.api";
-import { Project } from "@/types/project/project.interface";
+import { selectWorkspace } from "@/features/workspace/workspace.slice";
+import { Project, ProjectRole } from "@/types/project/project.interface";
+import { WorkspaceRole } from "@/types/workspace/workspace.interface";
 import {
   Eye,
   Loader2,
@@ -18,6 +20,7 @@ import {
 import NextImage from "next/image";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 
 interface ProjectMembersProps {
   project: Project;
@@ -30,6 +33,7 @@ export default function ProjectMembers({
 }: ProjectMembersProps) {
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const workspace = useSelector(selectWorkspace);
 
   const { data: membersData, isLoading } = useGetProjectMembersQuery({
     workspaceId: project.workspaceId,
@@ -38,6 +42,13 @@ export default function ProjectMembers({
 
   const [removeMember, { isLoading: isRemoving }] =
     useRemoveMemberFromProjectMutation();
+
+  const isProjectAdminOrOwner =
+    project.role === ProjectRole.OWNER || project.role === ProjectRole.ADMIN;
+
+  const isWorkspaceAdminOrOwner =
+    workspace?.role === WorkspaceRole.OWNER ||
+    workspace?.role === WorkspaceRole.ADMIN;
 
   const handleRemoveMember = async (userId: string) => {
     try {
@@ -108,15 +119,16 @@ export default function ProjectMembers({
               className="pl-11 pr-4 py-3 bg-white/5 border border-white/5 rounded-2xl text-sm font-medium text-white focus:outline-none focus:border-brand/40 w-full md:w-64 transition-all placeholder:text-neutral-600"
             />
           </div>
-          {nature === "PRIVATE" && (
-            <button
-              onClick={() => setIsAddMemberModalOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-black font-black rounded-2xl hover:text-brand/80 hover:border-brand/80 border text-brand border-brand transition-all active:scale-95 shadow-xl shadow-brand/10 cursor-pointer"
-            >
-              <UserPlus size={18} strokeWidth={3} />
-              <span className="hidden sm:inline">Add Member</span>
-            </button>
-          )}
+          {nature === "PRIVATE" &&
+            (isProjectAdminOrOwner || isWorkspaceAdminOrOwner) && (
+              <button
+                onClick={() => setIsAddMemberModalOpen(true)}
+                className="flex items-center gap-2 px-6 py-3 bg-black font-black rounded-2xl hover:text-brand/80 hover:border-brand/80 border text-brand border-brand transition-all active:scale-95 shadow-xl shadow-brand/10 cursor-pointer"
+              >
+                <UserPlus size={18} strokeWidth={3} />
+                <span className="hidden sm:inline">Add Member</span>
+              </button>
+            )}
         </div>
       </div>
 
@@ -180,17 +192,19 @@ export default function ProjectMembers({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 relative z-10">
-                  {member.role !== "OWNER" && (
-                    <button
-                      onClick={() => handleRemoveMember(member.id)}
-                      disabled={isRemoving}
-                      className="p-3 text-neutral-600 hover:text-red-400 hover:bg-red-400/10 rounded-2xl transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50 cursor-pointer"
-                    >
-                      <Trash2 size={20} />
-                    </button>
-                  )}
-                </div>
+                {isWorkspaceAdminOrOwner || isProjectAdminOrOwner ? (
+                  <div className="flex items-center gap-4 relative z-10">
+                    {member.role !== "OWNER" && (
+                      <button
+                        onClick={() => handleRemoveMember(member.id)}
+                        disabled={isRemoving}
+                        className="p-3 text-neutral-600 hover:text-red-400 hover:bg-red-400/10 rounded-2xl transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50 cursor-pointer"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    )}
+                  </div>
+                ) : null}
 
                 {/* Subtle highlight glow on hover */}
                 <div className="absolute top-1/2 left-0 -translate-y-1/2 w-1 h-12 bg-brand rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
