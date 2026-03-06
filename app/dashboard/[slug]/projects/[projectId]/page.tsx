@@ -11,9 +11,13 @@ import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import { Clipboard, Layout, List, Plus, Settings, Users } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
+import { useGetProjectMembersQuery } from "@/features/project/project.api";
+import { ProjectMember } from "@/features/project/project.interface";
+import { getInitials } from "@/lib/utils";
+import Image from "next/image";
 
 export default function ProjectDetailsPage() {
   const workspace = useSelector(selectWorkspace);
@@ -22,6 +26,15 @@ export default function ProjectDetailsPage() {
   const slug = params.slug as string;
   const router = useRouter();
   const projectId = params.projectId as string;
+
+  const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
+  const { data } = useGetProjectMembersQuery(
+    { projectId, workspaceId: workspace?.id || "" },
+    {
+      skip: !workspace?.id || !projectId,
+      refetchOnMountOrArgChange: true,
+    },
+  );
 
   const [activeTab, setActiveTab] = useState("board");
 
@@ -54,6 +67,12 @@ export default function ProjectDetailsPage() {
     );
   };
 
+  useEffect(() => {
+    if (data?.success && data.members) {
+      setProjectMembers(data.members);
+    }
+  }, [data]);
+
   return (
     <div className="flex flex-col h-[calc(100vh-2rem)] animate-in fade-in duration-700">
       {/* Header */}
@@ -74,16 +93,33 @@ export default function ProjectDetailsPage() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex -space-x-2 mr-2">
-              {["RG", "SC", "MJ"].map((name, i) => (
-                <div
-                  key={i}
-                  className="w-8 h-8 rounded-full border-2 border-bg-dark-0 bg-neutral-800 flex items-center justify-center text-[10px] font-bold text-white hover:z-10 transition-transform hover:scale-110 cursor-pointer"
-                >
-                  {name}
-                </div>
-              ))}
-            </div>
+            {projectMembers && projectMembers.length > 0 ? (
+              <div className="flex -space-x-2 mr-2">
+                {projectMembers.slice(0, 3).map((member, i) => (
+                  <div
+                    key={i}
+                    className="w-7 h-7 rounded-lg overflow-hidden bg-neutral-600 flex items-center justify-center font-bold text-white hover:z-10 transition-transform hover:scale-110 cursor-pointer"
+                  >
+                    {member.user.avatarUrl ? (
+                      <Image
+                        src={member.user.avatarUrl}
+                        alt={member.user.name}
+                        width={24}
+                        height={24}
+                        className="object-cover h-full w-full"
+                      />
+                    ) : (
+                      <span>{getInitials(member.user.name)}</span>
+                    )}
+                  </div>
+                ))}
+                {projectMembers.length > 3 && (
+                  <div className="w-8 text-[9px] h-8 rounded-full border-2 border-bg-dark-0 bg-neutral-800 flex items-center justify-center font-bold text-white hover:z-10 transition-transform hover:scale-110 cursor-pointer">
+                    +{projectMembers.length - 3}
+                  </div>
+                )}
+              </div>
+            ) : null}
             <button
               onClick={handleCopyProjectLink}
               className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white border border-white/5 rounded-xl text-sm font-bold transition-all active:scale-95"

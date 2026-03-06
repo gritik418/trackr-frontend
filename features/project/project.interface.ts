@@ -20,18 +20,19 @@ export interface GetProjectByIdResponse {
   project: Project;
 }
 
+export interface ProjectMember {
+  id: string;
+  projectId: string;
+  userId: string;
+  joinedAt: string;
+  user: { id: string; name: string; email: string; avatarUrl?: string };
+  role: "OWNER" | "ADMIN" | "MEMBER";
+}
+
 export interface GetProjectMembersResponse {
   success: boolean;
   message: string;
-  members: (WorkspaceMember & {
-    user: {
-      id: string;
-      name: string;
-      email: string;
-      avatarUrl?: string;
-    };
-    role: "OWNER" | "ADMIN" | "MEMBER";
-  })[];
+  members: ProjectMember[];
 }
 
 export interface AddProjectMemberRequest {
