@@ -1,12 +1,12 @@
 "use client";
 
-import { useGetTasksQuery } from "@/features/task/task.api";
-import { Task, TaskStatus } from "@/features/task/task.interface";
+import { useGetProjectOverviewQuery } from "@/features/project/project.api";
+import { ProjectOverview } from "@/features/project/project.interface";
+import { selectWorkspace } from "@/features/workspace/workspace.slice";
+import { motion } from "framer-motion";
 import {
   AlertCircle,
   CheckCircle2,
-  Clock,
-  Clock1,
   Clock10Icon,
   Eye,
   List,
@@ -14,160 +14,145 @@ import {
   Target,
   TrendingUp,
   Users,
-  Watch,
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 interface ProjectOverviewProps {
   projectId: string;
 }
 
-export default function ProjectOverview({ projectId }: ProjectOverviewProps) {
-  const { data } = useGetTasksQuery({ projectId }, { skip: !projectId });
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [totalTasks, setTotalTasks] = useState<number>(0);
-  const [completedTasks, setCompletedTasks] = useState<number>(0);
-  const [inProgressTasks, setInProgressTasks] = useState<number>(0);
-  const [toDoTasks, setToDoTasks] = useState<number>(0);
-  const [inReviewTasks, setInReviewTasks] = useState<number>(0);
-  const [blockedTasks, setBlockedTasks] = useState<number>(0);
-  const [cancelledTasks, setCancelledTasks] = useState<number>(0);
-  const [holdTasks, setHoldTasks] = useState<number>(0);
-  const [completionRate, setCompletionRate] = useState<number>(0);
+export default function ProjectOverviewScreen({
+  projectId,
+}: ProjectOverviewProps) {
+  const workspace = useSelector(selectWorkspace);
+  const [overview, setOverview] = useState<ProjectOverview>();
 
-  useEffect(() => {
-    if (data?.tasks) {
-      setTasks(data.tasks);
-    }
-    if (data?.pagination.total) {
-      setTotalTasks(data.pagination.total);
-    }
-  }, [data]);
-
-  useEffect(() => {
-    const completedTasks = tasks.filter(
-      (t: Task) => t.status === TaskStatus.DONE,
-    ).length;
-
-    const inProgressTasks = tasks.filter(
-      (t: Task) => t.status === TaskStatus.TODO,
-    ).length;
-
-    const toDoTasks = tasks.filter(
-      (t: Task) => t.status === TaskStatus.TODO,
-    ).length;
-
-    const inReviewTasks = tasks.filter(
-      (t: Task) => t.status === TaskStatus.IN_REVIEW,
-    ).length;
-
-    const blockedTasks = tasks.filter(
-      (t: Task) => t.status === TaskStatus.BLOCKED,
-    ).length;
-
-    const cancelledTasks = tasks.filter(
-      (t: Task) => t.status === TaskStatus.CANCELED,
-    ).length;
-
-    const holdTasks = tasks.filter(
-      (t: Task) => t.status === TaskStatus.ON_HOLD,
-    ).length;
-
-    setCompletedTasks(completedTasks);
-    setInProgressTasks(inProgressTasks);
-    setInReviewTasks(inReviewTasks);
-    setToDoTasks(toDoTasks);
-    setBlockedTasks(blockedTasks);
-    setCancelledTasks(cancelledTasks);
-    setHoldTasks(holdTasks);
-  }, [tasks]);
-
-  useEffect(() => {
-    if (!totalTasks || !completedTasks) return;
-    if (totalTasks > 0) {
-      setCompletionRate(Math.round((completedTasks / totalTasks) * 100));
-    }
-  }, [totalTasks, completedTasks]);
+  const { data } = useGetProjectOverviewQuery(
+    { projectId, workspaceId: workspace?.id || "" },
+    {
+      skip: !projectId || !workspace?.id,
+      refetchOnFocus: true,
+      refetchOnMountOrArgChange: true,
+      refetchOnReconnect: true,
+    },
+  );
 
   const stats = [
     {
       label: "Total Tasks",
-      value: totalTasks,
+      value: overview?.taskStatusCount?.total,
       icon: Target,
       color: "text-brand",
+      isHidden:
+        typeof overview?.taskStatusCount?.total === "number" ? false : true,
     },
     {
       label: "To Do",
-      value: toDoTasks,
+      value: overview?.taskStatusCount?.todo,
       icon: List,
       color: "text-brand",
+      isHidden:
+        typeof overview?.taskStatusCount?.todo === "number" ? false : true,
     },
     {
       label: "In Progress",
-      value: inProgressTasks,
+      value: overview?.taskStatusCount?.inProgress,
       icon: Clock10Icon,
       color: "text-brand",
+      isHidden:
+        typeof overview?.taskStatusCount?.inProgress === "number"
+          ? false
+          : true,
     },
     {
       label: "In Review",
-      value: inReviewTasks,
+      value: overview?.taskStatusCount?.inReview,
       icon: Eye,
       color: "text-blue-400",
+      isHidden:
+        typeof overview?.taskStatusCount?.inReview === "number" ? false : true,
     },
     {
       label: "Completed",
-      value: completedTasks,
+      value: overview?.taskStatusCount?.done,
       icon: CheckCircle2,
       color: "text-emerald-400",
+      isHidden:
+        typeof overview?.taskStatusCount?.done === "number" ? false : true,
     },
     {
       label: "Blocked",
-      value: blockedTasks,
+      value: overview?.taskStatusCount?.blocked,
       icon: AlertCircle,
       color: "text-red-400",
+      isHidden:
+        typeof overview?.taskStatusCount?.blocked === "number" ? false : true,
     },
     {
       label: "Cancelled",
-      value: cancelledTasks,
+      value: overview?.taskStatusCount?.canceled,
       icon: X,
       color: "text-red-400",
+      isHidden:
+        typeof overview?.taskStatusCount?.canceled === "number" ? false : true,
     },
     {
       label: "Hold",
-      value: holdTasks,
+      value: overview?.taskStatusCount?.onHold,
       icon: Pause,
       color: "text-red-400",
+      isHidden:
+        typeof overview?.taskStatusCount?.onHold === "number" ? false : true,
     },
   ];
+
+  useEffect(() => {
+    if (data?.overview) {
+      setOverview(data.overview);
+    }
+  }, [data]);
+
+  const getHeightPercentage = (value: number): number => {
+    if (!overview?.velocity?.last7Days) return 0;
+    const counts = overview.velocity.last7Days.map((d) => d.completed);
+    const max = Math.max(...counts, 1);
+    // Scale relative to max, but with a minimum floor if max is very small
+    // or just use a linear scale if there's data.
+    return (value / max) * 100;
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-dashboard-card-bg/40 border border-white/5 p-6 rounded-3xl hover:bg-white/5 transition-all group overflow-hidden relative"
-          >
-            <div className="absolute top-0 right-0 w-24 h-24 bg-brand/5 blur-3xl -mr-12 -mt-12 group-hover:bg-brand/10 transition-colors" />
-            <div className="flex items-center gap-4 relative z-10">
-              <div
-                className={`p-3 rounded-2xl bg-white/5 border border-white/10 ${stat.color}`}
-              >
-                <stat.icon size={24} />
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">
-                  {stat.label}
-                </p>
-                <p className="text-3xl font-bold text-white tracking-tight">
-                  {stat.value}
-                </p>
+        {stats.map((stat) => {
+          if (stat.isHidden) return null;
+          return (
+            <div
+              key={stat.label}
+              className="bg-dashboard-card-bg/40 border border-white/5 p-6 rounded-3xl hover:bg-white/5 transition-all group overflow-hidden relative"
+            >
+              <div className="absolute top-0 right-0 w-24 h-24 bg-brand/5 blur-3xl -mr-12 -mt-12 group-hover:bg-brand/10 transition-colors" />
+              <div className="flex items-center gap-4 relative z-10">
+                <div
+                  className={`p-3 rounded-2xl bg-white/5 border border-white/10 ${stat.color}`}
+                >
+                  <stat.icon size={24} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">
+                    {stat.label}
+                  </p>
+                  <p className="text-3xl font-bold text-white tracking-tight">
+                    {stat.value}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -185,38 +170,71 @@ export default function ProjectOverview({ projectId }: ProjectOverviewProps) {
                   Project Velocity
                 </h3>
                 <p className="text-xs text-neutral-500">
-                  Tasks completed over the last 14 days
+                  Tasks completed over the last 7 days
                 </p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-4xl font-black text-emerald-400">
-                {completionRate}%
-              </p>
-              <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
-                Completion Rate
-              </p>
+            <div className="flex gap-6">
+              <div className="text-right">
+                <p className="text-2xl font-black text-emerald-400">
+                  {overview?.velocity?.completionRate}%
+                </p>
+                <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
+                  Completion Rate
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-black text-emerald-400">
+                  {overview?.velocity?.weeklyCompleted}%
+                </p>
+                <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
+                  Weekly Completed
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Mock Chart Visualization */}
           <div className="h-64 flex items-end gap-3 relative z-10">
-            {[45, 60, 30, 80, 50, 90, 40, 70, 85, 55, 100, 65, 75, 95].map(
-              (val, i) => (
+            {overview?.velocity?.last7Days.map((val, i) => {
+              const height = getHeightPercentage(val.completed);
+              return (
                 <div
                   key={i}
-                  className="flex-1 flex flex-col items-center gap-2 group/bar"
+                  className="flex-1 flex h-full flex-col justify-end gap-2 group/bar relative"
                 >
-                  <div
-                    className="w-full bg-emerald-500/20 rounded-t-lg group-hover/bar:bg-emerald-500/40 transition-all duration-1000 ease-out border-x border-t border-emerald-500/10"
-                    style={{ height: `${val}%` }}
-                  />
-                  <span className="text-[8px] font-bold font-mono text-neutral-600 uppercase tracking-tighter">
-                    D{i + 1}
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: `${height}%`, opacity: 1 }}
+                    transition={{
+                      duration: 1,
+                      delay: i * 0.1,
+                      ease: [0.33, 1, 0.68, 1],
+                    }}
+                    className="w-full bg-linear-to-t from-emerald-500/80 to-emerald-400 rounded-t-xl group-hover/bar:from-emerald-400 group-hover/bar:to-emerald-300 transition-all cursor-pointer relative"
+                  >
+                    {/* Glow effect on hover */}
+                    <div className="absolute inset-0 bg-emerald-400/20 blur-md opacity-0 group-hover/bar:opacity-100 transition-opacity rounded-t-xl" />
+
+                    {/* Tooltip */}
+                    <div className="absolute -top-14 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-all pointer-events-none z-50 transform group-hover/bar:-translate-y-1">
+                      <div className="bg-neutral-900 border border-white/10 px-3 py-1.5 rounded-xl shadow-2xl whitespace-nowrap">
+                        <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest leading-none mb-1">
+                          {val.date}
+                        </p>
+                        <p className="text-sm font-bold text-white">
+                          {val.completed} tasks
+                        </p>
+                      </div>
+                      <div className="w-2 h-2 bg-neutral-900 border-r border-b border-white/10 rotate-45 absolute -bottom-1 left-1/2 -translate-x-1/2" />
+                    </div>
+                  </motion.div>
+                  <span className="text-[10px] text-center font-bold font-mono text-neutral-600 uppercase tracking-tighter">
+                    {val.date.split("-").slice(1).join("/")}
                   </span>
                 </div>
-              ),
-            )}
+              );
+            })}
           </div>
         </div>
 
