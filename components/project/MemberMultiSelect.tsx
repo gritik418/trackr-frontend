@@ -1,13 +1,14 @@
 "use client";
 
+import { ProjectMember } from "@/features/project/project.interface";
 import { WorkspaceMember } from "@/types/workspace/workspace.interface";
-import { Search, Check, X, User } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Check, Search, User, X } from "lucide-react";
 import Image from "next/image";
-import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useMemo, useState } from "react";
 
 interface MemberMultiSelectProps {
-  members: WorkspaceMember[];
+  members: ProjectMember[] | WorkspaceMember[];
   selectedIds: string[];
   onToggle: (userId: string) => void;
 }

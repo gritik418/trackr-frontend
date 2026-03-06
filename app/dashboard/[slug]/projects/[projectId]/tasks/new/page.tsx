@@ -12,7 +12,12 @@ import {
   Type,
   UserPlus,
 } from "lucide-react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import {
+  notFound,
+  useParams,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
@@ -24,6 +29,9 @@ import {
 } from "@/features/project/project.api";
 import MemberMultiSelect from "@/components/project/MemberMultiSelect";
 import Link from "next/link";
+import { ProjectRole } from "@/types/project/project.interface";
+import { selectProject } from "@/features/project/project.slice";
+import { WorkspaceRole } from "@/types/workspace/workspace.interface";
 
 export default function CreateTaskPage() {
   const params = useParams();
@@ -47,8 +55,15 @@ export default function CreateTaskPage() {
   const [assignedToIds, setAssignedToIds] = useState<string[]>([]);
 
   const workspace = useSelector(selectWorkspace);
+  const project = useSelector(selectProject);
 
-  // Fetch Project Details to check Nature
+  const isProjectAdminOrOwner =
+    project?.role === ProjectRole.OWNER || project?.role === ProjectRole.ADMIN;
+
+  const isWorkspaceAdminOrOwner =
+    workspace?.role === WorkspaceRole.OWNER ||
+    workspace?.role === WorkspaceRole.ADMIN;
+
   const { data: projectData, isLoading: isProjectLoading } =
     useGetProjectByIdQuery(
       { workspaceId: workspace?.id!, projectId },
@@ -57,13 +72,11 @@ export default function CreateTaskPage() {
 
   const isPrivate = projectData?.project?.nature === "PRIVATE";
 
-  // Fetch Workspace Members
   const { data: workspaceMembersData, isLoading: isWorkspaceMembersLoading } =
     useGetWorkspaceMembersQuery(workspace?.id!, {
       skip: !workspace?.id || isPrivate,
     });
 
-  // Fetch Project Members
   const { data: projectMembersData, isLoading: isProjectMembersLoading } =
     useGetProjectMembersQuery(
       { workspaceId: workspace?.id!, projectId },
@@ -128,6 +141,9 @@ export default function CreateTaskPage() {
     );
   };
 
+  if (!isWorkspaceAdminOrOwner && !isProjectAdminOrOwner) {
+    return notFound();
+  }
   return (
     <div className="mx-auto py-8">
       {/* Header & Breadcrumbs */}
