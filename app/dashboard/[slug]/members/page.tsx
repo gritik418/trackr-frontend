@@ -9,8 +9,11 @@ import {
   useUpdateWorkspaceMemberRoleMutation,
 } from "@/features/workspace/workspace.api";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
+import { useUser } from "@/providers/AuthProvider";
+import { WorkspaceRole } from "@/types/workspace/workspace.interface";
 import {
   CheckCircle2,
+  ChevronDown,
   Clock,
   Mail,
   MoreVertical,
@@ -22,13 +25,15 @@ import {
 import Image from "next/image";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { FaChevronRight } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 
 export default function WorkspaceMembersPage() {
-  const [activeTab, setActiveTab] = useState<"active" | "pending">("active");
+  const [activeTab, setActiveTab] = useState<"members" | "pending">("members");
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const { user } = useUser();
   const workspace = useSelector(selectWorkspace);
 
   const { data: membersData, isLoading: isLoadingMembers } =
@@ -74,6 +79,10 @@ export default function WorkspaceMembersPage() {
     }
   };
 
+  const isWorkspaceAdminOrOwner =
+    workspace?.role === WorkspaceRole.OWNER ||
+    workspace?.role === WorkspaceRole.ADMIN;
+
   const members = (membersData?.members || []).filter(
     (member) =>
       member.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -109,13 +118,15 @@ export default function WorkspaceMembersPage() {
             Manage access to this workspace.
           </p>
         </div>
-        <button
-          onClick={() => setIsInviteModalOpen(true)}
-          className="flex cursor-pointer items-center gap-2 px-5 py-2.5 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95 group"
-        >
-          <UserPlus size={18} strokeWidth={2.5} />
-          Invite Member
-        </button>
+        {isWorkspaceAdminOrOwner ? (
+          <button
+            onClick={() => setIsInviteModalOpen(true)}
+            className="flex cursor-pointer items-center gap-2 px-5 py-2.5 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95 group"
+          >
+            <UserPlus size={18} strokeWidth={2.5} />
+            Invite Member
+          </button>
+        ) : null}
       </div>
 
       <InviteWorkspaceMemberModal
@@ -133,29 +144,27 @@ export default function WorkspaceMembersPage() {
             <p className="text-sm text-neutral-500 font-medium">
               Total Members
             </p>
-            <p className="text-2xl font-bold text-white">{members.length}</p>
-          </div>
-        </div>
-        <div className="p-5 rounded-2xl bg-dashboard-card-bg/40 border border-white/5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center text-green-400">
-            <CheckCircle2 size={24} />
-          </div>
-          <div>
-            <p className="text-sm text-neutral-500 font-medium">Active Now</p>
-            <p className="text-2xl font-bold text-white">2</p>
-          </div>
-        </div>
-        <div className="p-5 rounded-2xl bg-dashboard-card-bg/40 border border-white/5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400">
-            <Clock size={24} />
-          </div>
-          <div>
-            <p className="text-sm text-neutral-500 font-medium">
-              Pending Invites
+            <p className="text-2xl font-bold text-white">
+              {membersData?.members?.length || 0}
             </p>
-            <p className="text-2xl font-bold text-white">{invites.length}</p>
           </div>
         </div>
+
+        {isWorkspaceAdminOrOwner && (
+          <div className="p-5 rounded-2xl bg-dashboard-card-bg/40 border border-white/5 flex items-center gap-4 animate-in fade-in slide-in-from-right duration-500">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400">
+              <Clock size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-neutral-500 font-medium">
+                Pending Invites
+              </p>
+              <p className="text-2xl font-bold text-white">
+                {invitesData?.invitations?.length || 0}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main Content Card */}
@@ -163,21 +172,27 @@ export default function WorkspaceMembersPage() {
         {/* Toolbar */}
         <div className="p-6 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Tabs */}
-          <div className="flex p-1 bg-white/5 rounded-xl self-start">
-            <button
-              onClick={() => setActiveTab("active")}
-              className={`px-4 cursor-pointer py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "active" ? "bg-white/10 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-300"}`}
-            >
-              Members
-            </button>
-            <button
-              onClick={() => setActiveTab("pending")}
-              className={`px-4 cursor-pointer py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "pending" ? "bg-white/10 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-300"}`}
-            >
-              Invites
-            </button>
-          </div>
+          {isWorkspaceAdminOrOwner ? (
+            <div className="flex p-1 bg-white/5 rounded-xl self-start">
+              <button
+                onClick={() => setActiveTab("members")}
+                className={`px-4 cursor-pointer py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "members" ? "bg-white/10 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-300"}`}
+              >
+                Members
+              </button>
 
+              {isWorkspaceAdminOrOwner && (
+                <button
+                  onClick={() => setActiveTab("pending")}
+                  className={`px-4 cursor-pointer py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "pending" ? "bg-white/10 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-300"}`}
+                >
+                  Invites
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="text-lg font-medium">Members</div>
+          )}
           {/* Search */}
           <div className="relative w-full md:w-64">
             <Search
@@ -196,135 +211,212 @@ export default function WorkspaceMembersPage() {
 
         {/* List */}
         <div className="flex-1 overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-white/5 bg-white/2">
-                <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-                  User
-                </th>
-                <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-right">
-                  {activeTab === "active" ? "Joined" : "Invited on"}
-                </th>
-                <th className="px-6 py-4 w-10"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {activeTab === "active"
-                ? members.map((member) => (
-                    <tr
-                      key={member.id}
-                      className="group hover:bg-white/2 transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center text-brand font-bold text-sm overflow-hidden shrink-0">
-                            {member.user.avatarUrl ? (
-                              <Image
-                                width={40}
-                                height={40}
-                                src={member.user.avatarUrl}
-                                alt={member.user.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              getInitials(member.user.name)
-                            )}
-                          </div>
-                          <div>
-                            <div className="text-sm font-medium text-white group-hover:text-brand transition-colors">
-                              {member.user.name}
-                            </div>
-                            <div className="text-xs text-neutral-500">
-                              {member.user.email}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <select
-                          value={member.role}
-                          onChange={(e) =>
-                            handleUpdateRole(member.id, e.target.value)
-                          }
-                          disabled={member.role === "OWNER"}
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-transparent focus:outline-none transition-all cursor-pointer ${
-                            member.role === "OWNER" || member.role === "ADMIN"
-                              ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
-                              : "bg-white/5 text-neutral-400 border-white/10"
-                          }`}
-                        >
-                          <option
-                            value="MEMBER"
-                            className="bg-dashboard-card-bg"
-                          >
-                            MEMBER
-                          </option>
-                          <option
-                            value="ADMIN"
-                            className="bg-dashboard-card-bg"
-                          >
-                            ADMIN
-                          </option>
-                          <option
-                            value="OWNER"
-                            className="bg-dashboard-card-bg"
-                            disabled
-                          >
-                            OWNER
-                          </option>
-                        </select>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                          Active
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-neutral-500 text-right font-mono">
-                        {new Date(member.joinedAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100">
-                          <button
-                            onClick={() => handleRemoveMember(member.id)}
-                            className="p-2 text-neutral-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
-                            title="Remove Member"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                          <button className="p-2 text-neutral-500 hover:text-white hover:bg-white/10 rounded-lg transition-all">
-                            <MoreVertical size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                : invites.map((invite) => (
-                    <WorkspaceInviteItem
-                      key={invite.id}
-                      invite={invite}
-                      workspaceId={workspace?.id || ""}
-                    />
-                  ))}
-            </tbody>
-          </table>
-
-          {activeTab === "pending" && invites.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                <Mail size={24} className="text-neutral-500" />
-              </div>
-              <h3 className="text-white font-bold mb-1">No pending invites</h3>
-              <p className="text-neutral-500 text-sm">
-                Invite members to collaborate with your team.
-              </p>
+          {isLoadingMembers || isLoadingInvites ? (
+            <div className="p-6 space-y-6 flex flex-col">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between animate-pulse"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-white/5" />
+                    <div className="space-y-2">
+                      <div className="w-32 h-4 bg-white/5 rounded" />
+                      <div className="w-48 h-3 bg-white/5 rounded" />
+                    </div>
+                  </div>
+                  <div className="w-20 h-8 bg-white/5 rounded-lg" />
+                </div>
+              ))}
             </div>
+          ) : (
+            <>
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-white/5 bg-white/2">
+                    <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                      User
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                      Role
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider text-right">
+                      {activeTab === "members" ? "Joined" : "Invited on"}
+                    </th>
+                    <th className="px-6 py-4 w-10"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {activeTab === "members"
+                    ? members.map((member) => {
+                        const isEditable =
+                          member.role !== WorkspaceRole.OWNER &&
+                          ((workspace?.role === WorkspaceRole.OWNER &&
+                            member.userId !== user?.id) ||
+                            (workspace?.role === WorkspaceRole.ADMIN &&
+                              member.role === WorkspaceRole.MEMBER));
+
+                        return (
+                          <tr
+                            key={member.id}
+                            className="group hover:bg-white/2 transition-colors"
+                          >
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center text-brand font-bold text-sm overflow-hidden shrink-0">
+                                  {member.user.avatarUrl ? (
+                                    <Image
+                                      width={40}
+                                      height={40}
+                                      src={member.user.avatarUrl}
+                                      alt={member.user.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    getInitials(member.user.name)
+                                  )}
+                                </div>
+                                <div>
+                                  <div className="text-sm font-medium text-white group-hover:text-brand transition-colors">
+                                    {member.user.name}
+                                    {workspace?.role === member.role && (
+                                      <span className="ml-2 text-[10px] bg-white/10 text-neutral-400 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                                        You
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-neutral-500">
+                                    {member.user.email}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              {workspace?.role &&
+                              workspace?.role === WorkspaceRole.MEMBER ? (
+                                <div
+                                  className={`inline-flex w-20 text-center justify-center appearance-none items-center gap-1.5 py-1 rounded-full text-xs font-medium border bg-transparent focus:outline-none transition-all ${
+                                    member.role === "OWNER" ||
+                                    member.role === "ADMIN"
+                                      ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                                      : "bg-white/5 text-neutral-400 border-white/10"
+                                  }`}
+                                >
+                                  {member.role}
+                                </div>
+                              ) : (
+                                <div className="relative h-max w-max">
+                                  {!isEditable ? null : (
+                                    <span className="absolute right-2 top-1/2 -translate-y-1/2">
+                                      <ChevronDown size={14} />
+                                    </span>
+                                  )}
+                                  <select
+                                    value={member.role}
+                                    onChange={(e) =>
+                                      handleUpdateRole(
+                                        member.id,
+                                        e.target.value,
+                                      )
+                                    }
+                                    disabled={!isEditable}
+                                    className={`inline-flex w-24 appearance-none items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-transparent focus:outline-none transition-all ${
+                                      !isEditable
+                                        ? "cursor-not-allowed text-center"
+                                        : "cursor-pointer"
+                                    } ${
+                                      member.role === "OWNER" ||
+                                      member.role === "ADMIN"
+                                        ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                                        : "bg-white/5 text-neutral-400 border-white/10"
+                                    }`}
+                                  >
+                                    <option
+                                      value="MEMBER"
+                                      className="bg-dashboard-card-bg"
+                                    >
+                                      MEMBER
+                                    </option>
+                                    <option
+                                      value="ADMIN"
+                                      className="bg-dashboard-card-bg"
+                                    >
+                                      ADMIN
+                                    </option>
+                                  </select>
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+                                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                                Active
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-neutral-500 text-right font-mono">
+                              {new Date(member.joinedAt).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              {isEditable && (
+                                <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100">
+                                  <button
+                                    onClick={() =>
+                                      handleRemoveMember(member.id)
+                                    }
+                                    className="p-2 cursor-pointer text-neutral-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+                                    title="Remove Member"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    : isWorkspaceAdminOrOwner
+                      ? invites.map((invite) => (
+                          <WorkspaceInviteItem
+                            key={invite.id}
+                            invite={invite}
+                            workspaceId={workspace?.id || ""}
+                          />
+                        ))
+                      : null}
+                </tbody>
+              </table>
+
+              {activeTab === "pending" && invites.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                    <Mail size={24} className="text-neutral-500" />
+                  </div>
+                  <h3 className="text-white font-bold mb-1">
+                    No pending invites
+                  </h3>
+                  <p className="text-neutral-500 text-sm">
+                    Invite members to collaborate with your team.
+                  </p>
+                </div>
+              )}
+
+              {activeTab === "members" && members.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                    <Users size={24} className="text-neutral-500" />
+                  </div>
+                  <h3 className="text-white font-bold mb-1">
+                    No members found
+                  </h3>
+                  <p className="text-neutral-500 text-sm">
+                    Try adjusting your search or invite new members.
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
