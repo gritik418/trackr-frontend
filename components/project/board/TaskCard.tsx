@@ -1,7 +1,6 @@
 "use client";
 
 import { Task } from "@/features/task/task.interface";
-import { List, MoreHorizontal } from "lucide-react";
 import Image from "next/image";
 
 interface TaskCardProps {
@@ -37,9 +36,6 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
               {task.priority}
             </span>
           </div>
-          <button className="text-neutral-600 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity p-1">
-            <MoreHorizontal size={14} />
-          </button>
         </div>
 
         <h4 className="text-sm font-medium text-white leading-snug mb-3 group-hover:text-brand transition-colors line-clamp-2">
@@ -49,7 +45,7 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
         <div className="flex items-center justify-between">
           <div className="flex -space-x-1.5 focus-within:z-10">
             {task.assignees && task.assignees.length > 0 ? (
-              task.assignees.map((assignee) => (
+              task.assignees.slice(0, 3).map((assignee) => (
                 <div
                   key={assignee.id}
                   title={assignee.name}
@@ -76,6 +72,11 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
             ) : (
               <div className="w-6 h-6 rounded-full bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center text-[8px] text-neutral-500">
                 ?
+              </div>
+            )}
+            {task.assignees.length > 3 && (
+              <div className="w-6 h-6 rounded-full border-2 border-bg-dark-0 bg-neutral-800 flex items-center justify-center text-[8px] text-white relative z-0 hover:z-10 transition-transform hover:scale-110">
+                +{task.assignees.length - 3}
               </div>
             )}
           </div>

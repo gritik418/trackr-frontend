@@ -4,7 +4,7 @@ import TaskBoard from "@/components/project/board/TaskBoard";
 import ProjectMembers from "@/components/project/ProjectMembers";
 import ProjectOverview from "@/components/project/ProjectOverview";
 import ProjectSettings from "@/components/project/ProjectSettings";
-import TaskListView from "@/components/project/TaskListView";
+import TaskListView from "@/components/project/list-view/TaskListView";
 import { selectProject } from "@/features/project/project.slice";
 import { Task, TaskStatus } from "@/features/task/task.interface";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
@@ -145,7 +145,9 @@ export default function ProjectDetailsPage() {
             />
           )}
 
-          {activeTab === "list" && <TaskListView projectId={projectId} />}
+          {activeTab === "list" && (
+            <TaskListView onTaskClick={onTaskClick} projectId={projectId} />
+          )}
 
           {activeTab === "members" && project && (
             <ProjectMembers project={project} setActiveTab={setActiveTab} />
