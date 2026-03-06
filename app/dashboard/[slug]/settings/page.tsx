@@ -9,6 +9,7 @@ import {
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import updateWorkspaceSchema from "@/lib/schemas/workspace/update-workspace.schema";
 import { getInitials } from "@/lib/utils";
+import { WorkspaceRole } from "@/types/workspace/workspace.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Layout, ShieldAlert } from "lucide-react";
 import Image from "next/image";
@@ -27,7 +28,11 @@ export default function WorkspaceSettingsPage() {
   const [deleteWorkspace, { isLoading: isDeleting }] =
     useDeleteWorkspaceMutation();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  console.log(workspace);
+
+  const isWorkspaceAdminOrOwner =
+    workspace?.role === WorkspaceRole.OWNER ||
+    workspace?.role === WorkspaceRole.ADMIN;
+
   const {
     register,
     handleSubmit,
@@ -154,7 +159,12 @@ export default function WorkspaceSettingsPage() {
                   <input
                     {...register("name")}
                     type="text"
-                    className="w-full px-4 py-2.5 bg-white/5 border border-white/5 rounded-xl text-white outline-none focus:ring-2 focus:ring-brand/20 transition-all placeholder:text-neutral-600 font-medium"
+                    readOnly={!isWorkspaceAdminOrOwner}
+                    className={`w-full px-4 py-2.5 bg-white/5 border border-white/5 rounded-xl text-white outline-none focus:ring-2 focus:ring-brand/20 transition-all placeholder:text-neutral-600 font-medium ${
+                      !isWorkspaceAdminOrOwner
+                        ? "opacity-60 cursor-not-allowed"
+                        : ""
+                    }`}
                   />
                 </div>
                 {errors.name?.message && (
@@ -200,8 +210,13 @@ export default function WorkspaceSettingsPage() {
                   <textarea
                     {...register("description")}
                     rows={4}
+                    readOnly={!isWorkspaceAdminOrOwner}
                     placeholder="Describe the purpose of this workspace..."
-                    className="w-full placeholder:text-neutral-600 resize-none pl-10 pr-4 py-2.5 bg-white/5 border border-white/5 rounded-xl text-white outline-none focus:ring-2 focus:ring-brand/20 transition-all font-medium"
+                    className={`w-full placeholder:text-neutral-600 resize-none pl-10 pr-4 py-2.5 bg-white/5 border border-white/5 rounded-xl text-white outline-none focus:ring-2 focus:ring-brand/20 transition-all font-medium ${
+                      !isWorkspaceAdminOrOwner
+                        ? "opacity-60 cursor-not-allowed"
+                        : ""
+                    }`}
                   />
                 </div>
                 {errors.description?.message && (
@@ -223,8 +238,13 @@ export default function WorkspaceSettingsPage() {
                   <input
                     {...register("iconUrl")}
                     type="text"
+                    readOnly={!isWorkspaceAdminOrOwner}
                     placeholder="https://example.com/icon.png"
-                    className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/5 rounded-xl text-white outline-none focus:ring-2 focus:ring-brand/20 transition-all placeholder:text-neutral-600 font-medium"
+                    className={`w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/5 rounded-xl text-white outline-none focus:ring-2 focus:ring-brand/20 transition-all placeholder:text-neutral-600 font-medium ${
+                      !isWorkspaceAdminOrOwner
+                        ? "opacity-60 cursor-not-allowed"
+                        : ""
+                    }`}
                   />
                 </div>
                 {errors.iconUrl?.message && (
@@ -235,50 +255,54 @@ export default function WorkspaceSettingsPage() {
               </div>
             </div>
 
-            <div className="flex justify-end pt-4 border-t border-white/5">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="px-8 py-2.5 cursor-pointer bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95"
-              >
-                {isSubmitting ? "Updating..." : "Update Settings"}
-              </button>
-            </div>
+            {isWorkspaceAdminOrOwner && (
+              <div className="flex justify-end pt-4 border-t border-white/5">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-8 py-2.5 cursor-pointer bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all active:scale-95"
+                >
+                  {isSubmitting ? "Updating..." : "Update Settings"}
+                </button>
+              </div>
+            )}
           </form>
         </section>
 
         {/* Danger Zone */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2 pb-2">
-            <ShieldAlert size={20} className="text-red-500/80" />
-            <h3 className="text-lg font-semibold text-transparent bg-clip-text bg-linear-to-r from-red-500 to-red-600">
-              Danger Zone
-            </h3>
-          </div>
-
-          <div className="p-6 rounded-3xl bg-red-500/2 backdrop-blur-sm border border-red-500/10 space-y-6 relative overflow-hidden group">
-            {/* Subtle red glow on hover */}
-            <div className="absolute -inset-1 bg-red-500/0 group-hover:bg-red-500/5 transition-colors duration-500 pointer-events-none blur-xl" />
-
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <h4 className="text-white font-semibold flex items-center gap-2">
-                  Delete Workspace
-                </h4>
-                <p className="text-sm text-neutral-500 max-w-md">
-                  This action is irreversible. All projects, tasks, and data
-                  within this workspace will be lost permanently.
-                </p>
-              </div>
-              <button
-                onClick={() => setIsDeleteModalOpen(true)}
-                className="px-6 py-2.5 cursor-pointer bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 rounded-xl text-sm font-bold transition-all active:scale-95 shadow-lg shadow-black/20"
-              >
-                Delete Workspace
-              </button>
+        {isWorkspaceAdminOrOwner && (
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 pb-2">
+              <ShieldAlert size={20} className="text-red-500/80" />
+              <h3 className="text-lg font-semibold text-transparent bg-clip-text bg-linear-to-r from-red-500 to-red-600">
+                Danger Zone
+              </h3>
             </div>
-          </div>
-        </section>
+
+            <div className="p-6 rounded-3xl bg-red-500/2 backdrop-blur-sm border border-red-500/10 space-y-6 relative overflow-hidden group">
+              {/* Subtle red glow on hover */}
+              <div className="absolute -inset-1 bg-red-500/0 group-hover:bg-red-500/5 transition-colors duration-500 pointer-events-none blur-xl" />
+
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h4 className="text-white font-semibold flex items-center gap-2">
+                    Delete Workspace
+                  </h4>
+                  <p className="text-sm text-neutral-500 max-w-md">
+                    This action is irreversible. All projects, tasks, and data
+                    within this workspace will be lost permanently.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsDeleteModalOpen(true)}
+                  className="px-6 py-2.5 cursor-pointer bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 rounded-xl text-sm font-bold transition-all active:scale-95 shadow-lg shadow-black/20"
+                >
+                  Delete Workspace
+                </button>
+              </div>
+            </div>
+          </section>
+        )}
       </div>
 
       <ConfirmWorkspaceDeletionModal
