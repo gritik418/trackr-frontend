@@ -74,7 +74,7 @@ export const TaskStatusWithAll = {
   ...ExtraTaskStatus,
 };
 
-type TaskStatusWithAll =
+export type TaskStatusWithAll =
   (typeof TaskStatusWithAll)[keyof typeof TaskStatusWithAll];
 
 export type SortBy = "createdAt" | "updatedAt" | "deadline";

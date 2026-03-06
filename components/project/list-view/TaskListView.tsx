@@ -2,17 +2,12 @@
 
 import { useGetTasksQuery } from "@/features/task/task.api";
 import { SortBy, SortOrder, Task } from "@/features/task/task.interface";
-import {
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  MinusCircle,
-  Search,
-  X,
-} from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, MinusCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import TaskListItem from "./TaskListItem";
 import TaskSearchbar from "./TaskSearchbar";
+import TaskStatusFilter from "./TaskStatusFilter";
+import { TaskStatusWithAll } from "@/features/task/task.interface";
 
 interface TaskListViewProps {
   projectId: string;
@@ -28,6 +23,9 @@ export default function TaskListView({
   const [sort, setSort] = useState<SortBy>("updatedAt");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [search, setSearch] = useState<string>("");
+  const [status, setStatus] = useState<TaskStatusWithAll>(
+    TaskStatusWithAll.ALL,
+  );
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const { data } = useGetTasksQuery(
@@ -39,6 +37,7 @@ export default function TaskListView({
         sortBy: sort,
         sortOrder,
         search,
+        status,
       },
     },
     {
@@ -72,9 +71,9 @@ export default function TaskListView({
 
   return (
     <div className="space-y-4 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <TaskSearchbar value={search} onChange={setSearch} />
-        <div className="flex items-center gap-2"></div>
+        <TaskStatusFilter activeStatus={status} onStatusChange={setStatus} />
       </div>
 
       <div className="bg-dashboard-card-bg/40 border border-white/5 rounded-2xl overflow-hidden shadow-xl">
