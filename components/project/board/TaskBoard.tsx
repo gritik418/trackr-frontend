@@ -42,12 +42,16 @@ type Props = {
   onTaskClick: (task: Task) => void;
   onAddTask: (status: TaskStatus) => void;
   projectId: string;
+  isProjectAdminOrOwner: boolean;
+  isWorkspaceAdminOrOwner: boolean;
 };
 
 export default function TaskBoard({
   projectId,
   onTaskClick,
   onAddTask,
+  isProjectAdminOrOwner,
+  isWorkspaceAdminOrOwner,
 }: Props) {
   const limit = 10;
   return (
@@ -72,6 +76,8 @@ export default function TaskBoard({
         {COLUMNS.map((column) => {
           return (
             <TaskBoardContainer
+              isProjectAdminOrOwner={isProjectAdminOrOwner}
+              isWorkspaceAdminOrOwner={isWorkspaceAdminOrOwner}
               columnColor={column.color}
               columnTitle={column.title}
               key={column.id}

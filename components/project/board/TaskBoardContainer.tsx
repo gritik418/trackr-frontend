@@ -14,6 +14,8 @@ type Props = {
   columnTitle: string;
   onTaskClick: (task: Task) => void;
   onAddTask: (status: TaskStatus) => void;
+  isProjectAdminOrOwner: boolean;
+  isWorkspaceAdminOrOwner: boolean;
 };
 
 const TaskBoardContainer = ({
@@ -24,6 +26,8 @@ const TaskBoardContainer = ({
   columnTitle,
   onTaskClick,
   onAddTask,
+  isProjectAdminOrOwner,
+  isWorkspaceAdminOrOwner,
 }: Props) => {
   const [page, setPage] = useState<number>(1);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -81,12 +85,14 @@ const TaskBoardContainer = ({
             {totalTasks}
           </span>
         </div>
-        <button
-          onClick={() => onAddTask(status)}
-          className="text-neutral-600 hover:text-white transition-all hover:rotate-90 p-1"
-        >
-          <Plus size={16} />
-        </button>
+        {isWorkspaceAdminOrOwner || isProjectAdminOrOwner ? (
+          <button
+            onClick={() => onAddTask(status)}
+            className="text-neutral-600 hover:text-white transition-all hover:rotate-90 p-1"
+          >
+            <Plus size={16} />
+          </button>
+        ) : null}
       </div>
 
       {/* Task List Container */}
@@ -122,16 +128,18 @@ const TaskBoardContainer = ({
           </InfiniteScroll>
         )}
 
-        <button
-          onClick={() => onAddTask(status)}
-          className="w-full py-3 flex items-center justify-center gap-2 text-sm text-neutral-500 hover:text-white hover:bg-white/5 rounded-xl transition-all border border-dashed border-white/5 hover:border-white/20 group mt-2"
-        >
-          <Plus
-            size={16}
-            className="group-hover:scale-110 transition-transform"
-          />
-          <span className="font-medium">Add Task</span>
-        </button>
+        {isWorkspaceAdminOrOwner || isProjectAdminOrOwner ? (
+          <button
+            onClick={() => onAddTask(status)}
+            className="w-full py-3 flex items-center justify-center gap-2 text-sm text-neutral-500 hover:text-white hover:bg-white/5 rounded-xl transition-all border border-dashed border-white/5 hover:border-white/20 group mt-2"
+          >
+            <Plus
+              size={16}
+              className="group-hover:scale-110 transition-transform"
+            />
+            <span className="font-medium">Add Task</span>
+          </button>
+        ) : null}
       </div>
     </div>
   );

@@ -18,14 +18,16 @@ import { useGetProjectMembersQuery } from "@/features/project/project.api";
 import { ProjectMember } from "@/features/project/project.interface";
 import { getInitials } from "@/lib/utils";
 import Image from "next/image";
+import { ProjectRole } from "@/types/project/project.interface";
+import { WorkspaceRole } from "@/types/workspace/workspace.interface";
 
 export default function ProjectDetailsPage() {
   const workspace = useSelector(selectWorkspace);
-  const project = useSelector(selectProject);
   const params = useParams();
   const slug = params.slug as string;
   const router = useRouter();
   const projectId = params.projectId as string;
+  const project = useSelector(selectProject);
 
   const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
   const { data } = useGetProjectMembersQuery(
@@ -37,6 +39,13 @@ export default function ProjectDetailsPage() {
   );
 
   const [activeTab, setActiveTab] = useState("overview");
+
+  const isProjectAdminOrOwner =
+    project?.role === ProjectRole.OWNER || project?.role === ProjectRole.ADMIN;
+
+  const isWorkspaceAdminOrOwner =
+    workspace?.role === WorkspaceRole.OWNER ||
+    workspace?.role === WorkspaceRole.ADMIN;
 
   const tabs = [
     { id: "overview", label: "Overview", icon: Layout },
@@ -154,15 +163,17 @@ export default function ProjectDetailsPage() {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-3 mb-2 sm:mb-0">
-            <button
-              onClick={() => handleAddTask(TaskStatus.TODO)}
-              className="ml-2 cursor-pointer px-4 py-2 bg-brand text-bg-dark-0 text-sm font-black rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all flex items-center gap-2 active:scale-95"
-            >
-              <Plus size={18} strokeWidth={3} />
-              New Task
-            </button>
-          </div>
+          {isProjectAdminOrOwner || isWorkspaceAdminOrOwner ? (
+            <div className="flex items-center gap-3 mb-2 sm:mb-0">
+              <button
+                onClick={() => handleAddTask(TaskStatus.TODO)}
+                className="ml-2 cursor-pointer px-4 py-2 bg-brand text-bg-dark-0 text-sm font-black rounded-xl hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20 transition-all flex items-center gap-2 active:scale-95"
+              >
+                <Plus size={18} strokeWidth={3} />
+                New Task
+              </button>
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -178,6 +189,8 @@ export default function ProjectDetailsPage() {
 
           {activeTab === "board" && (
             <TaskBoard
+              isProjectAdminOrOwner={isProjectAdminOrOwner}
+              isWorkspaceAdminOrOwner={isWorkspaceAdminOrOwner}
               onTaskClick={onTaskClick}
               projectId={projectId}
               onAddTask={onAddTask}
