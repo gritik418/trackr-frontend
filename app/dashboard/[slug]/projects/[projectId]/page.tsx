@@ -74,7 +74,7 @@ export default function ProjectDetailsPage() {
   }, [data]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-2rem)] animate-in fade-in duration-700">
+    <div className="flex flex-col scrollbar-hidden h-[calc(100vh-2rem)] animate-in fade-in duration-700">
       {/* Header */}
       <div className="flex flex-col gap-6 mb-6">
         <div className="flex items-start justify-between">
@@ -167,10 +167,13 @@ export default function ProjectDetailsPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="-mx-4 sm:mx-0 flex-1 overflow-x-auto">
+      <div className="-mx-4 sm:mx-0 flex-1 overflow-x-auto scrollbar-hidden">
         <>
           {activeTab === "overview" && (
-            <ProjectOverview projectId={projectId} />
+            <ProjectOverview
+              projectId={projectId}
+              setActiveTab={setActiveTab}
+            />
           )}
 
           {activeTab === "board" && (

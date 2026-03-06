@@ -1,7 +1,13 @@
 "use client";
 
-import { useGetProjectOverviewQuery } from "@/features/project/project.api";
-import { ProjectOverview } from "@/features/project/project.interface";
+import {
+  useGetProjectMembersQuery,
+  useGetProjectOverviewQuery,
+} from "@/features/project/project.api";
+import {
+  ProjectMember,
+  ProjectOverview,
+} from "@/features/project/project.interface";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import { motion } from "framer-motion";
 import {
@@ -16,18 +22,31 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 interface ProjectOverviewProps {
   projectId: string;
+  setActiveTab: Dispatch<SetStateAction<string>>;
 }
 
 export default function ProjectOverviewScreen({
   projectId,
+  setActiveTab,
 }: ProjectOverviewProps) {
   const workspace = useSelector(selectWorkspace);
   const [overview, setOverview] = useState<ProjectOverview>();
+  const [members, setMembers] = useState<ProjectMember[]>([]);
+
+  const { data: membersData } = useGetProjectMembersQuery(
+    {
+      projectId,
+      workspaceId: workspace?.id || "",
+    },
+    {
+      skip: !projectId || !workspace?.id,
+    },
+  );
 
   const { data } = useGetProjectOverviewQuery(
     { projectId, workspaceId: workspace?.id || "" },
@@ -114,17 +133,22 @@ export default function ProjectOverviewScreen({
     }
   }, [data]);
 
+  useEffect(() => {
+    if (membersData?.members) {
+      setMembers(membersData.members);
+    }
+  }, [membersData]);
+
   const getHeightPercentage = (value: number): number => {
     if (!overview?.velocity?.last7Days) return 0;
     const counts = overview.velocity.last7Days.map((d) => d.completed);
     const max = Math.max(...counts, 1);
-    // Scale relative to max, but with a minimum floor if max is very small
-    // or just use a linear scale if there's data.
+
     return (value / max) * 100;
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
+    <div className="space-y-8 pb-20 scrollbar-hidden animate-in fade-in slide-in-from-bottom-5 duration-700">
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => {
@@ -195,7 +219,7 @@ export default function ProjectOverviewScreen({
           </div>
 
           {/* Mock Chart Visualization */}
-          <div className="h-64 flex items-end gap-3 relative z-10">
+          <div className="h-96 flex items-end gap-3 relative z-10">
             {overview?.velocity?.last7Days.map((val, i) => {
               const height = getHeightPercentage(val.completed);
               return (
@@ -245,55 +269,37 @@ export default function ProjectOverviewScreen({
               <Users size={20} />
             </div>
             <h3 className="text-lg font-bold text-white tracking-tight">
-              Active Members
+              Project Members
             </h3>
           </div>
 
-          <div className="space-y-6 flex-1">
-            {[
-              {
-                name: "Ritik Gupta",
-                role: "Frontend Dev",
-                contribution: "12 tasks",
-              },
-              {
-                name: "Sarah Connor",
-                role: "Product Manager",
-                contribution: "8 tasks",
-              },
-              {
-                name: "Mike Johnson",
-                role: "UI Designer",
-                contribution: "15 tasks",
-              },
-            ].map((member, i) => (
+          <div className="space-y-3 flex-1">
+            {members.slice(0, 5).map((member, i) => (
               <div
                 key={i}
                 className="flex items-center gap-4 p-4 rounded-2xl bg-white/2 hover:bg-white/5 transition-all border border-transparent hover:border-white/10 group cursor-pointer"
               >
                 <div className="w-10 h-10 rounded-xl bg-neutral-800 border border-white/5 flex items-center justify-center text-xs font-bold text-white">
-                  {member.name
+                  {member.user.name
                     .split(" ")
                     .map((n) => n[0])
                     .join("")}
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-bold text-white group-hover:text-brand transition-colors tracking-tight">
-                    {member.name}
+                    {member.user.name}
                   </p>
                   <p className="text-xs text-neutral-500">{member.role}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs font-bold text-white font-mono">
-                    {member.contribution}
-                  </p>
                 </div>
               </div>
             ))}
           </div>
 
-          <button className="mt-8 w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-sm font-bold text-white hover:bg-white/10 transition-all active:scale-95">
-            View All Activity
+          <button
+            onClick={() => setActiveTab("members")}
+            className="mt-8 w-full py-4 rounded-2xl cursor-pointer bg-white/5 border border-white/10 text-sm font-bold text-white hover:bg-white/10 transition-all active:scale-95"
+          >
+            View All Members
           </button>
         </div>
       </div>
