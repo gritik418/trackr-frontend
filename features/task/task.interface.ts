@@ -65,6 +65,8 @@ export interface CreateTaskResponse {
   task: Task;
 }
 
+export type SortOrder = "asc" | "desc";
+
 enum ExtraTaskStatus {
   ALL = "ALL",
 }
@@ -77,9 +79,19 @@ export const TaskStatusWithAll = {
 export type TaskStatusWithAll =
   (typeof TaskStatusWithAll)[keyof typeof TaskStatusWithAll];
 
-export type SortBy = "createdAt" | "updatedAt" | "deadline";
+enum ExtraTaskPriority {
+  ALL = "ALL",
+}
 
-export type SortOrder = "asc" | "desc";
+export const TaskPriorityWithAll = {
+  ...TaskPriority,
+  ...ExtraTaskPriority,
+};
+
+export type TaskPriorityWithAll =
+  (typeof TaskPriorityWithAll)[keyof typeof TaskPriorityWithAll];
+
+export type SortBy = "createdAt" | "updatedAt" | "deadline";
 
 export interface GetTasksQuery {
   status?: TaskStatusWithAll;

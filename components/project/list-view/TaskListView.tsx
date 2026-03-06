@@ -7,7 +7,11 @@ import { useEffect, useState } from "react";
 import TaskListItem from "./TaskListItem";
 import TaskSearchbar from "./TaskSearchbar";
 import TaskStatusFilter from "./TaskStatusFilter";
-import { TaskStatusWithAll } from "@/features/task/task.interface";
+import TaskPriorityFilter from "./TaskPriorityFilter";
+import {
+  TaskPriorityWithAll,
+  TaskStatusWithAll,
+} from "@/features/task/task.interface";
 
 interface TaskListViewProps {
   projectId: string;
@@ -26,6 +30,9 @@ export default function TaskListView({
   const [status, setStatus] = useState<TaskStatusWithAll>(
     TaskStatusWithAll.ALL,
   );
+  const [priority, setPriority] = useState<TaskPriorityWithAll>(
+    TaskPriorityWithAll.ALL,
+  );
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const { data } = useGetTasksQuery(
@@ -37,7 +44,9 @@ export default function TaskListView({
         sortBy: sort,
         sortOrder,
         search,
-        status,
+        status: status === TaskStatusWithAll.ALL ? undefined : (status as any),
+        priority:
+          priority === TaskPriorityWithAll.ALL ? undefined : (priority as any),
       },
     },
     {
@@ -69,11 +78,23 @@ export default function TaskListView({
     }
   }, [data]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [status, search, sort, sortOrder, priority]);
+
   return (
     <div className="space-y-4 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <TaskSearchbar value={search} onChange={setSearch} />
-        <TaskStatusFilter activeStatus={status} onStatusChange={setStatus} />
+        <div className="flex-1 w-full">
+          <TaskSearchbar value={search} onChange={setSearch} />
+        </div>
+        <div className="flex items-center gap-2">
+          <TaskStatusFilter activeStatus={status} onStatusChange={setStatus} />
+          <TaskPriorityFilter
+            activePriority={priority}
+            onPriorityChange={setPriority}
+          />
+        </div>
       </div>
 
       <div className="bg-dashboard-card-bg/40 border border-white/5 rounded-2xl overflow-hidden shadow-xl">
