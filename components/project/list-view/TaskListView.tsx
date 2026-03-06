@@ -8,6 +8,7 @@ import TaskListItem from "./TaskListItem";
 import TaskSearchbar from "./TaskSearchbar";
 import TaskStatusFilter from "./TaskStatusFilter";
 import TaskPriorityFilter from "./TaskPriorityFilter";
+import TaskSortFilter from "./TaskSortFilter";
 import {
   TaskPriorityWithAll,
   TaskStatusWithAll,
@@ -93,6 +94,14 @@ export default function TaskListView({
           <TaskPriorityFilter
             activePriority={priority}
             onPriorityChange={setPriority}
+          />
+          <TaskSortFilter
+            sort={sort}
+            sortOrder={sortOrder}
+            onSortChange={setSort}
+            onOrderToggle={() =>
+              setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+            }
           />
         </div>
       </div>
