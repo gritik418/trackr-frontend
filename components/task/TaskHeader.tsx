@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronLeft, ChevronRight, Copy, Edit2 } from "lucide-react";
 import Link from "next/link";
@@ -67,6 +68,7 @@ export function TaskTitleSection({
   handleTitleSubmit,
   setIsEditingTitle,
   displayTitle,
+  canEdit = true,
 }: {
   isEditingTitle: boolean;
   title: string;
@@ -74,11 +76,12 @@ export function TaskTitleSection({
   handleTitleSubmit: () => void;
   setIsEditingTitle: (val: boolean) => void;
   displayTitle: string;
+  canEdit?: boolean;
 }) {
   return (
     <div className="relative">
       <AnimatePresence mode="wait">
-        {isEditingTitle ? (
+        {isEditingTitle && canEdit ? (
           <motion.div
             key="editing-title"
             initial={{ y: 10, opacity: 0 }}
@@ -109,15 +112,25 @@ export function TaskTitleSection({
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 10, opacity: 0 }}
-            onClick={() => setIsEditingTitle(true)}
-            className="flex items-start justify-between group/title-hover cursor-pointer pr-4"
+            onClick={() => canEdit && setIsEditingTitle(true)}
+            className={cn(
+              "flex items-start justify-between group/title-hover pr-4",
+              canEdit ? "cursor-pointer" : "cursor-default",
+            )}
           >
-            <h2 className="text-3xl font-black text-white tracking-tighter leading-tight group-hover/title-hover:text-brand transition-colors flex-1 selection:bg-brand/30">
+            <h2
+              className={cn(
+                "text-3xl font-black text-white tracking-tighter leading-tight flex-1 selection:bg-brand/30 transition-colors",
+                canEdit && "group-hover/title-hover:text-brand",
+              )}
+            >
               {displayTitle}
             </h2>
-            <div className="mt-2 p-3 text-neutral-700 group-hover/title-hover:text-brand bg-white/0 group-hover/title-hover:bg-brand/10 rounded-2xl opacity-0 group-hover/title-hover:opacity-100 transition-all duration-300">
-              <Edit2 size={24} strokeWidth={2.5} />
-            </div>
+            {canEdit && (
+              <div className="mt-2 p-3 text-neutral-700 group-hover/title-hover:text-brand bg-white/0 group-hover/title-hover:bg-brand/10 rounded-2xl opacity-0 group-hover/title-hover:opacity-100 transition-all duration-300">
+                <Edit2 size={24} strokeWidth={2.5} />
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

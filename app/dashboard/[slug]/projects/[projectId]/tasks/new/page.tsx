@@ -87,10 +87,6 @@ export default function CreateTaskPage() {
     ? projectMembersData?.members || []
     : workspaceMembersData?.members || [];
 
-  const isLoadingMembers =
-    isProjectLoading ||
-    (isPrivate ? isProjectMembersLoading : isWorkspaceMembersLoading);
-
   const priorityOptions = [
     { value: TaskPriority.LOW, label: "Low", color: "text-blue-400" },
     { value: TaskPriority.MEDIUM, label: "Medium", color: "text-amber-400" },

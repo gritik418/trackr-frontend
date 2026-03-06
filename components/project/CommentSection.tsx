@@ -20,11 +20,18 @@ import { useUser } from "@/providers/AuthProvider";
 
 interface CommentSectionProps {
   taskId: string;
+  isWorkspaceAdminOrOwner: boolean;
+  isProjectAdminOrOwner: boolean;
 }
 
-export default function CommentSection({ taskId }: CommentSectionProps) {
+export default function CommentSection({
+  taskId,
+  isProjectAdminOrOwner,
+  isWorkspaceAdminOrOwner,
+}: CommentSectionProps) {
   const { user: currentUser } = useUser();
   const [content, setContent] = useState("");
+  const { user } = useUser();
   const { data: commentsData, isLoading } = useGetCommentsQuery(taskId);
   const [addComment, { isLoading: isAdding }] = useAddCommentMutation();
   const [deleteComment] = useDeleteCommentMutation();
@@ -110,7 +117,7 @@ export default function CommentSection({ taskId }: CommentSectionProps) {
             <button
               type="submit"
               disabled={isAdding || !content.trim()}
-              className="px-6 py-2.5 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand-hover transition-all shadow-lg shadow-brand/10 text-sm flex items-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 cursor-pointer py-2.5 bg-brand text-bg-dark-0 font-bold rounded-xl hover:bg-brand-hover transition-all shadow-lg shadow-brand/10 text-sm flex items-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isAdding ? (
                 "Sending..."
@@ -166,13 +173,17 @@ export default function CommentSection({ taskId }: CommentSectionProps) {
                       })}
                     </span>
                   </div>
-                  <button
-                    onClick={() => handleDelete(comment.id)}
-                    className="p-1 px-2 text-neutral-600 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                    title="Delete comment"
-                  >
-                    <Trash2 size={12} />
-                  </button>
+                  {comment.userId === user.id ||
+                  isWorkspaceAdminOrOwner ||
+                  isProjectAdminOrOwner ? (
+                    <button
+                      onClick={() => handleDelete(comment.id)}
+                      className="p-1 cursor-pointer px-2 text-neutral-600 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                      title="Delete comment"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  ) : null}
                 </div>
                 <div className="text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap selection:bg-brand/30">
                   {comment.content}

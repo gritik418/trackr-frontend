@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { Task, TaskPriority, TaskStatus } from "@/features/task/task.interface";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -25,6 +26,7 @@ interface TaskSidebarProps {
   statusIcons: Record<string, React.ReactNode>;
   tag: string;
   handleTagChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  canEdit?: boolean;
 }
 
 export function SidebarAssignees({
@@ -33,6 +35,7 @@ export function SidebarAssignees({
   isAssigneeSelectorOpen,
   setIsAssigneeSelectorOpen,
   toggleAssignee,
+  canEdit = true,
 }: Pick<
   TaskSidebarProps,
   | "task"
@@ -40,7 +43,7 @@ export function SidebarAssignees({
   | "isAssigneeSelectorOpen"
   | "setIsAssigneeSelectorOpen"
   | "toggleAssignee"
->) {
+> & { canEdit?: boolean }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between px-1">
@@ -49,14 +52,16 @@ export function SidebarAssignees({
           Assignees
         </label>
         <div className="relative">
-          <motion.button
-            whileHover={{ scale: 1.1, rotate: 90 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setIsAssigneeSelectorOpen(!isAssigneeSelectorOpen)}
-            className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all border border-emerald-500/20 shadow-lg"
-          >
-            <Plus size={16} strokeWidth={3} />
-          </motion.button>
+          {canEdit && (
+            <motion.button
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setIsAssigneeSelectorOpen(!isAssigneeSelectorOpen)}
+              className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all border border-emerald-500/20 shadow-lg"
+            >
+              <Plus size={16} strokeWidth={3} />
+            </motion.button>
+          )}
 
           <AnimatePresence>
             {isAssigneeSelectorOpen && (
@@ -186,30 +191,40 @@ export function SidebarAssignees({
                     </p>
                   </div>
                 </div>
-                <motion.button
-                  whileHover={{
-                    scale: 1.1,
-                    backgroundColor: "rgba(239,68,68,0.1)",
-                  }}
-                  onClick={() => toggleAssignee(assignee.id)}
-                  className="p-2 text-neutral-700 hover:text-red-500 rounded-xl transition-all"
-                >
-                  <X size={16} strokeWidth={2.5} />
-                </motion.button>
+                {canEdit && (
+                  <motion.button
+                    whileHover={{
+                      scale: 1.1,
+                      backgroundColor: "rgba(239,68,68,0.1)",
+                    }}
+                    onClick={() => toggleAssignee(assignee.id)}
+                    className="p-2 text-neutral-700 hover:text-red-500 rounded-xl transition-all"
+                  >
+                    <X size={16} strokeWidth={2.5} />
+                  </motion.button>
+                )}
               </motion.div>
             ))
           ) : (
             <motion.button
               layout
-              onClick={() => setIsAssigneeSelectorOpen(true)}
-              className="w-full p-10 text-center border-2 border-dashed border-white/5 rounded-[32px] text-neutral-700 hover:text-neutral-500 hover:bg-white/2 hover:border-brand/30 transition-all group/empty shadow-inner"
+              onClick={() => canEdit && setIsAssigneeSelectorOpen(true)}
+              className={`w-full p-10 text-center border-2 border-dashed border-white/5 rounded-[32px] text-neutral-700 transition-all group/empty shadow-inner ${
+                canEdit
+                  ? "hover:text-neutral-500 hover:bg-white/2 hover:border-brand/30 cursor-pointer"
+                  : "cursor-default"
+              }`}
             >
               <User
                 size={28}
-                className="mx-auto mb-4 opacity-20 group-hover/empty:text-brand group-hover/empty:scale-110 group-hover/empty:opacity-100 transition-all"
+                className={cn(
+                  "mx-auto mb-4 opacity-20 transition-all",
+                  canEdit &&
+                    "group-hover/empty:text-brand group-hover/empty:scale-110 group-hover/empty:opacity-100",
+                )}
               />
               <span className="text-[11px] font-black uppercase tracking-[0.3em]">
-                Assign Node Personnel
+                {canEdit ? "Assign Node Personnel" : "No Personnel Assigned"}
               </span>
             </motion.button>
           )}
@@ -222,7 +237,8 @@ export function SidebarAssignees({
 export function SidebarSelectors({
   task,
   handleUpdate,
-}: Pick<TaskSidebarProps, "task" | "handleUpdate">) {
+  canEdit = true,
+}: Pick<TaskSidebarProps, "task" | "handleUpdate"> & { canEdit?: boolean }) {
   return (
     <div className="grid grid-cols-2 gap-6">
       <div className="space-y-4">
@@ -233,10 +249,11 @@ export function SidebarSelectors({
         <div className="relative group/select">
           <select
             value={task.status}
+            disabled={!canEdit}
             onChange={(e) =>
               handleUpdate({ status: e.target.value as TaskStatus })
             }
-            className="w-full appearance-none bg-[#0F0F0F] border border-white/5 rounded-2xl px-5 py-4 text-[10px] font-black text-white uppercase tracking-[0.2em] cursor-pointer hover:bg-neutral-900 hover:border-brand/40 transition-all outline-none shadow-xl"
+            className="w-full appearance-none bg-[#0F0F0F] border border-white/5 rounded-2xl px-5 py-4 text-[10px] font-black text-white uppercase tracking-[0.2em] hover:bg-neutral-900 transition-all outline-none shadow-xl disabled:cursor-not-allowed disabled:opacity-70"
           >
             {Object.values(TaskStatus).map((status) => (
               <option
@@ -262,10 +279,11 @@ export function SidebarSelectors({
         <div className="relative group/select">
           <select
             value={task.priority}
+            disabled={!canEdit}
             onChange={(e) =>
               handleUpdate({ priority: e.target.value as TaskPriority })
             }
-            className="w-full appearance-none bg-[#0F0F0F] border border-white/5 rounded-2xl px-5 py-4 text-[10px] font-black text-white uppercase tracking-[0.2em] cursor-pointer hover:bg-neutral-900 hover:border-brand/40 transition-all outline-none shadow-xl"
+            className="w-full appearance-none bg-[#0F0F0F] border border-white/5 rounded-2xl px-5 py-4 text-[10px] font-black text-white uppercase tracking-[0.2em] hover:bg-neutral-900 transition-all outline-none shadow-xl disabled:cursor-not-allowed disabled:opacity-70"
           >
             {Object.values(TaskPriority).map((priority) => (
               <option
@@ -289,7 +307,8 @@ export function SidebarSelectors({
 export function SidebarSchedule({
   task,
   handleUpdate,
-}: Pick<TaskSidebarProps, "task" | "handleUpdate">) {
+  canEdit = true,
+}: Pick<TaskSidebarProps, "task" | "handleUpdate"> & { canEdit?: boolean }) {
   const dateInputRef = useRef<HTMLInputElement>(null);
 
   const handleIconClick = () => {
@@ -314,7 +333,12 @@ export function SidebarSchedule({
         <div className="w-1 h-1 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
         Schedule
       </label>
-      <div className="p-6 bg-[#0F0F0F] border border-white/5 rounded-[24px] flex items-center justify-between group/date hover:border-brand/20 transition-all shadow-xl">
+      <div
+        className={cn(
+          "p-6 bg-[#0F0F0F] border border-white/5 rounded-[24px] flex items-center justify-between group/date transition-all shadow-xl",
+          canEdit ? "hover:border-brand/20" : "",
+        )}
+      >
         <div>
           <p className="text-[9px] text-neutral-600 font-black uppercase tracking-[0.2em] mb-2">
             Task Deadline
@@ -322,22 +346,36 @@ export function SidebarSchedule({
           <input
             ref={dateInputRef}
             type="date"
+            readOnly={!canEdit}
             value={
               task.deadline
                 ? new Date(task.deadline).toISOString().split("T")[0]
                 : ""
             }
-            onChange={(e) => handleUpdate({ deadline: e.target.value })}
-            className="bg-transparent text-[16px] text-brand font-black outline-none border-none cursor-pointer focus:text-white transition-colors"
+            onChange={(e) =>
+              canEdit && handleUpdate({ deadline: e.target.value })
+            }
+            className={cn(
+              "bg-transparent text-[16px] text-brand font-black outline-none border-none transition-colors",
+              canEdit ? "cursor-pointer focus:text-white" : "cursor-default",
+            )}
           />
         </div>
         <div
-          onClick={handleIconClick}
-          className="p-3 bg-brand/5 rounded-xl group-hover/date:bg-brand/10 cursor-pointer active:scale-90 transition-all"
+          onClick={() => canEdit && handleIconClick()}
+          className={cn(
+            "p-3 bg-brand/5 rounded-xl transition-all",
+            canEdit
+              ? "group-hover/date:bg-brand/10 cursor-pointer active:scale-90"
+              : "cursor-default",
+          )}
         >
           <Calendar
             size={22}
-            className="text-brand/50 group-hover/date:text-brand transition-colors"
+            className={cn(
+              "text-brand/50 transition-colors",
+              canEdit && "group-hover/date:text-brand",
+            )}
           />
         </div>
       </div>
@@ -350,10 +388,11 @@ export function SidebarTag({
   tag,
   handleTagChange,
   handleUpdate,
+  canEdit = true,
 }: Pick<
   TaskSidebarProps,
   "task" | "tag" | "handleTagChange" | "handleUpdate"
->) {
+> & { canEdit?: boolean }) {
   return (
     <div className="space-y-4">
       <label className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] flex items-center gap-3 px-1">
@@ -367,17 +406,24 @@ export function SidebarTag({
         />
         <input
           type="text"
-          placeholder="Add node tag..."
+          placeholder={canEdit ? "Add node tag..." : "No tag specified"}
           value={tag}
+          readOnly={!canEdit}
           onChange={handleTagChange}
           onBlur={(e) =>
-            e.target.value !== task.tag && handleUpdate({ tag: e.target.value })
+            canEdit &&
+            e.target.value !== task.tag &&
+            handleUpdate({ tag: e.target.value })
           }
           onKeyDown={(e) =>
+            canEdit &&
             e.key === "Enter" &&
             handleUpdate({ tag: (e.target as HTMLInputElement).value })
           }
-          className="w-full pl-14 pr-6 py-5 bg-[#0F0F0F] border border-white/5 rounded-[22px] text-[11px] font-black text-purple-300 uppercase tracking-[0.2em] outline-none focus:border-purple-500/30 transition-all placeholder:text-neutral-800 shadow-xl"
+          className={cn(
+            "w-full pl-14 pr-6 py-5 bg-[#0F0F0F] border border-white/5 rounded-[22px] text-[11px] font-black text-purple-300 uppercase tracking-[0.2em] outline-none transition-all placeholder:text-neutral-800 shadow-xl",
+            canEdit ? "focus:border-purple-500/30" : "cursor-default",
+          )}
         />
       </div>
     </div>
@@ -393,6 +439,7 @@ export function TaskSidebar({
   handleUpdate,
   tag,
   handleTagChange,
+  canEdit = true,
 }: TaskSidebarProps) {
   return (
     <motion.div
@@ -410,21 +457,31 @@ export function TaskSidebar({
           isAssigneeSelectorOpen={isAssigneeSelectorOpen}
           setIsAssigneeSelectorOpen={setIsAssigneeSelectorOpen}
           toggleAssignee={toggleAssignee}
+          canEdit={canEdit}
         />
 
         <div className="h-px bg-white/5 w-full" />
 
-        <SidebarSelectors task={task} handleUpdate={handleUpdate} />
+        <SidebarSelectors
+          task={task}
+          handleUpdate={handleUpdate}
+          canEdit={canEdit}
+        />
 
         <div className="h-px bg-white/5 w-full" />
 
-        <SidebarSchedule task={task} handleUpdate={handleUpdate} />
+        <SidebarSchedule
+          task={task}
+          handleUpdate={handleUpdate}
+          canEdit={canEdit}
+        />
 
         <SidebarTag
           task={task}
           tag={tag}
           handleTagChange={handleTagChange}
           handleUpdate={handleUpdate}
+          canEdit={canEdit}
         />
       </div>
 

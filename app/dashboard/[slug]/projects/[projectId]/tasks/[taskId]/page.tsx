@@ -6,16 +6,30 @@ import { TaskHeader, TaskTitleSection } from "@/components/task/TaskHeader";
 import { TaskResources } from "@/components/task/TaskResources";
 import { TaskSidebar } from "@/components/task/TaskSidebar";
 import { useGetProjectMembersQuery } from "@/features/project/project.api";
+import { selectProject } from "@/features/project/project.slice";
 import {
   useGetTaskByIdQuery,
   useUpdateTaskMutation,
 } from "@/features/task/task.api";
 import { TaskStatus } from "@/features/task/task.interface";
+import { selectWorkspace } from "@/features/workspace/workspace.slice";
+import { cn } from "@/lib/utils";
+import { ProjectRole } from "@/types/project/project.interface";
+import { WorkspaceRole } from "@/types/workspace/workspace.interface";
 import { motion } from "framer-motion";
-import { AlertCircle, Zap } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Flag,
+  Pause,
+  X,
+  Zap,
+} from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 
 export default function TaskDetailPage() {
   const params = useParams();
@@ -23,6 +37,8 @@ export default function TaskDetailPage() {
   const taskId = params.taskId as string;
   const slug = params.slug as string;
   const projectId = params.projectId as string;
+  const project = useSelector(selectProject);
+  const workspace = useSelector(selectWorkspace);
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
@@ -80,6 +96,15 @@ export default function TaskDetailPage() {
       });
     }
   };
+
+  const isProjectAdminOrOwner =
+    project?.role === ProjectRole.OWNER || project?.role === ProjectRole.ADMIN;
+
+  const isWorkspaceAdminOrOwner =
+    workspace?.role === WorkspaceRole.OWNER ||
+    workspace?.role === WorkspaceRole.ADMIN;
+
+  const canEdit = isProjectAdminOrOwner || isWorkspaceAdminOrOwner;
 
   const handleTitleSubmit = () => {
     if (title !== task?.title) {
@@ -215,6 +240,7 @@ export default function TaskDetailPage() {
                   handleTitleSubmit={handleTitleSubmit}
                   setIsEditingTitle={setIsEditingTitle}
                   displayTitle={task.title}
+                  canEdit={canEdit}
                 />
               </div>
 
@@ -225,13 +251,18 @@ export default function TaskDetailPage() {
                 setIsEditingDesc={setIsEditingDesc}
                 handleDescSubmit={handleDescSubmit}
                 displayDescription={task.description}
+                canEdit={canEdit}
               />
 
               <TaskResources links={task.links || []} />
             </motion.div>
 
             <div className="bg-dashboard-card-bg/50 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-xl">
-              <CommentSection taskId={task.id} />
+              <CommentSection
+                isProjectAdminOrOwner={isProjectAdminOrOwner}
+                isWorkspaceAdminOrOwner={isWorkspaceAdminOrOwner}
+                taskId={task.id}
+              />
             </div>
           </div>
 
@@ -247,6 +278,7 @@ export default function TaskDetailPage() {
             statusIcons={statusIcons}
             tag={tag}
             handleTagChange={handleTagChange}
+            canEdit={canEdit}
           />
         </div>
       </div>
@@ -263,9 +295,6 @@ const priorityColors = {
   URGENT:
     "bg-red-500/10 text-red-500 border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.15)]",
 };
-
-import { cn } from "@/lib/utils";
-import { CheckCircle2, Clock, Flag, Pause, X } from "lucide-react";
 
 const statusIcons: Record<TaskStatus, React.ReactNode> = {
   [TaskStatus.TODO]: <Clock size={16} />,

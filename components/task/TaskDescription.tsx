@@ -10,6 +10,7 @@ interface TaskDescriptionProps {
   setIsEditingDesc: (val: boolean) => void;
   handleDescSubmit: () => void;
   displayDescription: string | null | undefined;
+  canEdit?: boolean;
 }
 
 export function TaskDescription({
@@ -19,6 +20,7 @@ export function TaskDescription({
   setIsEditingDesc,
   handleDescSubmit,
   displayDescription,
+  canEdit = true,
 }: TaskDescriptionProps) {
   return (
     <div className="space-y-6">
@@ -30,7 +32,7 @@ export function TaskDescription({
           </span>
         </div>
         <AnimatePresence>
-          {!isEditingDesc && (
+          {!isEditingDesc && canEdit && (
             <motion.button
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -50,7 +52,7 @@ export function TaskDescription({
 
       <div className="relative">
         <AnimatePresence mode="wait">
-          {isEditingDesc ? (
+          {isEditingDesc && canEdit ? (
             <motion.div
               key="editing-desc"
               initial={{ opacity: 0, scale: 0.98 }}
@@ -92,25 +94,33 @@ export function TaskDescription({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsEditingDesc(true)}
-              className="group/desc-box relative text-neutral-400 leading-relaxed text-[17px] font-medium bg-white/2 p-8 rounded-[32px] border border-white/5 hover:border-brand/20 transition-all duration-500 cursor-pointer shadow-inner"
+              onClick={() => canEdit && setIsEditingDesc(true)}
+              className={`group/desc-box relative text-neutral-400 leading-relaxed text-[17px] font-medium bg-white/2 p-8 rounded-[32px] border border-white/5 transition-all duration-500 shadow-inner ${
+                canEdit
+                  ? "hover:border-brand/20 cursor-pointer"
+                  : "cursor-default"
+              }`}
             >
               {displayDescription ? (
                 <div className="selection:bg-brand/20 whitespace-pre-wrap">
                   {displayDescription}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-12 gap-4 text-neutral-700 group-hover/desc-box:text-neutral-500 transition-colors">
+                <div className="flex flex-col items-center justify-center py-12 gap-4 text-neutral-700 transition-colors">
                   <AlertCircle size={32} className="opacity-20" />
-                  <span className="italic font-light tracking-wide">
-                    No active documentation for this node. Click to initialize.
+                  <span className="italic font-light tracking-wide text-center">
+                    {canEdit
+                      ? "No active documentation for this node. Click to initialize."
+                      : "No active documentation for this node."}
                   </span>
                 </div>
               )}
 
-              <div className="absolute top-4 right-4 opacity-0 group-hover/desc-box:opacity-100 transition-opacity">
-                <Edit2 size={16} className="text-brand/50" />
-              </div>
+              {canEdit && (
+                <div className="absolute top-4 right-4 opacity-0 group-hover/desc-box:opacity-100 transition-opacity">
+                  <Edit2 size={16} className="text-brand/50" />
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
