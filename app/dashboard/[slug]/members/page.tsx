@@ -132,7 +132,9 @@ export default function WorkspaceMembersPage() {
             Workspace Members
           </h2>
           <p className="text-neutral-400 mt-2 text-lg font-light">
-            Manage access to this workspace.
+            {isWorkspaceAdminOrOwner
+              ? "Manage access and roles for your workspace's members."
+              : "View workspace members."}
           </p>
         </div>
         {isWorkspaceAdminOrOwner ? (
