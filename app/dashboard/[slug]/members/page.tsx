@@ -1,6 +1,7 @@
 "use client";
 
 import { InviteWorkspaceMemberModal } from "@/components/workspace/InviteWorkspaceMemberModal";
+import { RemoveWorkspaceMemberModal } from "@/components/workspace/RemoveWorkspaceMemberModal";
 import WorkspaceInviteItem from "@/components/workspace/WorkspaceInviteItem";
 import {
   useGetWorkspaceInvitesQuery,
@@ -45,21 +46,37 @@ export default function WorkspaceMembersPage() {
       { skip: !workspace?.id },
     );
 
-  const [removeMember] = useRemoveWorkspaceMemberMutation();
+  const [selectedMember, setSelectedMember] = useState<{
+    id: string;
+    name: string;
+    email: string;
+  } | null>(null);
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
+
+  const [removeMember, { isLoading: isRemovingMember }] =
+    useRemoveWorkspaceMemberMutation();
   const [updateRole] = useUpdateWorkspaceMemberRoleMutation();
 
-  const handleRemoveMember = async (memberId: string) => {
-    if (!workspace?.id) return;
-    if (
-      !confirm(
-        "Are you sure you want to remove this member from the workspace?",
-      )
-    )
-      return;
+  const handleRemoveMemberSelection = (member: {
+    id: string;
+    name: string;
+    email: string;
+  }) => {
+    setSelectedMember(member);
+    setIsRemoveModalOpen(true);
+  };
+
+  const handleConfirmRemove = async () => {
+    if (!workspace?.id || !selectedMember) return;
 
     try {
-      await removeMember({ workspaceId: workspace.id, memberId }).unwrap();
+      await removeMember({
+        workspaceId: workspace.id,
+        memberId: selectedMember.id,
+      }).unwrap();
       toast.success("Member removed successfully");
+      setIsRemoveModalOpen(false);
+      setSelectedMember(null);
     } catch (error: any) {
       toast.error(error.data?.message || "Failed to remove member");
     }
@@ -132,6 +149,15 @@ export default function WorkspaceMembersPage() {
       <InviteWorkspaceMemberModal
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
+      />
+
+      <RemoveWorkspaceMemberModal
+        isOpen={isRemoveModalOpen}
+        onClose={() => setIsRemoveModalOpen(false)}
+        onConfirm={handleConfirmRemove}
+        userName={selectedMember?.name || ""}
+        userEmail={selectedMember?.email || ""}
+        isRemoving={isRemovingMember}
       />
 
       {/* Stats Grid */}
@@ -364,7 +390,11 @@ export default function WorkspaceMembersPage() {
                                 <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100">
                                   <button
                                     onClick={() =>
-                                      handleRemoveMember(member.id)
+                                      handleRemoveMemberSelection({
+                                        id: member.id,
+                                        name: member.user.name,
+                                        email: member.user.email,
+                                      })
                                     }
                                     className="p-2 cursor-pointer text-neutral-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
                                     title="Remove Member"
