@@ -72,7 +72,7 @@ const TaskListItem = ({
                     alt={assignee.name}
                     width={24}
                     height={24}
-                    className="w-full h-full object-cover"
+                    className="w-full rounded-full h-full object-cover"
                   />
                 ) : (
                   assignee.name

@@ -9,6 +9,7 @@ import TaskSearchbar from "./TaskSearchbar";
 import TaskStatusFilter from "./TaskStatusFilter";
 import TaskPriorityFilter from "./TaskPriorityFilter";
 import TaskSortFilter from "./TaskSortFilter";
+import TaskListPagination from "./TaskListPagination";
 import {
   TaskPriorityWithAll,
   TaskStatusWithAll,
@@ -25,6 +26,8 @@ export default function TaskListView({
 }: TaskListViewProps) {
   const limit: number = 10;
   const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalTasks, setTotalTasks] = useState<number>(1);
   const [sort, setSort] = useState<SortBy>("updatedAt");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [search, setSearch] = useState<string>("");
@@ -36,7 +39,7 @@ export default function TaskListView({
   );
   const [tasks, setTasks] = useState<Task[]>([]);
 
-  const { data } = useGetTasksQuery(
+  const { data, isFetching } = useGetTasksQuery(
     {
       projectId,
       query: {
@@ -76,6 +79,12 @@ export default function TaskListView({
   useEffect(() => {
     if (data?.tasks) {
       setTasks(data.tasks);
+    }
+    if (data?.pagination.totalPages) {
+      setTotalPages(data.pagination.totalPages);
+    }
+    if (data?.pagination.total) {
+      setTotalTasks(data.pagination.total);
     }
   }, [data]);
 
@@ -146,22 +155,16 @@ export default function TaskListView({
             </tbody>
           </table>
         </div>
-
-        {/* Footer Info */}
-        <div className="px-8 py-4 bg-white/2 border-t border-white/5 backdrop-blur-xl flex justify-between items-center text-[10px] font-bold text-neutral-500 uppercase tracking-widest">
-          <span>Showing {tasks.length} Tasks</span>
-          <div className="flex gap-4">
-            <span className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              {tasks.filter((t) => t.status === "DONE").length} Completed
-            </span>
-            <span className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-brand" />
-              {tasks.filter((t) => t.status !== "DONE").length} Active
-            </span>
-          </div>
-        </div>
       </div>
+
+      <TaskListPagination
+        tasks={tasks}
+        totalTasks={totalTasks || 0}
+        page={page}
+        setPage={setPage}
+        isFetching={isFetching}
+        totalPages={totalPages || 0}
+      />
     </div>
   );
 }
