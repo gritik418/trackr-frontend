@@ -1,14 +1,14 @@
 "use client";
 
-import { WorkspaceActivityItem } from "@/components/audit-logs/workspace/WorkspaceActivityItem";
 import AuditLogsPagination from "@/components/audit-logs/AuditLogsPagination";
+import { ActivityStats } from "@/components/audit-logs/workspace/ActivityStats";
+import { WorkspaceActivityItem } from "@/components/audit-logs/workspace/WorkspaceActivityItem";
 import { useGetWorkspaceAuditLogsQuery } from "@/features/audit-logs/audit-logs.api";
 import { AuditLog } from "@/features/audit-logs/audit-logs.interface";
 import { useGetWorkspaceDetailsQuery } from "@/features/workspace/workspace.api";
-import { Calendar, Filter, Loader2, Sparkles } from "lucide-react";
+import { Calendar, Loader2, Sparkles } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ActivityStats } from "@/components/audit-logs/workspace/ActivityStats";
 
 export default function WorkspaceActivityPage() {
   const params = useParams();
@@ -101,16 +101,6 @@ export default function WorkspaceActivityPage() {
               {workspaceData?.workspace?.name}
             </span>
           </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-white/2 hover:bg-white/5 border border-white/5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all text-neutral-400 hover:text-white active:scale-95 group">
-            <Filter
-              size={14}
-              className="group-hover:text-brand transition-colors"
-            />
-            Advanced Filter
-          </button>
         </div>
       </div>
 
