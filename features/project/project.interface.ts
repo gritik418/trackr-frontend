@@ -1,10 +1,19 @@
 import { CreateProjectDto } from "@/types/project/create-project.interface";
 import { Project } from "@/types/project/project.interface";
 
+export interface ProjectsWithStats extends Project {
+  stats?: {
+    nature: ProjectNature;
+    members: ProjectMember[] | null;
+    membersCount: number;
+    completionPercentage: number;
+  };
+}
+
 export interface GetProjectsResponse {
   success: boolean;
   message: string;
-  projects: Project[];
+  projects: ProjectsWithStats[];
 }
 
 export interface CreateProjectResponse {
@@ -94,7 +103,10 @@ type ProjectStatus =
   | "ARCHIVED"
   | "CANCELED";
 
-type ProjectNature = "PRIVATE" | "PUBLIC";
+export enum ProjectNature {
+  PRIVATE = "PRIVATE",
+  PUBLIC = "PUBLIC",
+}
 
 export interface GetProjectOverviewResponse {
   success: boolean;
