@@ -37,8 +37,6 @@ export default function ProjectItem({ project, slug }: ProjectItemProps) {
     }
   };
 
-  console.log(project);
-
   return (
     <Link
       href={`/dashboard/${slug}/projects/${project.id}`}

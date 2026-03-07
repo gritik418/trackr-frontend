@@ -8,6 +8,7 @@ import {
   GetProjectByIdResponse,
   GetProjectMembersResponse,
   GetProjectOverviewResponse,
+  GetProjectsInput,
   GetProjectsResponse,
   UpdateProjectRequest,
   UpdateProjectResponse,
@@ -21,8 +22,18 @@ const projectApi = createApi({
   }),
   tagTypes: ["Projects"],
   endpoints: (build) => ({
-    getProjects: build.query<GetProjectsResponse, string>({
-      query: (workspaceId) => `/workspaces/${workspaceId}/projects`,
+    getProjects: build.query<GetProjectsResponse, GetProjectsInput>({
+      query: ({ workspaceId, nature, search, status }) => {
+        const searchParams = new URLSearchParams();
+        if (status) searchParams.set("status", status);
+        if (search) searchParams.set("search", search);
+        if (nature) searchParams.set("nature", nature);
+
+        return {
+          url: `/workspaces/${workspaceId}/projects`,
+          params: searchParams,
+        };
+      },
       providesTags: (result) =>
         result
           ? [

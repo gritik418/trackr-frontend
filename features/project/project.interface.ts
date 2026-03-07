@@ -94,14 +94,15 @@ export interface Task {
   deadline?: string;
 }
 
-type ProjectStatus =
-  | "DRAFT"
-  | "ACTIVE"
-  | "ON_HOLD"
-  | "BLOCKED"
-  | "COMPLETED"
-  | "ARCHIVED"
-  | "CANCELED";
+export enum ProjectStatus {
+  DRAFT = "DRAFT",
+  ACTIVE = "ACTIVE",
+  ON_HOLD = "ON_HOLD",
+  BLOCKED = "BLOCKED",
+  COMPLETED = "COMPLETED",
+  ARCHIVED = "ARCHIVED",
+  CANCELED = "CANCELED",
+}
 
 export enum ProjectNature {
   PRIVATE = "PRIVATE",
@@ -150,3 +151,34 @@ export interface ProjectVelocity {
     completed: number;
   }[];
 }
+
+export interface GetProjectsInput {
+  workspaceId: string;
+  search?: string;
+  status?: ProjectStatusWithAll;
+  nature?: ProjectNatureWithAll;
+}
+
+enum ExtraProjectStatus {
+  ALL = "ALL",
+}
+
+enum ExtraProjectNature {
+  ALL = "ALL",
+}
+
+export const ProjectStatusWithAll = {
+  ...ProjectStatus,
+  ...ExtraProjectStatus,
+};
+
+export const ProjectNatureWithAll = {
+  ...ProjectNature,
+  ...ExtraProjectNature,
+};
+
+type ProjectStatusWithAll =
+  (typeof ProjectStatusWithAll)[keyof typeof ProjectStatusWithAll];
+
+type ProjectNatureWithAll =
+  (typeof ProjectNatureWithAll)[keyof typeof ProjectNatureWithAll];

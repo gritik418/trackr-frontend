@@ -12,25 +12,28 @@ import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import { CreateProjectFormData } from "@/lib/schemas/project/create-project.schema";
 import { Project } from "@/types/project/project.interface";
 import { WorkspaceRole } from "@/types/workspace/workspace.interface";
-import { Clock, Loader2, Lock, Plus, Search, Trash2 } from "lucide-react";
-import Link from "next/link";
+import { Plus, Search } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { MdPublic } from "react-icons/md";
 import { useSelector } from "react-redux";
 
 export default function ProjectsListPage() {
   const params = useParams();
   const slug = params?.slug as string;
   const workspace = useSelector(selectWorkspace);
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const { data, isLoading } = useGetProjectsQuery(workspace?.id || "", {
-    skip: !workspace?.id,
-  });
+  const { data, isLoading } = useGetProjectsQuery(
+    { workspaceId: workspace?.id || "", search: searchQuery },
+    {
+      skip: !workspace?.id,
+      refetchOnMountOrArgChange: true,
+    },
+  );
 
   const [createProject, { isLoading: isCreating }] = useCreateProjectMutation();
 
@@ -92,6 +95,8 @@ export default function ProjectsListPage() {
           />
           <input
             type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search projects..."
             className="w-full pl-9 pr-4 py-2 bg-dashboard-card-bg/30 border border-dashboard-border rounded-xl text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand/50 focus:bg-dashboard-card-bg/50 transition-all"
           />
