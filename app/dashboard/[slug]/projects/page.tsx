@@ -4,12 +4,16 @@ import CreateProjectModal from "@/components/project/CreateProjectModal";
 import DeleteProjectModal from "@/components/project/DeleteProjectModal";
 import ProjectCardSkeleton from "@/components/project/ProjectCardSkeleton";
 import ProjectItem from "@/components/project/ProjectItem";
+import ProjectNatureFilter from "@/components/project/ProjectNatureFilter";
 import ProjectStatusFilter from "@/components/project/ProjectStatusFilter";
 import {
   useCreateProjectMutation,
   useGetProjectsQuery,
 } from "@/features/project/project.api";
-import { ProjectStatusWithAll } from "@/features/project/project.interface";
+import {
+  ProjectNatureWithAll,
+  ProjectStatusWithAll,
+} from "@/features/project/project.interface";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import { CreateProjectFormData } from "@/lib/schemas/project/create-project.schema";
 import { Project } from "@/types/project/project.interface";
@@ -28,6 +32,9 @@ export default function ProjectsListPage() {
   const [statusFilter, setStatusFilter] = useState<
     (typeof ProjectStatusWithAll)[keyof typeof ProjectStatusWithAll]
   >(ProjectStatusWithAll.ALL);
+  const [natureFilter, setNatureFilter] = useState<
+    (typeof ProjectNatureWithAll)[keyof typeof ProjectNatureWithAll]
+  >(ProjectNatureWithAll.ALL);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -36,7 +43,14 @@ export default function ProjectsListPage() {
     {
       workspaceId: workspace?.id || "",
       search: searchQuery,
-      status: statusFilter,
+      status:
+        statusFilter === (ProjectStatusWithAll.ALL as any)
+          ? undefined
+          : (statusFilter as any),
+      nature:
+        natureFilter === (ProjectNatureWithAll.ALL as any)
+          ? undefined
+          : (natureFilter as any),
     },
     {
       skip: !workspace?.id,
@@ -110,7 +124,16 @@ export default function ProjectsListPage() {
             className="w-full pl-9 pr-4 py-3 bg-dashboard-card-bg/30 border border-dashboard-border rounded-xl text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand/50 focus:bg-dashboard-card-bg/50 transition-all"
           />
         </div>
-        <ProjectStatusFilter value={statusFilter} onChange={setStatusFilter} />
+        <div className="flex items-center gap-2">
+          <ProjectNatureFilter
+            value={natureFilter}
+            onChange={setNatureFilter}
+          />
+          <ProjectStatusFilter
+            value={statusFilter}
+            onChange={setStatusFilter}
+          />
+        </div>
       </div>
 
       {/* Projects Grid */}
