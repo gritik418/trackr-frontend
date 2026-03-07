@@ -8,7 +8,9 @@ import { TaskSidebar } from "@/components/task/TaskSidebar";
 import { useGetProjectMembersQuery } from "@/features/project/project.api";
 import { selectProject } from "@/features/project/project.slice";
 import {
+  useAssignTaskMutation,
   useGetTaskByIdQuery,
+  useUnassignTaskMutation,
   useUpdateTaskMutation,
 } from "@/features/task/task.api";
 import { TaskStatus } from "@/features/task/task.interface";
@@ -60,6 +62,8 @@ export default function TaskDetailPage() {
   );
 
   const [updateTask] = useUpdateTaskMutation();
+  const [assignTask] = useAssignTaskMutation();
+  const [unassignTask] = useUnassignTaskMutation();
   const { data: membersData } = useGetProjectMembersQuery({
     workspaceId: taskData?.task?.workspaceId || "",
     projectId,
@@ -122,17 +126,34 @@ export default function TaskDetailPage() {
     setIsEditingDesc(false);
   };
 
-  const toggleAssignee = (userId: string) => {
-    const currentAssigneeIds = task?.assignees.map((a) => a.id) || [];
-    let newAssigneeIds: string[];
+  const toggleAssignee = async (userId: string) => {
+    const isAssigned = task?.assignees.some((a) => a.id === userId);
+    const loadingToast = toast.loading(
+      isAssigned ? "Unlinking operative..." : "Linking operative...",
+    );
 
-    if (currentAssigneeIds.includes(userId)) {
-      newAssigneeIds = currentAssigneeIds.filter((id) => id !== userId);
-    } else {
-      newAssigneeIds = [...currentAssigneeIds, userId];
+    try {
+      if (isAssigned) {
+        await unassignTask({
+          taskId,
+          projectId,
+          body: { userIds: [userId] },
+        }).unwrap();
+      } else {
+        await assignTask({
+          taskId,
+          projectId,
+          body: { userIds: [userId] },
+        }).unwrap();
+      }
+      toast.success(isAssigned ? "Operative unlinked" : "Operative linked", {
+        id: loadingToast,
+      });
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Protocol failure", {
+        id: loadingToast,
+      });
     }
-
-    handleUpdate({ assignedToIds: newAssigneeIds });
   };
 
   const copyTaskLink = () => {

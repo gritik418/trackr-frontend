@@ -128,3 +128,23 @@ export interface UpdateTaskResponse {
   message: string;
   task: Task;
 }
+
+export interface AssignTaskRequest {
+  userIds: string[];
+}
+
+export interface AssignTaskResponse {
+  success: boolean;
+  message: string;
+  task: Task;
+}
+
+export interface UnassignTaskRequest {
+  userIds: string[];
+}
+
+export interface UnassignTaskResponse {
+  success: boolean;
+  message: string;
+  task: Task;
+}

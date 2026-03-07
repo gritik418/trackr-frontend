@@ -27,7 +27,7 @@ export default function WorkspaceActivityPage() {
   const { data: auditData, isLoading: isAuditLoading } =
     useGetWorkspaceAuditLogsQuery(
       { orgId: orgId!, workspaceId: workspaceId! },
-      { skip: !orgId || !workspaceId },
+      { skip: !orgId || !workspaceId, refetchOnMountOrArgChange: true },
     );
 
   const isLoading = isWorkspaceLoading || isAuditLoading;

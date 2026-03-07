@@ -1,11 +1,15 @@
 import { API_BASE_URL } from "@/constants";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
+  AssignTaskRequest,
+  AssignTaskResponse,
   CreateTaskRequest,
   CreateTaskResponse,
   GetTaskByIdResponse,
   GetTasksQuery,
   GetTasksResponse,
+  UnassignTaskRequest,
+  UnassignTaskResponse,
   UpdateTaskRequest,
   UpdateTaskResponse,
 } from "./task.interface";
@@ -84,6 +88,34 @@ const taskApi = createApi({
         "ProjectTasks",
       ],
     }),
+    assignTask: build.mutation<
+      AssignTaskResponse,
+      { taskId: string; projectId: string; body: AssignTaskRequest }
+    >({
+      query: ({ taskId, projectId, body }) => ({
+        url: `/projects/${projectId}/tasks/${taskId}/assign`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (result, error, { taskId }) => [
+        { type: "Tasks", id: taskId },
+        "ProjectTasks",
+      ],
+    }),
+    unassignTask: build.mutation<
+      UnassignTaskResponse,
+      { taskId: string; projectId: string; body: UnassignTaskRequest }
+    >({
+      query: ({ taskId, projectId, body }) => ({
+        url: `/projects/${projectId}/tasks/${taskId}/unassign`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (result, error, { taskId }) => [
+        { type: "Tasks", id: taskId },
+        "ProjectTasks",
+      ],
+    }),
   }),
 });
 
@@ -93,6 +125,8 @@ export const {
   useGetWorkspaceTasksQuery,
   useGetTaskByIdQuery,
   useUpdateTaskMutation,
+  useAssignTaskMutation,
+  useUnassignTaskMutation,
 } = taskApi;
 
 export default taskApi;
