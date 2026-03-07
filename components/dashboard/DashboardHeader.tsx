@@ -1,7 +1,8 @@
 "use client";
 
 import { ProfileMenu } from "@/components/org/ProfileMenu";
-import { Bell, Search } from "lucide-react";
+import { Bell, Layers2, Search } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export function DashboardHeader() {
@@ -14,12 +15,20 @@ export function DashboardHeader() {
     <header className="h-[72px] flex items-center px-6 gap-4 sticky top-0 z-30 transition-all duration-200 bg-dashboard-header-bg/80 backdrop-blur-md border-b border-dashboard-border">
       {/* Breadcrumbs / Title */}
       <div className="flex items-center gap-2 text-sm">
-        <div className="flex items-center justify-center w-6 h-6 rounded-md bg-dashboard-item-bg border border-dashboard-border text-dashboard-item-text">
-          <span className="text-xs">⌘</span>
-        </div>
-        <span className="text-dashboard-item-text font-medium capitalize">
+        <Link
+          href={`/dashboard/${workspace}`}
+          className="flex items-center justify-center w-6 h-6 rounded-md bg-dashboard-item-bg border border-dashboard-border text-dashboard-item-text"
+        >
+          <span className="text-xs">
+            <Layers2 />
+          </span>
+        </Link>
+        <Link
+          href={`/dashboard/${workspace}`}
+          className="text-dashboard-item-text font-medium capitalize"
+        >
           {workspace}
-        </span>
+        </Link>
         <span className="text-dashboard-item-text/50">/</span>
         <span className="text-dashboard-item-text-active font-medium capitalize">
           {page}

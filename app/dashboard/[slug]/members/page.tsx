@@ -98,7 +98,9 @@ export default function WorkspaceMembersPage() {
 
   const isWorkspaceAdminOrOwner =
     workspace?.role === WorkspaceRole.OWNER ||
-    workspace?.role === WorkspaceRole.ADMIN;
+    workspace?.role === WorkspaceRole.ADMIN ||
+    workspace?.organizationRole === WorkspaceRole.ADMIN ||
+    workspace?.organizationRole === WorkspaceRole.OWNER;
 
   const members = (membersData?.members || []).filter(
     (member) =>

@@ -1,5 +1,6 @@
 import { User } from "../user/user.interface";
 import { Organization } from "../organization/organization.interface";
+import { OrgWithRole } from "@/features/organization/organization.interface";
 
 export enum WorkspaceRole {
   OWNER = "OWNER",
@@ -31,4 +32,5 @@ export interface Workspace {
   projects: any[];
   createdAt: string;
   updatedAt: string;
+  organizationRole?: WorkspaceRole;
 }

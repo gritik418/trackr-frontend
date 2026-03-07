@@ -183,7 +183,7 @@ export default function WorkspaceActivityPage() {
                   Total Events
                 </span>
                 <span className="text-2xl font-bold text-white">
-                  {auditData?.total || 0}
+                  {auditData?.logs.length || 0}
                 </span>
               </div>
 

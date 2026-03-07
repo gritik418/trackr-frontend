@@ -53,7 +53,7 @@ export default function ProjectsListPage() {
           : (natureFilter as any),
     },
     {
-      skip: !workspace?.id,
+      skip: typeof workspace === "undefined" || !workspace || !workspace.id,
       refetchOnMountOrArgChange: true,
     },
   );
@@ -78,7 +78,9 @@ export default function ProjectsListPage() {
 
   const isWorkspaceAdminOrOwner =
     workspace?.role === WorkspaceRole.OWNER ||
-    workspace?.role === WorkspaceRole.ADMIN;
+    workspace?.role === WorkspaceRole.ADMIN ||
+    workspace?.organizationRole === WorkspaceRole.ADMIN ||
+    workspace?.organizationRole === WorkspaceRole.OWNER;
 
   const projects = data?.projects || [];
 

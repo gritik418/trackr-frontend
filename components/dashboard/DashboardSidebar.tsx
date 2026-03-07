@@ -37,9 +37,12 @@ export default function DashboardSidebar({
   const pathname = usePathname();
   const [projects, setProjects] = useState<Project[]>([]);
   const workspace = useSelector(selectWorkspace);
-  const { data, isLoading } = useGetProjectsQuery(workspace?.id || "", {
-    skip: !workspace?.id,
-  });
+  const { data, isLoading } = useGetProjectsQuery(
+    { workspaceId: workspace?.id || "" },
+    {
+      skip: typeof workspace === "undefined" || !workspace || !workspace.id,
+    },
+  );
   const baseUrl = `/dashboard/${slug}`;
 
   const navItems = [

@@ -10,7 +10,5 @@ export default async function Layout({
 }) {
   const { slug } = await params;
 
-  // if (!slug) return null;
-
   return <DashboardLayout slug={slug}>{children}</DashboardLayout>;
 }

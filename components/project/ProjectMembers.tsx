@@ -48,7 +48,9 @@ export default function ProjectMembers({
 
   const isWorkspaceAdminOrOwner =
     workspace?.role === WorkspaceRole.OWNER ||
-    workspace?.role === WorkspaceRole.ADMIN;
+    workspace?.role === WorkspaceRole.ADMIN ||
+    workspace?.organizationRole === WorkspaceRole.ADMIN ||
+    workspace?.organizationRole === WorkspaceRole.OWNER;
 
   const handleRemoveMember = async (userId: string) => {
     try {

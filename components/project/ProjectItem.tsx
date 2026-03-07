@@ -82,7 +82,7 @@ export default function ProjectItem({ project, slug }: ProjectItemProps) {
 
       <div className="space-y-6 relative z-10">
         {/* Progress Bar */}
-        {project.stats?.completionPercentage && (
+        {typeof project.stats?.completionPercentage === "number" && (
           <div className="space-y-2">
             <div className="flex justify-between text-xs items-end">
               <span className="text-neutral-500 font-medium tracking-wide">
