@@ -191,24 +191,36 @@ export const getHumanDescription = (log: AuditLog) => {
     </code>
   );
 
+  const getAssigneeNames = (assignees: any[]) => {
+    if (!assignees || !Array.isArray(assignees) || assignees.length === 0)
+      return "someone";
+    const names = assignees.map((a) => a.name || a.email || "User");
+    if (names.length === 1) return names[0];
+    if (names.length === 2) return `${names[0]} and ${names[1]}`;
+    return `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`;
+  };
+
   switch (action) {
     case AuditAction.ORGANIZATION_CREATE:
-      return <>Created the organization {bold(d.name || "New Organization")}</>;
+      return <>Created organization {bold(d.name || "New Organization")}</>;
     case AuditAction.ORGANIZATION_UPDATE:
+      if (d.name) return <>Renamed organization to {bold(d.name)}</>;
+      if (d.description) return <>Updated organization description</>;
       return <>Updated organization settings</>;
     case AuditAction.ORGANIZATION_DELETE:
-      return <>Deleted the organization {bold(d.name || "Organization")}</>;
+      return <>Deleted organization {bold(d.name || "Organization")}</>;
     case AuditAction.ORGANIZATION_MEMBER_REMOVE:
       return (
         <>
-          Removed {bold(d.targetUserName || d.targetUserEmail || "a member")}{" "}
+          Removed {bold(d.affectedUser?.name || d.targetUserName || "a member")}{" "}
           from the organization
         </>
       );
     case AuditAction.ORGANIZATION_MEMBER_ROLE_UPDATE:
       return (
         <>
-          Updated {bold(d.targetUserName || "member")}'s role to{" "}
+          Updated role of{" "}
+          {bold(d.affectedUser?.name || d.targetUserName || "member")} to{" "}
           {mono(d.newRole)}
         </>
       );
@@ -216,6 +228,7 @@ export const getHumanDescription = (log: AuditLog) => {
     case AuditAction.WORKSPACE_CREATE:
       return <>Created workspace {bold(d.name || "New Workspace")}</>;
     case AuditAction.WORKSPACE_UPDATE:
+      if (d.name) return <>Renamed workspace to {bold(d.name)}</>;
       return <>Updated workspace {bold(d.name || "settings")}</>;
     case AuditAction.WORKSPACE_DELETE:
       return <>Deleted workspace {bold(d.name || "Workspace")}</>;
@@ -230,21 +243,33 @@ export const getHumanDescription = (log: AuditLog) => {
     case AuditAction.WORKSPACE_MEMBER_ROLE_UPDATE:
       return (
         <>
-          Updated {bold(d.targetUserName || "member")}'s role to{" "}
+          Updated role of {bold(d.targetUserName || "member")} to{" "}
           {mono(d.newRole)} in the workspace
         </>
       );
     case AuditAction.WORKSPACE_MEMBER_REMOVE:
       return (
         <>
-          Removed {bold(d.targetUserName || d.targetUserEmail || "a member")}{" "}
+          Removed{" "}
+          {bold(
+            d.targetUserName ||
+              d.targetUserEmail ||
+              d.removedUserId ||
+              "a member",
+          )}{" "}
           from the workspace
         </>
       );
 
     case AuditAction.PROJECT_CREATE:
-      return <>Created project {bold(d.name || "New Project")}</>;
+      return (
+        <>
+          Created {mono(d.nature)} project {bold(d.name || "New Project")}
+        </>
+      );
     case AuditAction.PROJECT_UPDATE:
+      if (d.status) return <>Changed project status to {mono(d.status)}</>;
+      if (d.name) return <>Renamed project to {bold(d.name)}</>;
       return <>Updated project {bold(d.name || "settings")}</>;
     case AuditAction.PROJECT_DELETE:
       return <>Deleted project {bold(d.name || "Project")}</>;
@@ -252,32 +277,31 @@ export const getHumanDescription = (log: AuditLog) => {
     case AuditAction.PROJECT_MEMBER_ADD:
       return (
         <>
-          Added {bold(d.targetUserName || d.targetUserEmail || "a member")} to
-          the project {bold(d.projectName || "")}
+          Added {bold(d.targetUserName || "a member")} to the project as{" "}
+          {mono(d.role)}
         </>
       );
     case AuditAction.PROJECT_MEMBER_REMOVE:
       return (
-        <>
-          Removed {bold(d.targetUserName || d.targetUserEmail || "a member")}{" "}
-          from the project {bold(d.projectName || "")}
-        </>
+        <>Removed {bold(d.targetUserName || "a member")} from the project</>
       );
 
     case AuditAction.TASK_CREATE:
       return <>Created task {bold(d.title || "New Task")}</>;
     case AuditAction.TASK_UPDATE:
-      return <>Updated task {bold(d.title || "Task")}</>;
+      if (d.status) return <>Marked task as {mono(d.status)}</>;
+      if (d.priority) return <>Set task priority to {mono(d.priority)}</>;
+      if (d.title) return <>Renamed task to {bold(d.title)}</>;
+      return <>Updated details for task {bold(d.title || "Task")}</>;
     case AuditAction.TASK_ASSIGN:
+      return <>Assigned task to {bold(getAssigneeNames(d.assignedTo))}</>;
+    case AuditAction.TASK_UNASSIGN:
       return (
-        <>
-          Assigned task {bold(d.title || "Task")} to{" "}
-          {bold(d.assigneeName || "user")}
-        </>
+        <>Unassigned task from {bold(getAssigneeNames(d.unassignedFrom))}</>
       );
 
     case AuditAction.ORGANIZATION_INVITE_SEND:
-      return <>Sent an organization invite to {bold(d.email)}</>;
+      return <>Invited {bold(d.email)} to the organization</>;
     case AuditAction.ORGANIZATION_INVITE_REVOKE:
       return <>Revoked organization invite for {bold(d.email)}</>;
     case AuditAction.ORGANIZATION_INVITE_ACCEPT:
@@ -286,7 +310,7 @@ export const getHumanDescription = (log: AuditLog) => {
       return <>Rejected organization invite</>;
 
     case AuditAction.WORKSPACE_INVITE_SEND:
-      return <>Sent a workspace invite to {bold(d.email)}</>;
+      return <>Invited {bold(d.email)} to the workspace</>;
     case AuditAction.WORKSPACE_INVITE_REVOKE:
       return <>Revoked workspace invite for {bold(d.email)}</>;
     case AuditAction.WORKSPACE_INVITE_ACCEPT:
@@ -297,16 +321,17 @@ export const getHumanDescription = (log: AuditLog) => {
     case AuditAction.TASK_COMMENT_CREATE:
       return (
         <>
-          Commented on task {bold(d.taskTitle || "Task")}:{" "}
-          {mono(
-            d.content?.slice(0, 30) + (d.content?.length > 30 ? "..." : ""),
-          )}
+          Commented:{" "}
+          <span className="italic text-white/60">
+            "{d.content?.slice(0, 50)}
+            {d.content?.length > 50 ? "..." : ""}"
+          </span>
         </>
       );
     case AuditAction.TASK_COMMENT_UPDATE:
-      return <>Updated a comment on task {bold(d.taskTitle || "Task")}</>;
+      return <>Updated a comment on a task</>;
     case AuditAction.TASK_COMMENT_DELETE:
-      return <>Deleted a comment from task {bold(d.taskTitle || "Task")}</>;
+      return <>Deleted a comment from a task</>;
 
     default:
       return (

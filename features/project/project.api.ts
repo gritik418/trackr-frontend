@@ -1,5 +1,6 @@
 import { API_BASE_URL } from "@/constants";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { auditLogsApi } from "../audit-logs/audit-logs.api";
 import {
   AddProjectMemberRequest,
   AddProjectMemberResponse,
@@ -55,6 +56,14 @@ const projectApi = createApi({
         body,
       }),
       invalidatesTags: [{ type: "Projects", id: "LIST" }],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            auditLogsApi.util.invalidateTags([{ type: "audit-logs" as any }]),
+          );
+        } catch {}
+      },
     }),
     updateProject: build.mutation<
       UpdateProjectResponse,
@@ -69,6 +78,14 @@ const projectApi = createApi({
         { type: "Projects", id: projectId },
         { type: "Projects", id: "LIST" },
       ],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            auditLogsApi.util.invalidateTags([{ type: "audit-logs" as any }]),
+          );
+        } catch {}
+      },
     }),
     getProjectById: build.query<
       GetProjectByIdResponse,
@@ -99,6 +116,14 @@ const projectApi = createApi({
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "Projects", id: "LIST" }],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            auditLogsApi.util.invalidateTags([{ type: "audit-logs" as any }]),
+          );
+        } catch {}
+      },
     }),
     addMemberToProject: build.mutation<
       AddProjectMemberResponse,
@@ -112,6 +137,14 @@ const projectApi = createApi({
       invalidatesTags: (result, error, { projectId }) => [
         { type: "Projects", id: `${projectId}-members` },
       ],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            auditLogsApi.util.invalidateTags([{ type: "audit-logs" as any }]),
+          );
+        } catch {}
+      },
     }),
     removeMemberFromProject: build.mutation<
       { success: boolean; message: string },
@@ -124,6 +157,14 @@ const projectApi = createApi({
       invalidatesTags: (result, error, { projectId }) => [
         { type: "Projects", id: `${projectId}-members` },
       ],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            auditLogsApi.util.invalidateTags([{ type: "audit-logs" as any }]),
+          );
+        } catch {}
+      },
     }),
     getProjectOverview: build.query<
       GetProjectOverviewResponse,

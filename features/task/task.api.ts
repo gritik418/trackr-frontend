@@ -1,5 +1,6 @@
 import { API_BASE_URL } from "@/constants";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { auditLogsApi } from "../audit-logs/audit-logs.api";
 import {
   AssignTaskRequest,
   AssignTaskResponse,
@@ -74,6 +75,7 @@ const taskApi = createApi({
         { type: "Tasks", id: taskId },
       ],
     }),
+
     updateTask: build.mutation<
       UpdateTaskResponse,
       { taskId: string; projectId: string; body: UpdateTaskRequest }
@@ -87,6 +89,14 @@ const taskApi = createApi({
         { type: "Tasks", id: taskId },
         "ProjectTasks",
       ],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            auditLogsApi.util.invalidateTags([{ type: "audit-logs" as any }]),
+          );
+        } catch {}
+      },
     }),
     assignTask: build.mutation<
       AssignTaskResponse,
@@ -101,6 +111,14 @@ const taskApi = createApi({
         { type: "Tasks", id: taskId },
         "ProjectTasks",
       ],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            auditLogsApi.util.invalidateTags([{ type: "audit-logs" as any }]),
+          );
+        } catch {}
+      },
     }),
     unassignTask: build.mutation<
       UnassignTaskResponse,
@@ -115,6 +133,14 @@ const taskApi = createApi({
         { type: "Tasks", id: taskId },
         "ProjectTasks",
       ],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            auditLogsApi.util.invalidateTags([{ type: "audit-logs" as any }]),
+          );
+        } catch {}
+      },
     }),
   }),
 });

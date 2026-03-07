@@ -1,5 +1,6 @@
 import { API_BASE_URL } from "@/constants";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { auditLogsApi } from "../audit-logs/audit-logs.api";
 import {
   CreateWorkspaceRequest,
   CreateWorkspaceResponse,
@@ -52,6 +53,14 @@ const workspaceApi = createApi({
         body,
       }),
       invalidatesTags: ["workspaces"],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            auditLogsApi.util.invalidateTags([{ type: "audit-logs" as any }]),
+          );
+        } catch {}
+      },
     }),
     updateWorkspace: build.mutation<
       UpdateWorkspaceResponse,
@@ -65,6 +74,14 @@ const workspaceApi = createApi({
       invalidatesTags: (result) => [
         { type: "workspaces", id: result?.workspace?.id },
       ],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            auditLogsApi.util.invalidateTags([{ type: "audit-logs" as any }]),
+          );
+        } catch {}
+      },
     }),
     deleteWorkspace: build.mutation<DeleteWorkspaceResponse, string>({
       query: (id) => ({
@@ -72,6 +89,14 @@ const workspaceApi = createApi({
         method: "DELETE",
       }),
       invalidatesTags: ["workspaces"],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            auditLogsApi.util.invalidateTags([{ type: "audit-logs" as any }]),
+          );
+        } catch {}
+      },
     }),
     getWorkspaceMembers: build.query<GetWorkspaceMembersResponse, string>({
       query: (workspaceId) => `/workspaces/${workspaceId}/members`,
@@ -116,6 +141,14 @@ const workspaceApi = createApi({
         body,
       }),
       invalidatesTags: ["workspaces", "workspaceInvites"],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            auditLogsApi.util.invalidateTags([{ type: "audit-logs" as any }]),
+          );
+        } catch {}
+      },
     }),
     declineWorkspaceInvite: build.mutation<
       AcceptWorkspaceInviteResponse,
@@ -162,6 +195,14 @@ const workspaceApi = createApi({
         body,
       }),
       invalidatesTags: ["members"],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            auditLogsApi.util.invalidateTags([{ type: "audit-logs" as any }]),
+          );
+        } catch {}
+      },
     }),
     removeWorkspaceMember: build.mutation<
       RemoveWorkspaceMemberResponse,
@@ -172,6 +213,14 @@ const workspaceApi = createApi({
         method: "DELETE",
       }),
       invalidatesTags: ["members"],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            auditLogsApi.util.invalidateTags([{ type: "audit-logs" as any }]),
+          );
+        } catch {}
+      },
     }),
   }),
 });
