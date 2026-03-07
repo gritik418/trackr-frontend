@@ -26,40 +26,48 @@ export const getActionUI = (action: string) => {
   if (a.includes("CREATE"))
     return {
       color: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
+      theme: "emerald",
       icon: Plus,
     };
   if (a.includes("UPDATE"))
     return {
       color: "text-blue-400 bg-blue-400/10 border-blue-400/20",
+      theme: "blue",
       icon: Edit,
     };
   if (a.includes("DELETE"))
     return {
       color: "text-rose-400 bg-rose-400/10 border-rose-400/20",
+      theme: "rose",
       icon: Trash2,
     };
   if (a.includes("INVITE"))
     return {
       color: "text-violet-400 bg-violet-400/10 border-violet-400/20",
+      theme: "violet",
       icon: Mail,
     };
   if (a.includes("ACCEPT"))
     return {
       color: "text-indigo-400 bg-indigo-400/10 border-indigo-400/20",
+      theme: "indigo",
       icon: CheckCircle2,
     };
   if (a.includes("LOGIN"))
     return {
       color: "text-amber-400 bg-amber-400/10 border-amber-400/20",
+      theme: "amber",
       icon: LogIn,
     };
   if (a.includes("LOGOUT"))
     return {
       color: "text-orange-400 bg-orange-400/10 border-orange-400/20",
+      theme: "orange",
       icon: LogOut,
     };
   return {
     color: "text-neutral-400 bg-neutral-400/10 border-neutral-400/20",
+    theme: "neutral",
     icon: Activity,
   };
 };

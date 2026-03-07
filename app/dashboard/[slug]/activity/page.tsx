@@ -8,8 +8,7 @@ import { useGetWorkspaceDetailsQuery } from "@/features/workspace/workspace.api"
 import { Calendar, Filter, Loader2, Sparkles } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ActivityStats } from "@/components/audit-logs/ActivityStats";
-import { TopContributors } from "@/components/audit-logs/TopContributors";
+import { ActivityStats } from "@/components/audit-logs/workspace/ActivityStats";
 
 export default function WorkspaceActivityPage() {
   const params = useParams();
@@ -121,9 +120,6 @@ export default function WorkspaceActivityPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         {/* Main Timeline */}
         <div className="lg:col-span-3 relative">
-          {/* Vertical Line Visual */}
-          <div className="absolute left-6 top-8 bottom-8 w-px bg-linear-to-b from-brand/40 via-white/10 to-transparent opacity-30 z-0" />
-
           {logs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-32 text-center bg-white/1 border border-dashed border-white/5 rounded-[3rem]">
               <div className="w-24 h-24 rounded-full bg-white/2 flex items-center justify-center mb-6 border border-white/5 shadow-inner">
@@ -138,7 +134,7 @@ export default function WorkspaceActivityPage() {
               </p>
             </div>
           ) : (
-            <div className="space-y-6 relative z-10">
+            <div className="space-y-0 relative z-10 px-4">
               {logs.map((log: AuditLog) => (
                 <WorkspaceActivityItem
                   key={log.id}

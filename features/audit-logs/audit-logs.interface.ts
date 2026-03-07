@@ -61,8 +61,6 @@ export interface AuditLog {
   entityType: string;
   entityId: string;
   details: any;
-  previousState?: any;
-  previousAssignees?: any[];
   ipAddress: string | null;
   userAgent: string | null;
   createdAt: string;
