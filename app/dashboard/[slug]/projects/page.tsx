@@ -4,10 +4,12 @@ import CreateProjectModal from "@/components/project/CreateProjectModal";
 import DeleteProjectModal from "@/components/project/DeleteProjectModal";
 import ProjectCardSkeleton from "@/components/project/ProjectCardSkeleton";
 import ProjectItem from "@/components/project/ProjectItem";
+import ProjectStatusFilter from "@/components/project/ProjectStatusFilter";
 import {
   useCreateProjectMutation,
   useGetProjectsQuery,
 } from "@/features/project/project.api";
+import { ProjectStatusWithAll } from "@/features/project/project.interface";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import { CreateProjectFormData } from "@/lib/schemas/project/create-project.schema";
 import { Project } from "@/types/project/project.interface";
@@ -23,12 +25,19 @@ export default function ProjectsListPage() {
   const slug = params?.slug as string;
   const workspace = useSelector(selectWorkspace);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<
+    (typeof ProjectStatusWithAll)[keyof typeof ProjectStatusWithAll]
+  >(ProjectStatusWithAll.ALL);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const { data, isLoading } = useGetProjectsQuery(
-    { workspaceId: workspace?.id || "", search: searchQuery },
+    {
+      workspaceId: workspace?.id || "",
+      search: searchQuery,
+      status: statusFilter,
+    },
     {
       skip: !workspace?.id,
       refetchOnMountOrArgChange: true,
@@ -87,32 +96,21 @@ export default function ProjectsListPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-4 relative z-10">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col sm:flex-row gap-4 relative z-20">
+        <div className="relative flex-1">
           <Search
-            className="absolute left-3 top-2.5 text-neutral-500"
-            size={16}
+            className="absolute left-3 top-3.5 text-neutral-500"
+            size={18}
           />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search projects..."
-            className="w-full pl-9 pr-4 py-2 bg-dashboard-card-bg/30 border border-dashboard-border rounded-xl text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand/50 focus:bg-dashboard-card-bg/50 transition-all"
+            className="w-full pl-9 pr-4 py-3 bg-dashboard-card-bg/30 border border-dashboard-border rounded-xl text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand/50 focus:bg-dashboard-card-bg/50 transition-all"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <select className="px-3 py-2 bg-dashboard-card-bg/30 border border-dashboard-border rounded-xl text-sm text-neutral-300 focus:outline-none focus:border-brand/50">
-            <option>All Statuses</option>
-            <option>On Track</option>
-            <option>At Risk</option>
-            <option>Completed</option>
-          </select>
-          <select className="px-3 py-2 bg-dashboard-card-bg/30 border border-dashboard-border rounded-xl text-sm text-neutral-300 focus:outline-none focus:border-brand/50">
-            <option>Sort by Date</option>
-            <option>Sort by Name</option>
-          </select>
-        </div>
+        <ProjectStatusFilter value={statusFilter} onChange={setStatusFilter} />
       </div>
 
       {/* Projects Grid */}
