@@ -25,6 +25,7 @@ export const auditLogsApi = createApi({
         endDate?: string;
       }
     >({
+      keepUnusedDataFor: 0,
       query: ({ orgId, ...params }) => {
         const queryParams = new URLSearchParams();
         if (params.limit) queryParams.set("limit", params.limit.toString());
@@ -59,6 +60,7 @@ export const auditLogsApi = createApi({
         endDate?: string;
       }
     >({
+      keepUnusedDataFor: 0,
       query: ({ orgId, workspaceId, ...params }) => {
         const queryParams = new URLSearchParams();
         if (params.limit) queryParams.set("limit", params.limit.toString());

@@ -25,7 +25,7 @@ const AuditLogsPagination = ({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mt-8 flex flex-col md:flex-row justify-between items-center gap-4 bg-white/2 p-4 rounded-3xl border border-white/5"
+      className="mt-8 flex w-full flex-col md:flex-row justify-between items-center gap-4 bg-white/2 p-4 rounded-3xl border border-white/5"
     >
       <div className="flex items-center gap-4">
         <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">

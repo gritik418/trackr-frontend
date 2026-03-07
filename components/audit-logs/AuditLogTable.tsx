@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AuditLog } from "../../features/audit-logs/audit-logs.interface";
-import { AuditLogItem } from "./AuditLogItem";
+import { AuditLogTableRow } from "./AuditLogTableRow";
 
 interface AuditLogTableProps {
   logs: AuditLog[];
@@ -68,10 +68,9 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({
             </tr>
           ) : (
             logs.map((log) => (
-              <AuditLogItem
+              <AuditLogTableRow
                 key={log.id}
                 log={log}
-                view="table"
                 isExpanded={expandedId === log.id}
                 onToggleExpand={() =>
                   setExpandedId(expandedId === log.id ? null : log.id)

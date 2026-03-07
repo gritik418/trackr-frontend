@@ -27,6 +27,7 @@ import {
   AuditEntityType,
   AuditLog,
 } from "../../features/audit-logs/audit-logs.interface";
+import Image from "next/image";
 
 interface AuditLogItemProps {
   log: AuditLog;
@@ -494,14 +495,20 @@ export const AuditLogItem: React.FC<AuditLogItemProps> = ({
 
   return (
     <div
-      className={`group p-5 bg-white/2 hover:bg-white/5 border border-white/5 rounded-3xl transition-all duration-300 cursor-pointer ${isExpanded ? "ring-1 ring-brand/30 bg-white/5 shadow-xl shadow-black/40" : ""}`}
+      className={`group relative p-5 bg-white/2 hover:bg-white/4 border border-white/5 rounded-4xl transition-all duration-500 cursor-pointer overflow-hidden ${isExpanded ? "ring-1 ring-brand/40 bg-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] scale-[1.01]" : "hover:border-white/10 hover:translate-x-1"}`}
       onClick={onToggleExpand}
     >
+      {/* Subtle background glow when expanded */}
+      {isExpanded && (
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-brand/5 blur-[100px] pointer-events-none" />
+      )}
       <div className="flex items-start justify-between gap-6">
         <div className="flex items-center gap-5">
           <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-white/10 via-white/5 to-transparent border border-white/10 flex items-center justify-center text-neutral-400 text-sm font-bold shrink-0 shadow-lg">
             {log.user?.avatarUrl ? (
-              <img
+              <Image
+                height={48}
+                width={48}
                 src={log.user.avatarUrl}
                 alt={log.user.name}
                 className="w-full h-full object-cover rounded-2xl"
@@ -556,46 +563,105 @@ export const AuditLogItem: React.FC<AuditLogItemProps> = ({
       </div>
 
       {isExpanded && (
-        <div className="mt-6 pt-6 border-t border-white/10 grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 px-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-brand" />
-              <span className="text-[10px] uppercase font-bold text-neutral-500 tracking-[0.2em]">
-                Transaction Metadata
-              </span>
+        <div className="mt-6 pt-6 border-t border-white/10 space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
+          {/* Detailed Changes Section */}
+          {Object.keys(log.details || {}).length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Object.entries(log.details).map(
+                ([key, value]: [string, any]) => {
+                  if (typeof value === "object" && value !== null) return null; // Skip complex objects for now
+                  if (key === "id" || key === "userId" || key === "workspaceId")
+                    return null; // Skip IDs
+
+                  return (
+                    <div
+                      key={key}
+                      className="p-4 rounded-2xl bg-white/2 border border-white/5 flex flex-col gap-1"
+                    >
+                      <span className="text-[9px] font-bold text-neutral-600 uppercase tracking-[0.2em]">
+                        {key.replace(/([A-Z])/g, " $1").trim()}
+                      </span>
+                      <span className="text-xs font-semibold text-white/90 break-all">
+                        {String(value)}
+                      </span>
+                    </div>
+                  );
+                },
+              )}
             </div>
-            <pre className="text-[10px] p-4 rounded-2xl bg-black/60 border border-white/5 font-mono text-brand/80 overflow-x-auto max-h-[250px] shadow-inner leading-relaxed">
-              {JSON.stringify(log.details, null, 2)}
-            </pre>
-          </div>
-          <div className="flex flex-col justify-between space-y-6">
-            <div className="p-4 rounded-2xl bg-white/2 border border-white/5 shadow-inner">
-              <div className="flex items-center gap-2 mb-3 text-neutral-500">
-                <Laptop size={14} className="text-brand/60" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
-                  Client Fingerprint
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 px-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-brand" />
+                <span className="text-[10px] uppercase font-bold text-neutral-500 tracking-[0.2em]">
+                  Raw Transaction Data
                 </span>
               </div>
-              <p className="text-[11px] text-neutral-400 leading-relaxed font-mono break-all opacity-80">
-                {log.userAgent}
-              </p>
+              <pre className="text-[10px] p-4 rounded-2xl bg-black/60 border border-white/5 font-mono text-brand/80 overflow-x-auto max-h-[300px] shadow-inner leading-relaxed scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                {JSON.stringify(log.details, null, 2)}
+              </pre>
             </div>
-            <div className="flex flex-col gap-4">
-              <div className="flex-1 p-3 bg-black/20 rounded-xl border border-white/5">
-                <span className="text-[8px] font-bold text-neutral-600 uppercase tracking-widest block mb-1">
-                  Entity Reference
-                </span>
-                <code className="text-[10px] text-neutral-500 font-mono">
-                  {log.entityId}
-                </code>
+
+            <div className="flex flex-col gap-6">
+              <div className="p-5 rounded-2xl bg-linear-to-br from-white/5 to-transparent border border-white/10 shadow-lg">
+                <div className="flex items-center gap-2 mb-4 text-neutral-400">
+                  <Laptop size={14} className="text-brand/60" />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
+                    Client Fingerprint
+                  </span>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[8px] font-bold text-neutral-600 uppercase tracking-widest">
+                      User Agent
+                    </span>
+                    <p className="text-[10px] text-neutral-400 leading-relaxed font-mono break-all opacity-80">
+                      {log.userAgent}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[8px] font-bold text-neutral-600 uppercase tracking-widest">
+                        Network IP
+                      </span>
+                      <code className="text-[11px] text-brand/80 font-mono italic">
+                        {log.ipAddress}
+                      </code>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-[8px] font-bold text-neutral-600 uppercase tracking-widest">
+                        Timestamp
+                      </span>
+                      <span className="text-[11px] text-neutral-400 font-mono">
+                        {format(
+                          new Date(log.createdAt),
+                          "MMM d, yyyy HH:mm:ss",
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1 p-3 bg-black/20 rounded-xl border border-white/5">
-                <span className="text-[8px] font-bold text-neutral-600 uppercase tracking-widest block mb-1">
-                  Sequence ID
-                </span>
-                <code className="text-[10px] text-neutral-500 font-mono">
-                  {log.id}
-                </code>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-black/20 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
+                  <span className="text-[8px] font-bold text-neutral-600 uppercase tracking-widest block mb-2">
+                    Entity Resource
+                  </span>
+                  <code className="text-[10px] text-neutral-500 font-mono select-all truncate block">
+                    {log.entityId}
+                  </code>
+                </div>
+                <div className="p-4 bg-black/20 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
+                  <span className="text-[8px] font-bold text-neutral-600 uppercase tracking-widest block mb-2">
+                    Sequence ID
+                  </span>
+                  <code className="text-[10px] text-neutral-500 font-mono select-all truncate block">
+                    {log.id}
+                  </code>
+                </div>
               </div>
             </div>
           </div>

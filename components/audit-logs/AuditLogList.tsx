@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AuditLog } from "../../features/audit-logs/audit-logs.interface";
-import { AuditLogItem } from "./AuditLogItem";
+import { WorkspaceActivityItem } from "./workspace/WorkspaceActivityItem";
 
 interface AuditLogListProps {
   logs: AuditLog[];
@@ -39,10 +39,9 @@ export const AuditLogList: React.FC<AuditLogListProps> = ({
   return (
     <div className="space-y-3">
       {logs.map((log) => (
-        <AuditLogItem
+        <WorkspaceActivityItem
           key={log.id}
           log={log}
-          view="list"
           isExpanded={expandedId === log.id}
           onToggleExpand={() =>
             setExpandedId(expandedId === log.id ? null : log.id)
