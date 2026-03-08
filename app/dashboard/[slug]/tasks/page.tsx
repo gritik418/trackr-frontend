@@ -226,27 +226,16 @@ export default function WorkspaceTasksPage() {
         <div className="flex flex-col sm:flex-row gap-4 mb-6 relative z-10">
           <div className="relative flex-1">
             <Search
-              className="absolute left-3 top-2.5 text-neutral-500"
-              size={16}
+              className="absolute left-3 top-3.5 text-neutral-500"
+              size={20}
             />
             <input
               type="text"
               placeholder="Search tasks..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/5 rounded-xl text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand/30 focus:bg-white/10 transition-all"
+              className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/5 rounded-xl text-base text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand/30 focus:bg-white/10 transition-all"
             />
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-sm text-neutral-400 hover:text-white transition-all flex items-center gap-2 hover:bg-white/10">
-              <ListFilter size={16} />
-              <span>Group By</span>
-              <ChevronDown size={14} className="opacity-50" />
-            </button>
-            <button className="px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-sm text-neutral-400 hover:text-white transition-all flex items-center gap-2 hover:bg-white/10">
-              <SlidersHorizontal size={16} />
-              <span>Sort</span>
-            </button>
           </div>
         </div>
 

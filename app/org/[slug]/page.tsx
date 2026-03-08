@@ -244,7 +244,7 @@ export default function OrgDashboardPage() {
               </Link>
             </div>
 
-            <div className="bg-org-card-bg/60 backdrop-blur-xl border border-white/5 rounded-3xl overflow-hidden shadow-2xl shadow-black/20 p-2">
+            <div className="overflow-hidden p-2">
               <AuditLogList logs={recentLogs} isLoading={isLoading} />
             </div>
           </div>

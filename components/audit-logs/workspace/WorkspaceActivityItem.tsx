@@ -81,8 +81,7 @@ export const WorkspaceActivityItem: React.FC<WorkspaceActivityItemProps> = ({
   return (
     <div className="relative pl-24 pb-12 group/item">
       {/* Ladder Spine Connection */}
-      <div className="absolute left-[31px] top-14 bottom-0 w-px bg-white/5 group-last/item:hidden pointer-events-none" />
-
+      <div className="absolute left-[42px] top-14 bottom-0 w-px bg-white/5 group-last/item:hidden pointer-events-none" />
       {/* Ladder Icon (Only Action Icon) */}
       <motion.div
         layout
