@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import Image from "next/image";
 import { selectProjects } from "@/features/project/project.slice";
 import { useParams, useRouter } from "next/navigation";
+import CommonPagination from "@/components/common/CommonPagination";
 
 export default function WorkspaceTasksPage() {
   const workspace = useSelector(selectWorkspace);
@@ -29,41 +30,30 @@ export default function WorkspaceTasksPage() {
     [],
   );
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const { data, isLoading } = useGetWorkspaceTasksQuery(
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+
+  const { data, isLoading, isFetching } = useGetWorkspaceTasksQuery(
     {
       workspaceId: workspace?.id!,
+      query: {
+        search: searchQuery || undefined,
+        statuses:
+          selectedStatuses.length > 0 ? (selectedStatuses as any) : undefined,
+        priorities:
+          selectedPriorities.length > 0 ? selectedPriorities : undefined,
+        projectIds:
+          selectedProjectIds.length > 0 ? selectedProjectIds : undefined,
+        page,
+        limit,
+      },
     },
-    { skip: !workspace?.id },
+    { skip: !workspace?.id, refetchOnMountOrArgChange: true },
   );
 
-  const filteredTasks = tasks.filter((task) => {
-    if (
-      searchQuery &&
-      !task.title.toLowerCase().includes(searchQuery.toLowerCase())
-    ) {
-      return false;
-    }
+  const tasks = data?.tasks || [];
 
-    if (selectedStatuses.length > 0 && !selectedStatuses.includes(task.status))
-      return false;
-
-    if (
-      selectedPriorities.length > 0 &&
-      !selectedPriorities.includes(task.priority)
-    )
-      return false;
-
-    if (
-      selectedProjectIds.length > 0 &&
-      !selectedProjectIds.includes(task.projectId)
-    )
-      return false;
-
-    return true;
-  });
-
-  const todayTasks = filteredTasks.filter((t) => {
+  const todayTasks = tasks.filter((t) => {
     if (!t.deadline) return false;
     const date = new Date(t.deadline);
     const today = new Date();
@@ -74,7 +64,7 @@ export default function WorkspaceTasksPage() {
     );
   });
 
-  const upcomingTasks = filteredTasks.filter((t) => {
+  const upcomingTasks = tasks.filter((t) => {
     if (!t.deadline) return true;
     const date = new Date(t.deadline);
     const today = new Date();
@@ -87,34 +77,38 @@ export default function WorkspaceTasksPage() {
   });
 
   const toggleStatus = (status: TaskStatus) => {
-    setSelectedStatuses((prev) =>
-      prev.includes(status)
+    setSelectedStatuses((prev) => {
+      const newStatuses = prev.includes(status)
         ? prev.filter((s) => s !== status)
-        : [...prev, status],
-    );
+        : [...prev, status];
+      setPage(1);
+      return newStatuses;
+    });
   };
 
   const togglePriority = (priority: TaskPriority) => {
-    setSelectedPriorities((prev) =>
-      prev.includes(priority)
+    setSelectedPriorities((prev) => {
+      const newPriorities = prev.includes(priority)
         ? prev.filter((p) => p !== priority)
-        : [...prev, priority],
-    );
+        : [...prev, priority];
+      setPage(1);
+      return newPriorities;
+    });
   };
 
   const toggleProject = (projectId: string) => {
-    setSelectedProjectIds((prev) =>
-      prev.includes(projectId)
+    setSelectedProjectIds((prev) => {
+      const newProjectIds = prev.includes(projectId)
         ? prev.filter((id) => id !== projectId)
-        : [...prev, projectId],
-    );
+        : [...prev, projectId];
+      setPage(1);
+      return newProjectIds;
+    });
   };
 
   useEffect(() => {
-    if (data?.tasks) {
-      setTasks(data.tasks);
-    }
-  }, [data]);
+    setPage(1);
+  }, [searchQuery]);
   return (
     <div className="flex h-[calc(100vh-2rem)] overflow-hidden animate-in fade-in duration-700">
       {/* Sidebar Filters */}
@@ -223,7 +217,7 @@ export default function WorkspaceTasksPage() {
             My Tasks
           </h2>
           <p className="text-neutral-400 text-sm">
-            You have {filteredTasks.length} open tasks across{" "}
+            You have {data?.pagination?.total || 0} open tasks across{" "}
             {projects?.length || 0} projects.
           </p>
         </div>
@@ -326,6 +320,16 @@ export default function WorkspaceTasksPage() {
                   <p>No tasks found.</p>
                 </div>
               )}
+
+              <CommonPagination
+                totalItems={data?.pagination?.total || 0}
+                itemsPerPage={limit}
+                currentPage={page}
+                onPageChange={setPage}
+                isFetching={isFetching}
+                totalPages={data?.pagination?.totalPages || 0}
+                itemLabel="tasks"
+              />
             </>
           )}
         </div>

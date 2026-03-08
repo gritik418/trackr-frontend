@@ -104,6 +104,18 @@ export interface GetTasksQuery {
   sortOrder?: SortOrder;
 }
 
+export interface GetMyTasksQuery {
+  statuses?: TaskStatusWithAll[];
+  priorities?: TaskPriorityWithAll[];
+  projectIds?: string[];
+  tag?: string;
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: SortBy;
+  sortOrder?: SortOrder;
+}
+
 export interface GetTasksResponse {
   success: boolean;
   message: string;

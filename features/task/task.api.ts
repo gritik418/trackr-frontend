@@ -6,6 +6,7 @@ import {
   AssignTaskResponse,
   CreateTaskRequest,
   CreateTaskResponse,
+  GetMyTasksQuery,
   GetTaskByIdResponse,
   GetTasksQuery,
   GetTasksResponse,
@@ -30,13 +31,16 @@ const taskApi = createApi({
       query: ({ projectId, query }) => {
         const searchParams = new URLSearchParams();
         if (query?.status) searchParams.set("status", query.status);
+
         if (query?.priority) searchParams.set("priority", query.priority);
+
         if (query?.tag) searchParams.set("tag", query.tag);
         if (query?.page) searchParams.set("page", query.page.toString());
         if (query?.limit) searchParams.set("limit", query.limit.toString());
         if (query?.search) searchParams.set("search", query.search);
         if (query?.sortBy) searchParams.set("sortBy", query.sortBy);
         if (query?.sortOrder) searchParams.set("sortOrder", query.sortOrder);
+
         return {
           url: `/projects/${projectId}/tasks`,
           params: searchParams,
@@ -46,12 +50,41 @@ const taskApi = createApi({
     }),
     getWorkspaceTasks: build.query<
       GetTasksResponse,
-      { workspaceId: string; query?: Omit<GetTasksQuery, "assignedToId"> }
+      { workspaceId: string; query?: GetMyTasksQuery }
     >({
-      query: ({ workspaceId, query }) => ({
-        url: `/workspaces/${workspaceId}/my-tasks`,
-        params: query,
-      }),
+      query: ({ workspaceId, query }) => {
+        const searchParams = new URLSearchParams();
+        if (query?.statuses && query.statuses.length > 0) {
+          query.statuses.forEach((s) => searchParams.append("statuses", s));
+        }
+        if (query?.priorities && query.priorities.length > 0) {
+          query.priorities.forEach((p) => searchParams.append("priorities", p));
+        }
+        if (query?.projectIds && query.projectIds.length > 0) {
+          query.projectIds.forEach((id) =>
+            searchParams.append("projectIds", id),
+          );
+        }
+        if (query?.priorities && query.priorities.length > 0) {
+          query.priorities.forEach((p) => searchParams.append("priorities", p));
+        }
+        if (query?.tag) searchParams.set("tag", query.tag);
+        if (query?.page) searchParams.set("page", query.page.toString());
+        if (query?.limit) searchParams.set("limit", query.limit.toString());
+        if (query?.search) searchParams.set("search", query.search);
+        if (query?.sortBy) searchParams.set("sortBy", query.sortBy);
+        if (query?.sortOrder) searchParams.set("sortOrder", query.sortOrder);
+        if (query?.projectIds && query.projectIds.length > 0) {
+          query.projectIds.forEach((id) =>
+            searchParams.append("projectIds", id),
+          );
+        }
+
+        return {
+          url: `/workspaces/${workspaceId}/my-tasks`,
+          params: searchParams,
+        };
+      },
       providesTags: ["WorkspaceTasks", "ProjectTasks", "Tasks"],
     }),
     createTask: build.mutation<
