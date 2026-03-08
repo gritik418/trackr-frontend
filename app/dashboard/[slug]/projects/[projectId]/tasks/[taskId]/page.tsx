@@ -6,6 +6,7 @@ import { TaskHeader, TaskTitleSection } from "@/components/task/TaskHeader";
 import { TaskResources } from "@/components/task/TaskResources";
 import { TaskSidebar } from "@/components/task/TaskSidebar";
 import { useGetProjectMembersQuery } from "@/features/project/project.api";
+import { ProjectNature } from "@/features/project/project.interface";
 import { selectProject } from "@/features/project/project.slice";
 import {
   useAssignTaskMutation,
@@ -14,6 +15,7 @@ import {
   useUpdateTaskMutation,
 } from "@/features/task/task.api";
 import { TaskStatus } from "@/features/task/task.interface";
+import { useGetWorkspaceMembersQuery } from "@/features/workspace/workspace.api";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
 import { cn } from "@/lib/utils";
 import { ProjectRole } from "@/types/project/project.interface";
@@ -69,8 +71,19 @@ export default function TaskDetailPage() {
     projectId,
   });
 
+  const { data: workspaceMembersData } = useGetWorkspaceMembersQuery(
+    workspace?.id!,
+    {
+      skip: !workspace?.id || project?.nature === ProjectNature.PRIVATE,
+    },
+  );
+
   const task = taskData?.task;
-  const members = membersData?.members || [];
+
+  const members =
+    project?.nature === ProjectNature.PRIVATE
+      ? membersData?.members || []
+      : workspaceMembersData?.members || [];
 
   useEffect(() => {
     if (task) {

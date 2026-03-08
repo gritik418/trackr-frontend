@@ -38,7 +38,7 @@ export default function ProjectDetailsPage() {
     },
   );
 
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("board");
 
   const isProjectAdminOrOwner =
     project?.role === ProjectRole.OWNER || project?.role === ProjectRole.ADMIN;
