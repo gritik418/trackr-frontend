@@ -71,7 +71,7 @@ export default function DashboardRecentActivity({ workspaceId, orgId }: Props) {
 
       <div className="relative flex-1">
         {/* Ladder Line */}
-        <div className="absolute left-[19px] top-2 bottom-4 w-px bg-gradient-to-b from-white/10 via-white/5 to-transparent" />
+        <div className="absolute left-[19px] top-2 bottom-4 w-px bg-linear-to-b from-white/10 via-white/5 to-transparent" />
 
         <div className="space-y-8 relative">
           {logs.length > 0 ? (
@@ -123,16 +123,16 @@ export default function DashboardRecentActivity({ workspaceId, orgId }: Props) {
                       </span>
                     </div>
                   </div>
-                  <p className="text-xs text-neutral-400 font-medium leading-relaxed">
+                  <p className="text-xs text-neutral-400 leading-relaxed">
                     {log.action.toLowerCase().replace(/_/g, " ")}{" "}
                     <span className="text-white/80 font-bold">
                       {log.entityType.toLowerCase()}
                     </span>
-                    {log.metadata?.title && (
+                    {log.details?.title && (
                       <>
                         :{" "}
                         <span className="text-brand/80">
-                          {log.metadata.title}
+                          {log.details.title}
                         </span>
                       </>
                     )}
