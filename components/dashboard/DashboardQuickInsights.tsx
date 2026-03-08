@@ -19,7 +19,7 @@ export default function DashboardQuickInsights({ overview, isLoading }: Props) {
   const insights = [
     {
       label: "Completion Rate",
-      value: `${overview?.completionRate || 0}%`,
+      value: `${overview?.completionRate?.toFixed(1) || 0}%`,
       icon: Target,
       color: "text-emerald-400",
       bgColor: "bg-emerald-400/10",
