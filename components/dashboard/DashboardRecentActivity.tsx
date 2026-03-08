@@ -12,6 +12,9 @@ import {
   Edit3,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import Link from "next/link";
+import { useSelector } from "react-redux";
+import { selectWorkspace } from "@/features/workspace/workspace.slice";
 
 interface Props {
   workspaceId: string;
@@ -41,6 +44,7 @@ const getActionColor = (action: string) => {
 };
 
 export default function DashboardRecentActivity({ workspaceId, orgId }: Props) {
+  const workspace = useSelector(selectWorkspace);
   const { data, isLoading } = useGetWorkspaceAuditLogsQuery({
     workspaceId,
     orgId,
@@ -56,7 +60,7 @@ export default function DashboardRecentActivity({ workspaceId, orgId }: Props) {
   const logs = data?.logs || [];
 
   return (
-    <div className="p-8 rounded-[40px] bg-dashboard-card-bg/40 border border-white/5 relative overflow-hidden flex flex-col h-full group">
+    <div className="p-8 w-full rounded-[40px] h-max bg-dashboard-card-bg/40 border border-white/5 relative overflow-hidden flex flex-col group">
       <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500/10 blur-[80px] -ml-16 -mt-16 opacity-50" />
 
       <h4 className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-10 flex items-center justify-between">
@@ -150,10 +154,13 @@ export default function DashboardRecentActivity({ workspaceId, orgId }: Props) {
         </div>
       </div>
 
-      <div className="mt-10">
-        <button className="w-full py-3 text-[10px] font-bold text-neutral-500 hover:text-white transition-colors uppercase tracking-widest border border-dashed border-white/5 rounded-2xl hover:border-white/20 hover:bg-white/5">
+      <div className="mt-10 w-full flex">
+        <Link
+          href={`/dashboard/${workspace?.slug}/activity`}
+          className="w-full flex-1 text-center cursor-pointer py-3 text-[10px] font-bold text-neutral-500 hover:text-white transition-colors uppercase tracking-widest border border-dashed border-white/5 rounded-2xl hover:border-white/20 hover:bg-white/5"
+        >
           View all logs
-        </button>
+        </Link>
       </div>
     </div>
   );

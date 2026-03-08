@@ -1,8 +1,8 @@
 "use client";
 
 import { WorkspaceOverview } from "@/features/workspace/workspace.interface";
-import { Zap, Target, BarChart3, ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { ArrowUpRight, BarChart3, Target, Zap } from "lucide-react";
 
 interface Props {
   overview?: WorkspaceOverview;
@@ -89,16 +89,6 @@ export default function DashboardQuickInsights({ overview, isLoading }: Props) {
             </div>
           </motion.div>
         ))}
-      </div>
-
-      <div className="mt-8 pt-6 border-t border-white/5">
-        <button className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-bold text-white uppercase tracking-widest hover:bg-white/10 transition-all active:scale-[0.98] group/btn">
-          Generate Full Report
-          <ArrowUpRight
-            size={14}
-            className="inline-block ml-2 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform"
-          />
-        </button>
       </div>
     </div>
   );

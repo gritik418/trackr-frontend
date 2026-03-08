@@ -2,24 +2,25 @@ import { API_BASE_URL } from "@/constants";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { auditLogsApi } from "../audit-logs/audit-logs.api";
 import {
+  AcceptWorkspaceInviteResponse,
   CreateWorkspaceRequest,
   CreateWorkspaceResponse,
-  GetWorkspacesResponse,
-  GetWorkspaceDetailsResponse,
-  UpdateWorkspaceRequest,
-  UpdateWorkspaceResponse,
   DeleteWorkspaceResponse,
-  UpdateWorkspaceMemberRoleRequest,
-  UpdateWorkspaceMemberRoleResponse,
-  RemoveWorkspaceMemberResponse,
-  GetWorkspaceMembersResponse,
+  GetWorkspaceDetailsResponse,
   GetWorkspaceInvitesResponse,
+  GetWorkspaceMembersResponse,
+  GetWorkspaceOverviewResponse,
+  GetWorkspacesResponse,
+  PreviewWorkspaceInviteResponse,
+  RemoveWorkspaceMemberResponse,
+  ResendWorkspaceInviteResponse,
+  RevokeWorkspaceInviteResponse,
   SendWorkspaceInviteRequest,
   SendWorkspaceInviteResponse,
-  RevokeWorkspaceInviteResponse,
-  ResendWorkspaceInviteResponse,
-  PreviewWorkspaceInviteResponse,
-  AcceptWorkspaceInviteResponse,
+  UpdateWorkspaceMemberRoleRequest,
+  UpdateWorkspaceMemberRoleResponse,
+  UpdateWorkspaceRequest,
+  UpdateWorkspaceResponse,
 } from "./workspace.interface";
 
 const workspaceApi = createApi({
@@ -32,6 +33,10 @@ const workspaceApi = createApi({
   endpoints: (build) => ({
     getWorkspaces: build.query<GetWorkspacesResponse, string>({
       query: (orgId) => `/organizations/${orgId}/workspaces`,
+      providesTags: ["workspaces"],
+    }),
+    getWorkspaceOverview: build.query<GetWorkspaceOverviewResponse, string>({
+      query: (workspaceId) => `/workspaces/${workspaceId}/overview`,
       providesTags: ["workspaces"],
     }),
     getWorkspaceDetails: build.query<GetWorkspaceDetailsResponse, string>({
@@ -228,6 +233,7 @@ const workspaceApi = createApi({
 export const {
   useGetWorkspacesQuery,
   useGetWorkspaceDetailsQuery,
+  useGetWorkspaceOverviewQuery,
   useCreateWorkspaceMutation,
   useUpdateWorkspaceMutation,
   useDeleteWorkspaceMutation,

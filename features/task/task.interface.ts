@@ -35,6 +35,11 @@ export interface Task {
     email: string;
     avatarUrl?: string | null;
   }[];
+  project?: {
+    id: string;
+    name: string;
+    slug: string;
+  };
   links?: {
     id: string;
     title?: string | null;
