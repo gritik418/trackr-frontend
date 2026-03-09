@@ -1,22 +1,15 @@
 "use client";
 
-import { useGetWorkspaceTasksQuery } from "@/features/task/task.api";
+import CommonPagination from "@/components/common/CommonPagination";
+import { selectProjects } from "@/features/project/project.slice";
+import { useGetMyTasksQuery } from "@/features/task/task.api";
 import { Task, TaskPriority, TaskStatus } from "@/features/task/task.interface";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
-import {
-  Calendar,
-  Check,
-  ChevronDown,
-  ListFilter,
-  Search,
-  SlidersHorizontal,
-} from "lucide-react";
+import { Calendar, Check, Search } from "lucide-react";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import Image from "next/image";
-import { selectProjects } from "@/features/project/project.slice";
-import { useParams, useRouter } from "next/navigation";
-import CommonPagination from "@/components/common/CommonPagination";
 
 export default function WorkspaceTasksPage() {
   const workspace = useSelector(selectWorkspace);
@@ -33,7 +26,7 @@ export default function WorkspaceTasksPage() {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
 
-  const { data, isLoading, isFetching } = useGetWorkspaceTasksQuery(
+  const { data, isLoading, isFetching } = useGetMyTasksQuery(
     {
       workspaceId: workspace?.id!,
       query: {

@@ -21,7 +21,13 @@ export interface OrganizationMember {
   id: string;
   userId: string;
   organizationId: string;
-  role: "OWNER" | "ADMIN" | "MEMBER";
+  role: OrganizationRole;
   joinedAt: string;
   user: User;
+}
+
+export enum OrganizationRole {
+  OWNER = "OWNER",
+  ADMIN = "ADMIN",
+  MEMBER = "MEMBER",
 }

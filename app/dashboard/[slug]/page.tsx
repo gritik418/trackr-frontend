@@ -28,24 +28,12 @@ const WorkspaceDashboardPage = () => {
     useGetWorkspaceTasksQuery(
       {
         workspaceId: workspace?.id || "",
-        query: { limit: 5 },
+        query: { limit: 7 },
       },
       {
         skip: !workspace || !workspace.id,
       },
     );
-
-  // const { data: logsData, isLoading: logsLoading } = // Removed unused variable
-  //   useGetWorkspaceAuditLogsQuery(
-  //     {
-  //       orgId: workspace?.organizationId || "",
-  //       workspaceId: workspace?.id || "",
-  //       limit: 5,
-  //     },
-  //     {
-  //       skip: !workspace || !workspace.id || !workspace.organizationId,
-  //     },
-  //   );
 
   const overview = data?.overview;
 
@@ -133,7 +121,7 @@ const WorkspaceDashboardPage = () => {
                     />
                   ))
                 ) : tasksData?.tasks && tasksData.tasks.length > 0 ? (
-                  tasksData.tasks.slice(0, 5).map((task) => (
+                  tasksData.tasks.slice(0, 8).map((task) => (
                     <motion.div
                       key={task.id}
                       initial={{ opacity: 0, x: -10 }}

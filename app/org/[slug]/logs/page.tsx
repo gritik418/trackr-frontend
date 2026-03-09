@@ -10,6 +10,7 @@ import {
   AuditEntityType,
   AuditLog,
 } from "@/features/audit-logs/audit-logs.interface";
+import { AuditLogUpgradeUI } from "@/components/audit-logs/AuditLogUpgradeUI";
 import { useGetOrganizationDetailsQuery } from "@/features/organization/organization.api";
 import axios from "axios";
 import { format } from "date-fns";
@@ -50,6 +51,7 @@ export default function OrgLogsPage() {
     isLoading: isLogsLoading,
     isFetching,
     isError,
+    error,
   } = useGetOrgAuditLogsQuery(
     {
       orgId: orgId!,
@@ -62,6 +64,11 @@ export default function OrgLogsPage() {
     },
     { skip: !orgId, refetchOnMountOrArgChange: true, refetchOnReconnect: true },
   );
+
+  const isRetentionError =
+    (error as any)?.status === 400 ||
+    (error as any)?.status === 403 ||
+    (error as any)?.data?.message?.toLowerCase().includes("retention");
 
   const isLoading = isOrgLoading || isLogsLoading;
 
@@ -153,6 +160,13 @@ export default function OrgLogsPage() {
   }, [search, entityType, startDate, endDate, orgId]);
 
   if (isError) {
+    if (isRetentionError) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[600px] w-full max-w-4xl mx-auto px-4">
+          <AuditLogUpgradeUI />
+        </div>
+      );
+    }
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
         <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20">
