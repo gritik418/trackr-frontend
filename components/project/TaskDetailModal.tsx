@@ -16,6 +16,11 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import CommentSection from "./CommentSection";
+import { useSelector } from "react-redux";
+import { selectProject } from "@/features/project/project.slice";
+import { selectWorkspace } from "@/features/workspace/workspace.slice";
+import { WorkspaceRole } from "@/types/workspace/workspace.interface";
+import { ProjectRole } from "@/types/project/project.interface";
 
 interface TaskDetailModalProps {
   isOpen: boolean;
@@ -29,9 +34,15 @@ export default function TaskDetailModal({
   task,
 }: TaskDetailModalProps) {
   const [mounted, setMounted] = useState(false);
+  const project = useSelector(selectProject);
+  const workspace = useSelector(selectWorkspace);
 
-  // Mock subtasks
-  const subtasks = [];
+  const isWorkspaceAdminOrOwner =
+    workspace?.role === WorkspaceRole.ADMIN ||
+    workspace?.role === WorkspaceRole.OWNER;
+
+  const isProjectAdminOrOwner =
+    project?.role === ProjectRole.ADMIN || project?.role === ProjectRole.OWNER;
 
   useEffect(() => {
     setMounted(true);
@@ -233,7 +244,11 @@ export default function TaskDetailModal({
           {/* <div className="space-y-4"> ... </div> */}
 
           {/* Activity Section / Comments */}
-          <CommentSection taskId={task.id} />
+          <CommentSection
+            isWorkspaceAdminOrOwner={isWorkspaceAdminOrOwner}
+            isProjectAdminOrOwner={isProjectAdminOrOwner}
+            taskId={task.id}
+          />
         </div>
       </div>
     </div>,

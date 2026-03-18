@@ -29,7 +29,7 @@ export function InviteWorkspaceMemberModal({
   const workspace = useSelector(selectWorkspace);
   const [orgMembers, setOrgMembers] = useState<OrganizationMember[]>([]);
   const { data } = useGetOrganizationMembersQuery(
-    workspace?.organizationId || "",
+    { orgId: workspace?.organizationId || "" },
     {
       skip: !workspace?.organizationId,
     },
