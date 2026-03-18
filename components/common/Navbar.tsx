@@ -41,7 +41,7 @@ export function Navbar() {
   const navItems: NavItem[] = [
     { id: "home", label: "Home", href: "/" },
     { id: "features", label: "Features", href: "/features" },
-    { id: "docs", label: "Docs", href: "/docs" },
+    // { id: "docs", label: "Docs", href: "/docs" },
     { id: "pricing", label: "Pricing", href: "/pricing" },
     { id: "contact", label: "Contact", href: "/contact" },
   ];
@@ -123,7 +123,7 @@ export function Navbar() {
         ) : (
           <button
             onClick={handleRedirect}
-            className="relative cursor-pointer text-sm font-bold text-bg-dark-0 bg-brand px-6 py-2.5 rounded-xl shadow-lg shadow-brand/20 hover:shadow-brand/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 overflow-hidden group"
+            className="hidden md:flex relative cursor-pointer text-sm font-bold text-bg-dark-0 bg-brand px-6 py-2.5 rounded-xl shadow-lg shadow-brand/20 hover:shadow-brand/40 hover:scale-105 active:scale-95 transition-all items-center gap-2 overflow-hidden group"
           >
             {/* Shimmer effect */}
             <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/20 to-transparent" />
@@ -156,21 +156,33 @@ export function Navbar() {
               </Link>
             ))}
             <div className="h-px bg-linear-to-r from-transparent via-white/10 to-transparent my-2" />
-            <Link
-              href="/login"
-              className="text-center py-3 rounded-xl border border-white/10 font-semibold hover:bg-white/5 transition-all"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Log in
-            </Link>
-            <Link
-              href="/signup"
-              className="relative text-center py-3 rounded-xl bg-brand text-bg-dark-0 font-bold shadow-lg shadow-brand/20 hover:shadow-brand/40 hover:scale-[1.02] active:scale-95 transition-all overflow-hidden group"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/20 to-transparent" />
-              <span className="relative z-10">Get Started</span>
-            </Link>
+            {!isLoading && isAuthenticated ? (
+              <Link
+                href="/org"
+                className="text-center text-black py-3 rounded-xl border border-white/10 font-semibold bg-brand transition-all"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-center py-3 rounded-xl border border-white/10 font-semibold hover:bg-white/5 transition-all"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/signup"
+                  className="relative text-center py-3 rounded-xl bg-brand text-bg-dark-0 font-bold shadow-lg shadow-brand/20 hover:shadow-brand/40 hover:scale-[1.02] active:scale-95 transition-all overflow-hidden group"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/20 to-transparent" />
+                  <span className="relative z-10">Get Started</span>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

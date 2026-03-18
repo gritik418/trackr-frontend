@@ -213,14 +213,35 @@ export const WorkspaceActivityItem: React.FC<WorkspaceActivityItemProps> = ({
                       <div
                         className={`absolute -inset-1 bg-linear-to-r ${activeTheme.split(" ")[0]} to-blue-500/10 rounded-[2.5rem] blur opacity-10 group-hover/ledger:opacity-25 transition-opacity`}
                       />
-                      <pre className="relative text-[11px] p-8 rounded-[2.5rem] bg-[#0A0A0B]/80 backdrop-blur-2xl border border-white/10 font-mono text-brand/90 overflow-x-auto max-h-[350px] shadow-2xl leading-relaxed scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                      <pre className="relative text-[11px] p-8 rounded-2xl bg-[#0A0A0B]/80 backdrop-blur-2xl border border-white/10 font-mono text-brand/90 overflow-x-auto max-h-[350px] shadow-2xl leading-relaxed scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                         {JSON.stringify(log.details, null, 2)}
                       </pre>
+                    </div>
+
+                    <div className="grid gap-6">
+                      <div className="p-8 bg-white/2 rounded-2xl border border-white/5 hover:border-white/10 hover:bg-white/4 transition-all group/entity shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-16 h-16 bg-brand-cyan/5 blur-2xl group-hover/entity:bg-brand-cyan/10 transition-colors" />
+                        <span className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] block mb-4 group-hover/entity:text-brand-cyan transition-colors">
+                          Entity Trace
+                        </span>
+                        <code className="text-[11px] text-neutral-500 font-mono select-all truncate block bg-black/40 p-3 rounded-xl border border-white/5 group-hover/entity:text-neutral-300 transition-colors">
+                          {log.entityId}
+                        </code>
+                      </div>
+                      <div className="p-8 bg-white/2 rounded-2xl border border-white/5 hover:border-white/10 hover:bg-white/4 transition-all group/uuid shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-16 h-16 bg-violet-400/5 blur-2xl group-hover/uuid:bg-violet-400/10 transition-colors" />
+                        <span className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] block mb-4 group-hover/uuid:text-violet-400 transition-colors">
+                          TX Identifier
+                        </span>
+                        <code className="text-[11px] text-neutral-500 font-mono select-all truncate block bg-black/40 p-3 rounded-xl border border-white/5 group-hover/uuid:text-neutral-300 transition-colors">
+                          {log.id}
+                        </code>
+                      </div>
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-8">
-                    <div className="p-8 rounded-[3rem] bg-linear-to-br from-white/3 to-transparent border border-white/10 shadow-2xl relative overflow-hidden group/origin">
+                    <div className="p-8 rounded-2xl bg-linear-to-br from-white/3 to-transparent border border-white/10 shadow-2xl relative overflow-hidden group/origin">
                       <div
                         className={`absolute -top-12 -right-12 w-40 h-40 ${activeTheme.split(" ")[0]} blur-3xl opacity-10 group-hover/origin:opacity-20 transition-opacity`}
                       />
@@ -262,27 +283,6 @@ export const WorkspaceActivityItem: React.FC<WorkspaceActivityItemProps> = ({
                             </span>
                           </div>
                         </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="p-8 bg-white/2 rounded-4xl border border-white/5 hover:border-white/10 hover:bg-white/4 transition-all group/entity shadow-2xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-brand-cyan/5 blur-2xl group-hover/entity:bg-brand-cyan/10 transition-colors" />
-                        <span className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] block mb-4 group-hover/entity:text-brand-cyan transition-colors">
-                          Entity Trace
-                        </span>
-                        <code className="text-[11px] text-neutral-500 font-mono select-all truncate block bg-black/40 p-3 rounded-xl border border-white/5 group-hover/entity:text-neutral-300 transition-colors">
-                          {log.entityId}
-                        </code>
-                      </div>
-                      <div className="p-8 bg-white/2 rounded-4xl border border-white/5 hover:border-white/10 hover:bg-white/4 transition-all group/uuid shadow-2xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-violet-400/5 blur-2xl group-hover/uuid:bg-violet-400/10 transition-colors" />
-                        <span className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] block mb-4 group-hover/uuid:text-violet-400 transition-colors">
-                          TX Identifier
-                        </span>
-                        <code className="text-[11px] text-neutral-500 font-mono select-all truncate block bg-black/40 p-3 rounded-xl border border-white/5 group-hover/uuid:text-neutral-300 transition-colors">
-                          {log.id}
-                        </code>
                       </div>
                     </div>
                   </div>

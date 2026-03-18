@@ -227,31 +227,9 @@ export default function OrgDashboardPage() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Recent Activity / Audit Log (Restricted) */}
-        {isOwnerOrAdmin && (
-          <div className="lg:col-span-2 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Activity size={20} className="text-neutral-400" />
-                Audit Log
-              </h2>
-              <Link
-                href={`/org/${organization.slug}/logs`}
-                className="text-xs text-brand hover:text-brand-hover font-medium"
-              >
-                View All
-              </Link>
-            </div>
-
-            <div className="overflow-hidden p-2">
-              <AuditLogList logs={recentLogs} isLoading={isLoading} />
-            </div>
-          </div>
-        )}
-
+      <div className="flex flex-col gap-8 w-full">
         {/* Role Specific Actions/Info */}
-        <div className="space-y-8">
+        <div className="space-y-8 w-full flex-1 flex flex-col col-span-1">
           {isOwnerOrAdmin ? (
             <>
               <h2 className="text-xl font-bold text-white flex items-center gap-3">
@@ -259,7 +237,7 @@ export default function OrgDashboardPage() {
                 Quick Actions
               </h2>
 
-              <div className="bg-org-card-bg/60 backdrop-blur-xl border border-white/5 rounded-3xl p-3 space-y-1.5 shadow-2xl shadow-black/20">
+              <div className="bg-org-card-bg/60 flex w-full backdrop-blur-xl border border-white/5 rounded-3xl p-3 gap-3 shadow-2xl shadow-black/20">
                 {[
                   {
                     label: "Invite Member",
@@ -283,7 +261,7 @@ export default function OrgDashboardPage() {
                   <Link
                     key={i}
                     href={action.href}
-                    className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition-all duration-300 group"
+                    className="w-full flex-1 flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition-all duration-300 group"
                   >
                     <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-neutral-400 group-hover:text-brand-hover group-hover:border-brand/20 group-hover:bg-brand/5 transition-all shadow-inner">
                       <action.icon size={22} />
@@ -336,6 +314,28 @@ export default function OrgDashboardPage() {
             </div>
           )}
         </div>
+
+        {/* Recent Activity / Audit Log (Restricted) */}
+        {isOwnerOrAdmin && (
+          <div className="lg:col-span-2 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <Activity size={20} className="text-neutral-400" />
+                Audit Log
+              </h2>
+              <Link
+                href={`/org/${organization.slug}/logs`}
+                className="text-xs text-brand hover:text-brand-hover font-medium"
+              >
+                View All
+              </Link>
+            </div>
+
+            <div className="overflow-hidden p-2">
+              <AuditLogList logs={recentLogs} isLoading={isLoading} />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

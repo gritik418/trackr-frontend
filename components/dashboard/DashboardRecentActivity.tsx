@@ -15,6 +15,7 @@ import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import { selectWorkspace } from "@/features/workspace/workspace.slice";
+import { getHumanDescription } from "../audit-logs/AuditLogUtils";
 
 interface Props {
   workspaceId: string;
@@ -23,14 +24,16 @@ interface Props {
 
 const getActionIcon = (action: string) => {
   const a = action.toLowerCase();
-  if (a.includes("create")) return <Plus size={12} />;
+  const size: number = 14;
+  if (a.includes("create")) return <Plus size={size} />;
   if (a.includes("complete") || a.includes("done"))
-    return <CheckCircle2 size={12} />;
+    return <CheckCircle2 size={size} />;
   if (a.includes("add") || a.includes("member") || a.includes("invite"))
-    return <UserPlus size={12} />;
-  if (a.includes("update") || a.includes("edit")) return <Edit3 size={12} />;
-  if (a.includes("delete") || a.includes("remove")) return <Trash2 size={12} />;
-  return <Settings size={12} />;
+    return <UserPlus size={size} />;
+  if (a.includes("update") || a.includes("edit")) return <Edit3 size={size} />;
+  if (a.includes("delete") || a.includes("remove"))
+    return <Trash2 size={size} />;
+  return <Settings size={size} />;
 };
 
 const getActionColor = (action: string) => {
@@ -107,7 +110,7 @@ export default function DashboardRecentActivity({ workspaceId, orgId }: Props) {
                   )}
                   {/* Small Action Icon Badge */}
                   <div
-                    className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-lg border-2 border-neutral-900 flex items-center justify-center shadow-lg ${getActionColor(log.action)}`}
+                    className={`absolute bg-white -bottom-1 -right-1 p-[2px] rounded-lg border-2 border-neutral-900 flex items-center justify-center shadow-lg ${getActionColor(log.action)}`}
                   >
                     {getActionIcon(log.action)}
                   </div>
@@ -128,18 +131,7 @@ export default function DashboardRecentActivity({ workspaceId, orgId }: Props) {
                     </div>
                   </div>
                   <p className="text-xs text-neutral-400 leading-relaxed">
-                    {log.action.toLowerCase().replace(/_/g, " ")}{" "}
-                    <span className="text-white/80 font-bold">
-                      {log.entityType.toLowerCase()}
-                    </span>
-                    {log.details?.title && (
-                      <>
-                        :{" "}
-                        <span className="text-brand/80">
-                          {log.details.title}
-                        </span>
-                      </>
-                    )}
+                    {getHumanDescription(log)}
                   </p>
                 </div>
               </motion.div>
