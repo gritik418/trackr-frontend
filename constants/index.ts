@@ -16,5 +16,5 @@ export const APP_CONFIG = {
   LINKEDIN_URL: "https://www.linkedin.com/in/ritik-gupta-849680251/",
 };
 
-export const APP_DOMAIN = "trackr.so";
+export const APP_DOMAIN = "gettrackr.vercel.app";
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
