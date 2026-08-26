@@ -13,7 +13,6 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -28,6 +27,9 @@ export default function VerifyEmailPage() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
 
+  const isEmailVerificationRequired =
+    process.env.NEXT_PUBLIC_EMAIL_VERIFICATION_REQUIRED === "true";
+
   const {
     handleSubmit,
     setError,
@@ -40,6 +42,10 @@ export default function VerifyEmailPage() {
       otp: otp.join(""),
     },
   });
+
+  if (!isEmailVerificationRequired) {
+    router.push("/");
+  }
 
   useEffect(() => {
     const pendingEmail = localStorage.getItem("pending_email");

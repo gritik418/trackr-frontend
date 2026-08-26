@@ -59,7 +59,9 @@ export default function LoginPage() {
       router.push("/");
     } catch (error: any) {
       const message =
-        error.response?.data?.message || error.message || "Failed to login";
+        error.response?.data?.message ||
+        error.message ||
+        "Login failed. Please try again.";
 
       if (error.response?.data?.errors) {
         Object.keys(error.response.data.errors).forEach((key) => {
@@ -69,7 +71,7 @@ export default function LoginPage() {
           });
         });
       }
-      toast.error(Array.isArray(message) ? message[0] : message);
+      toast.error(message);
     }
   };
 
@@ -79,9 +81,9 @@ export default function LoginPage() {
       <div className="hidden lg:flex w-1/2 relative overflow-hidden flex-col justify-between p-12 border-r border-white/5 bg-bg-dark-1">
         {/* Animated Background Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-brand/10 rounded-full blur-[100px] animate-pulse"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[80px] animate-pulse delay-700"></div>
-          <div className="absolute top-[40%] left-[30%] w-[300px] h-[300px] bg-brand/5 rounded-full blur-[60px] animate-bounce duration-10000"></div>
+          <div className="absolute top-[-10%] right-[-10%] w-150 h-150 bg-brand/10 rounded-full blur-[100px] animate-pulse"></div>
+          <div className="absolute bottom-[-10%] left-[-10%] w-125 h-125 bg-indigo-600/10 rounded-full blur-[80px] animate-pulse delay-700"></div>
+          <div className="absolute top-[40%] left-[30%] w-75 h-75 bg-brand/5 rounded-full blur-[60px] animate-bounce duration-10000"></div>
         </div>
 
         {/* Branding */}
@@ -153,7 +155,7 @@ export default function LoginPage() {
 
       {/* RIGHT COLUMN: LOGIN FORM */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 bg-bg-dark-0 relative">
-        <div className="w-full max-w-[400px] z-10">
+        <div className="w-full max-w-100 z-10">
           <div className="mb-10 text-center">
             <h2 className="text-3xl font-bold tracking-tighter mb-2 bg-linear-to-r from-white to-white/60 bg-clip-text text-transparent">
               Welcome back

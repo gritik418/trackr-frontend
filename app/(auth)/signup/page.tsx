@@ -33,6 +33,8 @@ export default function SignupPage() {
   const router = useRouter();
 
   const { data: user, isLoading: isAuthLoading } = useAuth();
+  const isEmailVerificationRequired =
+    process.env.NEXT_PUBLIC_EMAIL_VERIFICATION_REQUIRED === "true";
 
   const {
     register,
@@ -57,9 +59,11 @@ export default function SignupPage() {
   }, [user, isAuthLoading, router]);
 
   useEffect(() => {
-    const pendingEmail = localStorage.getItem("pending_email");
-    if (pendingEmail) {
-      router.push("/verify-email");
+    if (isEmailVerificationRequired) {
+      const pendingEmail = localStorage.getItem("pending_email");
+      if (pendingEmail) {
+        router.push("/verify-email");
+      }
     }
   }, []);
 
@@ -70,7 +74,11 @@ export default function SignupPage() {
       toast.success(
         "Account created! Please check your email to verify your account.",
       );
-      router.push("/verify-email");
+      if (isEmailVerificationRequired) {
+        router.push("/verify-email");
+      } else {
+        router.push("/");
+      }
     } catch (error: any) {
       const message =
         error.response?.data?.message ||
