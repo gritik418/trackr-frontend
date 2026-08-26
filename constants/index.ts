@@ -3,7 +3,7 @@ export const APP_CONFIG = {
   NAME: "Trackr.",
   COMPANY: "Trackr Technologies Inc.",
   YEAR: 2026,
-  BASE_URL: "trackr.so",
+  BASE_URL: "gettrackr.vercel.app",
   // TECH_SUPPORT_EMAIL: "support@trackr.so",
   // SALES_EMAIL: "sales@trackr.so",
   // PARTNERS_EMAIL: "partners@trackr.so",
