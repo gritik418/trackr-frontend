@@ -69,15 +69,13 @@ export default function SignupPage() {
 
   const onSubmit = async (data: SignupDto) => {
     try {
-      await signup(data);
+      const response = await signup(data);
       localStorage.setItem("pending_email", data.email);
-      toast.success(
-        "Account created! Please check your email to verify your account.",
-      );
+      toast.success(response.message);
       if (isEmailVerificationRequired) {
         router.push("/verify-email");
       } else {
-        router.push("/");
+        router.push("/login");
       }
     } catch (error: any) {
       const message =
