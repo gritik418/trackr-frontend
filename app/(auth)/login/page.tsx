@@ -255,7 +255,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full group cursor-pointer relative overflow-hidden rounded-xl bg-brand px-4 py-3.5 text-sm font-bold text-bg-dark-0 shadow-lg shadow-brand/20 transition-all hover:scale-[1.02] active:scale-[0.98] outline-none focus:ring-2 focus:ring-brand/50 focus:ring-offset-2 focus:ring-offset-bg-dark-0 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full group mt-8 cursor-pointer relative overflow-hidden rounded-xl bg-brand px-4 py-3.5 text-sm font-bold text-bg-dark-0 shadow-lg shadow-brand/20 transition-all hover:scale-[1.02] active:scale-[0.98] outline-none focus:ring-2 focus:ring-brand/50 focus:ring-offset-2 focus:ring-offset-bg-dark-0 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {/* Shine effect */}
               <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/20 to-transparent z-10" />
@@ -276,7 +276,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="my-8 flex items-center gap-4">
+          {/* <div className="my-8 flex items-center gap-4">
             <div className="h-px flex-1 bg-white/10"></div>
             <span className="text-xs text-neutral-500 uppercase tracking-widest">
               Or continue with
@@ -323,7 +323,7 @@ export default function LoginPage() {
                 GitHub
               </span>
             </button>
-          </div>
+          </div> */}
 
           <p className="text-center font-semibold text-sm text-neutral-500 mt-10">
             Don&apos;t have an account?{" "}
